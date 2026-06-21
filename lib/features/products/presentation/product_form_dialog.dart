@@ -10,6 +10,7 @@ import '../../../core/widgets/app_dropdown.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../domain/models/category.dart';
 import '../../../domain/models/product.dart';
+import 'product_variants_tab.dart';
 
 class ProductFormResult {
   const ProductFormResult({
@@ -146,10 +147,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
                 controller: _tabController,
                 children: [
                   _buildDetailsTab(context),
-                  _buildStubTab(
-                    context,
-                    'Variants are available after Module 7',
-                  ),
+                  _buildVariantsTab(context),
                   _buildStubTab(
                     context,
                     'Modifier groups are available after Module 8',
@@ -284,6 +282,33 @@ class _ProductFormDialogState extends State<ProductFormDialog>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildVariantsTab(BuildContext context) {
+    final typography = context.appTypography;
+    final colors = context.appColors;
+    final spacing = context.appSpacing;
+
+    if (!_isEditing || widget.product == null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(spacing.lg),
+          child: Text(
+            'Save the product first, then edit it to add variants.',
+            style: typography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return ProductVariantsTab(
+      productId: widget.product!.id,
+      basePrice: () {
+        final parsed = double.tryParse(_priceController.text.trim());
+        return parsed ?? widget.product!.basePrice;
+      },
     );
   }
 
