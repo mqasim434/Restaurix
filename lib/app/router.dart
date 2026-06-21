@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/debug/presentation/debug_isar_screen.dart';
+import '../features/categories/presentation/categories_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import 'shell/app_shell.dart';
@@ -28,10 +28,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/theme-preview',
         builder: (context, state) => const ThemePreviewScreen(),
       ),
-      GoRoute(
-        path: '/debug-isar',
-        builder: (context, state) => const DebugIsarScreen(),
-      ),
     ],
   );
 });
@@ -41,7 +37,13 @@ final _shellRoutes = [
   _placeholderRoute('/sales', 'Sales (POS)'),
   _placeholderRoute('/orders', 'Orders'),
   _placeholderRoute('/products', 'Products'),
-  _placeholderRoute('/categories', 'Categories'),
+  GoRoute(
+    path: '/categories',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const CategoriesScreen(),
+    ),
+  ),
   _placeholderRoute('/deals', 'Deals'),
   _placeholderRoute('/tables', 'Tables'),
   _placeholderRoute('/employees', 'Employees'),

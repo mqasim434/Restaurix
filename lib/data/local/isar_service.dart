@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'collections/debug_ping_isar.dart';
+import 'collections/category_isar.dart';
 
 /// Opens and holds the local Isar database instance.
 class IsarService {
@@ -15,7 +15,7 @@ class IsarService {
   static Future<IsarService> open() async {
     final directory = await getApplicationSupportDirectory();
     final isar = await Isar.open(
-      [DebugPingIsarSchema],
+      [CategoryIsarSchema],
       directory: directory.path,
       name: 'restaurix',
     );

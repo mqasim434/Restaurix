@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'debug_ping_isar.dart';
+part of 'category_isar.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator
@@ -9,13 +9,13 @@ part of 'debug_ping_isar.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetDebugPingIsarCollection on Isar {
-  IsarCollection<DebugPingIsar> get debugPingIsars => this.collection();
+extension GetCategoryIsarCollection on Isar {
+  IsarCollection<CategoryIsar> get categoryIsars => this.collection();
 }
 
-const DebugPingIsarSchema = CollectionSchema(
-  name: r'DebugPingIsar',
-  id: 1033761843924125454,
+const CategoryIsarSchema = CollectionSchema(
+  name: r'CategoryIsar',
+  id: -4389972771325497694,
   properties: {
     r'createdAt': PropertySchema(
       id: 0,
@@ -32,41 +32,56 @@ const DebugPingIsarSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'isSynced': PropertySchema(
+    r'imageUrl': PropertySchema(
       id: 3,
+      name: r'imageUrl',
+      type: IsarType.string,
+    ),
+    r'isActive': PropertySchema(
+      id: 4,
+      name: r'isActive',
+      type: IsarType.bool,
+    ),
+    r'isSynced': PropertySchema(
+      id: 5,
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'message': PropertySchema(
-      id: 4,
-      name: r'message',
+    r'name': PropertySchema(
+      id: 6,
+      name: r'name',
       type: IsarType.string,
     ),
+    r'sortOrder': PropertySchema(
+      id: 7,
+      name: r'sortOrder',
+      type: IsarType.long,
+    ),
     r'syncAction': PropertySchema(
-      id: 5,
+      id: 8,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 6,
+      id: 9,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'version',
       type: IsarType.long,
     )
   },
-  estimateSize: _debugPingIsarEstimateSize,
-  serialize: _debugPingIsarSerialize,
-  deserialize: _debugPingIsarDeserialize,
-  deserializeProp: _debugPingIsarDeserializeProp,
+  estimateSize: _categoryIsarEstimateSize,
+  serialize: _categoryIsarSerialize,
+  deserialize: _categoryIsarDeserialize,
+  deserializeProp: _categoryIsarDeserializeProp,
   idName: r'isarId',
   indexes: {
     r'uuid': IndexSchema(
@@ -81,31 +96,50 @@ const DebugPingIsarSchema = CollectionSchema(
           caseSensitive: true,
         )
       ],
+    ),
+    r'sortOrder': IndexSchema(
+      id: -1119549396205841918,
+      name: r'sortOrder',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'sortOrder',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
     )
   },
   links: {},
   embeddedSchemas: {},
-  getId: _debugPingIsarGetId,
-  getLinks: _debugPingIsarGetLinks,
-  attach: _debugPingIsarAttach,
+  getId: _categoryIsarGetId,
+  getLinks: _categoryIsarGetLinks,
+  attach: _categoryIsarAttach,
   version: '3.1.0+1',
 );
 
-int _debugPingIsarEstimateSize(
-  DebugPingIsar object,
+int _categoryIsarEstimateSize(
+  CategoryIsar object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.deviceId.length * 3;
-  bytesCount += 3 + object.message.length * 3;
+  {
+    final value = object.imageUrl;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.syncAction.length * 3;
   bytesCount += 3 + object.uuid.length * 3;
   return bytesCount;
 }
 
-void _debugPingIsarSerialize(
-  DebugPingIsar object,
+void _categoryIsarSerialize(
+  CategoryIsar object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
@@ -113,35 +147,41 @@ void _debugPingIsarSerialize(
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeDateTime(offsets[1], object.deletedAt);
   writer.writeString(offsets[2], object.deviceId);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.message);
-  writer.writeString(offsets[5], object.syncAction);
-  writer.writeDateTime(offsets[6], object.updatedAt);
-  writer.writeString(offsets[7], object.uuid);
-  writer.writeLong(offsets[8], object.version);
+  writer.writeString(offsets[3], object.imageUrl);
+  writer.writeBool(offsets[4], object.isActive);
+  writer.writeBool(offsets[5], object.isSynced);
+  writer.writeString(offsets[6], object.name);
+  writer.writeLong(offsets[7], object.sortOrder);
+  writer.writeString(offsets[8], object.syncAction);
+  writer.writeDateTime(offsets[9], object.updatedAt);
+  writer.writeString(offsets[10], object.uuid);
+  writer.writeLong(offsets[11], object.version);
 }
 
-DebugPingIsar _debugPingIsarDeserialize(
+CategoryIsar _categoryIsarDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = DebugPingIsar();
+  final object = CategoryIsar();
   object.createdAt = reader.readDateTime(offsets[0]);
   object.deletedAt = reader.readDateTimeOrNull(offsets[1]);
   object.deviceId = reader.readString(offsets[2]);
-  object.isSynced = reader.readBool(offsets[3]);
+  object.imageUrl = reader.readStringOrNull(offsets[3]);
+  object.isActive = reader.readBool(offsets[4]);
+  object.isSynced = reader.readBool(offsets[5]);
   object.isarId = id;
-  object.message = reader.readString(offsets[4]);
-  object.syncAction = reader.readString(offsets[5]);
-  object.updatedAt = reader.readDateTime(offsets[6]);
-  object.uuid = reader.readString(offsets[7]);
-  object.version = reader.readLong(offsets[8]);
+  object.name = reader.readString(offsets[6]);
+  object.sortOrder = reader.readLong(offsets[7]);
+  object.syncAction = reader.readString(offsets[8]);
+  object.updatedAt = reader.readDateTime(offsets[9]);
+  object.uuid = reader.readString(offsets[10]);
+  object.version = reader.readLong(offsets[11]);
   return object;
 }
 
-P _debugPingIsarDeserializeProp<P>(
+P _categoryIsarDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -155,41 +195,47 @@ P _debugPingIsarDeserializeProp<P>(
     case 2:
       return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 6:
-      return (reader.readDateTime(offset)) as P;
-    case 7:
       return (reader.readString(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readDateTime(offset)) as P;
+    case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
-Id _debugPingIsarGetId(DebugPingIsar object) {
+Id _categoryIsarGetId(CategoryIsar object) {
   return object.isarId;
 }
 
-List<IsarLinkBase<dynamic>> _debugPingIsarGetLinks(DebugPingIsar object) {
+List<IsarLinkBase<dynamic>> _categoryIsarGetLinks(CategoryIsar object) {
   return [];
 }
 
-void _debugPingIsarAttach(
-    IsarCollection<dynamic> col, Id id, DebugPingIsar object) {
+void _categoryIsarAttach(
+    IsarCollection<dynamic> col, Id id, CategoryIsar object) {
   object.isarId = id;
 }
 
-extension DebugPingIsarByIndex on IsarCollection<DebugPingIsar> {
-  Future<DebugPingIsar?> getByUuid(String uuid) {
+extension CategoryIsarByIndex on IsarCollection<CategoryIsar> {
+  Future<CategoryIsar?> getByUuid(String uuid) {
     return getByIndex(r'uuid', [uuid]);
   }
 
-  DebugPingIsar? getByUuidSync(String uuid) {
+  CategoryIsar? getByUuidSync(String uuid) {
     return getByIndexSync(r'uuid', [uuid]);
   }
 
@@ -201,12 +247,12 @@ extension DebugPingIsarByIndex on IsarCollection<DebugPingIsar> {
     return deleteByIndexSync(r'uuid', [uuid]);
   }
 
-  Future<List<DebugPingIsar?>> getAllByUuid(List<String> uuidValues) {
+  Future<List<CategoryIsar?>> getAllByUuid(List<String> uuidValues) {
     final values = uuidValues.map((e) => [e]).toList();
     return getAllByIndex(r'uuid', values);
   }
 
-  List<DebugPingIsar?> getAllByUuidSync(List<String> uuidValues) {
+  List<CategoryIsar?> getAllByUuidSync(List<String> uuidValues) {
     final values = uuidValues.map((e) => [e]).toList();
     return getAllByIndexSync(r'uuid', values);
   }
@@ -221,36 +267,44 @@ extension DebugPingIsarByIndex on IsarCollection<DebugPingIsar> {
     return deleteAllByIndexSync(r'uuid', values);
   }
 
-  Future<Id> putByUuid(DebugPingIsar object) {
+  Future<Id> putByUuid(CategoryIsar object) {
     return putByIndex(r'uuid', object);
   }
 
-  Id putByUuidSync(DebugPingIsar object, {bool saveLinks = true}) {
+  Id putByUuidSync(CategoryIsar object, {bool saveLinks = true}) {
     return putByIndexSync(r'uuid', object, saveLinks: saveLinks);
   }
 
-  Future<List<Id>> putAllByUuid(List<DebugPingIsar> objects) {
+  Future<List<Id>> putAllByUuid(List<CategoryIsar> objects) {
     return putAllByIndex(r'uuid', objects);
   }
 
-  List<Id> putAllByUuidSync(List<DebugPingIsar> objects,
+  List<Id> putAllByUuidSync(List<CategoryIsar> objects,
       {bool saveLinks = true}) {
     return putAllByIndexSync(r'uuid', objects, saveLinks: saveLinks);
   }
 }
 
-extension DebugPingIsarQueryWhereSort
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QWhere> {
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhere> anyIsarId() {
+extension CategoryIsarQueryWhereSort
+    on QueryBuilder<CategoryIsar, CategoryIsar, QWhere> {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhere> anyIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhere> anySortOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'sortOrder'),
+      );
+    });
+  }
 }
 
-extension DebugPingIsarQueryWhere
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QWhereClause> {
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause> isarIdEqualTo(
+extension CategoryIsarQueryWhere
+    on QueryBuilder<CategoryIsar, CategoryIsar, QWhereClause> {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> isarIdEqualTo(
       Id isarId) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
@@ -260,8 +314,8 @@ extension DebugPingIsarQueryWhere
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause>
-      isarIdNotEqualTo(Id isarId) {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> isarIdNotEqualTo(
+      Id isarId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -283,8 +337,9 @@ extension DebugPingIsarQueryWhere
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause>
-      isarIdGreaterThan(Id isarId, {bool include = false}) {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> isarIdGreaterThan(
+      Id isarId,
+      {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: isarId, includeLower: include),
@@ -292,7 +347,7 @@ extension DebugPingIsarQueryWhere
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause> isarIdLessThan(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> isarIdLessThan(
       Id isarId,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
@@ -302,7 +357,7 @@ extension DebugPingIsarQueryWhere
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause> isarIdBetween(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> isarIdBetween(
     Id lowerIsarId,
     Id upperIsarId, {
     bool includeLower = true,
@@ -318,7 +373,7 @@ extension DebugPingIsarQueryWhere
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause> uuidEqualTo(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> uuidEqualTo(
       String uuid) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
@@ -328,7 +383,7 @@ extension DebugPingIsarQueryWhere
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterWhereClause> uuidNotEqualTo(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> uuidNotEqualTo(
       String uuid) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
@@ -362,11 +417,102 @@ extension DebugPingIsarQueryWhere
       }
     });
   }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> sortOrderEqualTo(
+      int sortOrder) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'sortOrder',
+        value: [sortOrder],
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause>
+      sortOrderNotEqualTo(int sortOrder) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'sortOrder',
+              lower: [],
+              upper: [sortOrder],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'sortOrder',
+              lower: [sortOrder],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'sortOrder',
+              lower: [sortOrder],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'sortOrder',
+              lower: [],
+              upper: [sortOrder],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause>
+      sortOrderGreaterThan(
+    int sortOrder, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'sortOrder',
+        lower: [sortOrder],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> sortOrderLessThan(
+    int sortOrder, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'sortOrder',
+        lower: [],
+        upper: [sortOrder],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterWhereClause> sortOrderBetween(
+    int lowerSortOrder,
+    int upperSortOrder, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'sortOrder',
+        lower: [lowerSortOrder],
+        includeLower: includeLower,
+        upper: [upperSortOrder],
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
-extension DebugPingIsarQueryFilter
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QFilterCondition> {
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+extension CategoryIsarQueryFilter
+    on QueryBuilder<CategoryIsar, CategoryIsar, QFilterCondition> {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       createdAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -376,7 +522,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       createdAtGreaterThan(
     DateTime value, {
     bool include = false,
@@ -390,7 +536,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       createdAtLessThan(
     DateTime value, {
     bool include = false,
@@ -404,7 +550,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       createdAtBetween(
     DateTime lower,
     DateTime upper, {
@@ -422,7 +568,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deletedAtIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -431,7 +577,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deletedAtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
@@ -440,7 +586,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deletedAtEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -450,7 +596,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deletedAtGreaterThan(
     DateTime? value, {
     bool include = false,
@@ -464,7 +610,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deletedAtLessThan(
     DateTime? value, {
     bool include = false,
@@ -478,7 +624,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deletedAtBetween(
     DateTime? lower,
     DateTime? upper, {
@@ -496,7 +642,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -510,7 +656,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdGreaterThan(
     String value, {
     bool include = false,
@@ -526,7 +672,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdLessThan(
     String value, {
     bool include = false,
@@ -542,7 +688,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdBetween(
     String lower,
     String upper, {
@@ -562,7 +708,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -576,7 +722,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -590,7 +736,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -601,7 +747,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -612,7 +758,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -622,7 +768,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       deviceIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -632,7 +778,171 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'imageUrl',
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'imageUrl',
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'imageUrl',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'imageUrl',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'imageUrl',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'imageUrl',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'imageUrl',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'imageUrl',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'imageUrl',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'imageUrl',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'imageUrl',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      imageUrlIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'imageUrl',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      isActiveEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isActive',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       isSyncedEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -642,8 +952,8 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      isarIdEqualTo(Id value) {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> isarIdEqualTo(
+      Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isarId',
@@ -652,7 +962,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       isarIdGreaterThan(
     Id value, {
     bool include = false,
@@ -666,7 +976,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       isarIdLessThan(
     Id value, {
     bool include = false,
@@ -680,8 +990,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      isarIdBetween(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> isarIdBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -698,22 +1007,21 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageEqualTo(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'message',
+        property: r'name',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageGreaterThan(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      nameGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -721,15 +1029,14 @@ extension DebugPingIsarQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'message',
+        property: r'name',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageLessThan(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> nameLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -737,15 +1044,14 @@ extension DebugPingIsarQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'message',
+        property: r'name',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageBetween(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> nameBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -754,7 +1060,7 @@ extension DebugPingIsarQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'message',
+        property: r'name',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -764,77 +1070,134 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageStartsWith(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      nameStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'message',
+        property: r'name',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageEndsWith(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> nameEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'message',
+        property: r'name',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> nameContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'message',
+        property: r'name',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> nameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'message',
+        property: r'name',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageIsEmpty() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      nameIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'message',
+        property: r'name',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      messageIsNotEmpty() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      nameIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'message',
+        property: r'name',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      sortOrderEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sortOrder',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      sortOrderGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'sortOrder',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      sortOrderLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'sortOrder',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
+      sortOrderBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'sortOrder',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -848,7 +1211,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionGreaterThan(
     String value, {
     bool include = false,
@@ -864,7 +1227,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionLessThan(
     String value, {
     bool include = false,
@@ -880,7 +1243,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionBetween(
     String lower,
     String upper, {
@@ -900,7 +1263,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -914,7 +1277,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -928,7 +1291,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -939,7 +1302,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -950,7 +1313,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -960,7 +1323,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       syncActionIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -970,7 +1333,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -980,7 +1343,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       updatedAtGreaterThan(
     DateTime value, {
     bool include = false,
@@ -994,7 +1357,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       updatedAtLessThan(
     DateTime value, {
     bool include = false,
@@ -1008,7 +1371,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       updatedAtBetween(
     DateTime lower,
     DateTime upper, {
@@ -1026,7 +1389,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition> uuidEqualTo(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> uuidEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1039,7 +1402,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       uuidGreaterThan(
     String value, {
     bool include = false,
@@ -1055,8 +1418,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      uuidLessThan(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> uuidLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1071,7 +1433,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition> uuidBetween(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> uuidBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1090,7 +1452,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       uuidStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -1104,8 +1466,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      uuidEndsWith(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> uuidEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1118,8 +1479,9 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
-      uuidContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> uuidContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'uuid',
@@ -1129,7 +1491,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition> uuidMatches(
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition> uuidMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1141,7 +1503,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       uuidIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1151,7 +1513,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       uuidIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1161,7 +1523,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       versionEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1171,7 +1533,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       versionGreaterThan(
     int value, {
     bool include = false,
@@ -1185,7 +1547,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       versionLessThan(
     int value, {
     bool include = false,
@@ -1199,7 +1561,7 @@ extension DebugPingIsarQueryFilter
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterFilterCondition>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterFilterCondition>
       versionBetween(
     int lower,
     int upper, {
@@ -1218,376 +1580,475 @@ extension DebugPingIsarQueryFilter
   }
 }
 
-extension DebugPingIsarQueryObject
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QFilterCondition> {}
+extension CategoryIsarQueryObject
+    on QueryBuilder<CategoryIsar, CategoryIsar, QFilterCondition> {}
 
-extension DebugPingIsarQueryLinks
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QFilterCondition> {}
+extension CategoryIsarQueryLinks
+    on QueryBuilder<CategoryIsar, CategoryIsar, QFilterCondition> {}
 
-extension DebugPingIsarQuerySortBy
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QSortBy> {
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByCreatedAt() {
+extension CategoryIsarQuerySortBy
+    on QueryBuilder<CategoryIsar, CategoryIsar, QSortBy> {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      sortByCreatedAtDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByDeletedAt() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      sortByDeletedAtDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByDeletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByDeviceId() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      sortByDeviceIdDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByIsSynced() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByImageUrl() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'imageUrl', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByImageUrlDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'imageUrl', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByIsActive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isActive', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByIsActiveDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isActive', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      sortByIsSyncedDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByMessage() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'message', Sort.asc);
+      return query.addSortBy(r'name', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByMessageDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByNameDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'message', Sort.desc);
+      return query.addSortBy(r'name', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortBySyncAction() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortBySortOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOrder', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortBySortOrderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOrder', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortBySyncAction() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncAction', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy>
       sortBySyncActionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncAction', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByUpdatedAt() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      sortByUpdatedAtDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByUuid() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByUuid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uuid', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByUuidDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByUuidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByVersion() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> sortByVersionDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> sortByVersionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.desc);
     });
   }
 }
 
-extension DebugPingIsarQuerySortThenBy
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QSortThenBy> {
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByCreatedAt() {
+extension CategoryIsarQuerySortThenBy
+    on QueryBuilder<CategoryIsar, CategoryIsar, QSortThenBy> {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      thenByCreatedAtDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByDeletedAt() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      thenByDeletedAtDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByDeletedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByDeviceId() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByDeviceId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      thenByDeviceIdDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByDeviceIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deviceId', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByIsSynced() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByImageUrl() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'imageUrl', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByImageUrlDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'imageUrl', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByIsActive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isActive', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByIsActiveDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isActive', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      thenByIsSyncedDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByIsSyncedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByIsarId() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isarId', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByIsarIdDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByIsarIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isarId', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByMessage() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'message', Sort.asc);
+      return query.addSortBy(r'name', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByMessageDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByNameDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'message', Sort.desc);
+      return query.addSortBy(r'name', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenBySyncAction() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenBySortOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOrder', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenBySortOrderDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sortOrder', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenBySyncAction() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncAction', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy>
       thenBySyncActionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncAction', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByUpdatedAt() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy>
-      thenByUpdatedAtDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByUuid() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByUuid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uuid', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByUuidDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByUuidDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'uuid', Sort.desc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByVersion() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.asc);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QAfterSortBy> thenByVersionDesc() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QAfterSortBy> thenByVersionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'version', Sort.desc);
     });
   }
 }
 
-extension DebugPingIsarQueryWhereDistinct
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> {
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByCreatedAt() {
+extension CategoryIsarQueryWhereDistinct
+    on QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> {
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByDeletedAt() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByDeviceId(
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByDeviceId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deviceId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByIsSynced() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByImageUrl(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'imageUrl', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByIsActive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isActive');
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByMessage(
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'message', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctBySyncAction(
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctBySortOrder() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sortOrder');
+    });
+  }
+
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctBySyncAction(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'syncAction', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByUpdatedAt() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByUpdatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'updatedAt');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByUuid(
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByUuid(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'uuid', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<DebugPingIsar, DebugPingIsar, QDistinct> distinctByVersion() {
+  QueryBuilder<CategoryIsar, CategoryIsar, QDistinct> distinctByVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'version');
     });
   }
 }
 
-extension DebugPingIsarQueryProperty
-    on QueryBuilder<DebugPingIsar, DebugPingIsar, QQueryProperty> {
-  QueryBuilder<DebugPingIsar, int, QQueryOperations> isarIdProperty() {
+extension CategoryIsarQueryProperty
+    on QueryBuilder<CategoryIsar, CategoryIsar, QQueryProperty> {
+  QueryBuilder<CategoryIsar, int, QQueryOperations> isarIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isarId');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DateTime, QQueryOperations> createdAtProperty() {
+  QueryBuilder<CategoryIsar, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DateTime?, QQueryOperations> deletedAtProperty() {
+  QueryBuilder<CategoryIsar, DateTime?, QQueryOperations> deletedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deletedAt');
     });
   }
 
-  QueryBuilder<DebugPingIsar, String, QQueryOperations> deviceIdProperty() {
+  QueryBuilder<CategoryIsar, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
     });
   }
 
-  QueryBuilder<DebugPingIsar, bool, QQueryOperations> isSyncedProperty() {
+  QueryBuilder<CategoryIsar, String?, QQueryOperations> imageUrlProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'imageUrl');
+    });
+  }
+
+  QueryBuilder<CategoryIsar, bool, QQueryOperations> isActiveProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isActive');
+    });
+  }
+
+  QueryBuilder<CategoryIsar, bool, QQueryOperations> isSyncedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSynced');
     });
   }
 
-  QueryBuilder<DebugPingIsar, String, QQueryOperations> messageProperty() {
+  QueryBuilder<CategoryIsar, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'message');
+      return query.addPropertyName(r'name');
     });
   }
 
-  QueryBuilder<DebugPingIsar, String, QQueryOperations> syncActionProperty() {
+  QueryBuilder<CategoryIsar, int, QQueryOperations> sortOrderProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sortOrder');
+    });
+  }
+
+  QueryBuilder<CategoryIsar, String, QQueryOperations> syncActionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'syncAction');
     });
   }
 
-  QueryBuilder<DebugPingIsar, DateTime, QQueryOperations> updatedAtProperty() {
+  QueryBuilder<CategoryIsar, DateTime, QQueryOperations> updatedAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedAt');
     });
   }
 
-  QueryBuilder<DebugPingIsar, String, QQueryOperations> uuidProperty() {
+  QueryBuilder<CategoryIsar, String, QQueryOperations> uuidProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'uuid');
     });
   }
 
-  QueryBuilder<DebugPingIsar, int, QQueryOperations> versionProperty() {
+  QueryBuilder<CategoryIsar, int, QQueryOperations> versionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'version');
     });
