@@ -105,6 +105,18 @@ class CheckoutNotifier extends Notifier<PosCheckoutDraft> {
     );
   }
 
+  void setPaymentType(PaymentType type) {
+    state = state.copyWith(paymentType: type);
+  }
+
+  void setIsPrepaid(bool value) {
+    state = state.copyWith(isPrepaidOverride: value);
+  }
+
+  void setNotes(String? notes) {
+    state = state.copyWith(notes: notes);
+  }
+
   Future<void> clear() async {
     await _releaseTableIfNeeded(state.tableId);
     state = const PosCheckoutDraft();

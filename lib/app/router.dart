@@ -7,6 +7,8 @@ import '../features/deals/presentation/deals_screen.dart';
 import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
+import '../features/pos/presentation/order_confirmation_screen.dart';
+import '../features/pos/presentation/pos_checkout_screen.dart';
 import '../features/pos/presentation/pos_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
@@ -46,6 +48,24 @@ final _shellRoutes = [
       key: state.pageKey,
       child: const PosScreen(),
     ),
+    routes: [
+      GoRoute(
+        path: 'checkout',
+        pageBuilder: (context, state) => NoTransitionPage(
+          key: state.pageKey,
+          child: const PosCheckoutScreen(),
+        ),
+      ),
+      GoRoute(
+        path: 'confirmation/:orderId',
+        pageBuilder: (context, state) => NoTransitionPage(
+          key: state.pageKey,
+          child: OrderConfirmationScreen(
+            orderId: state.pathParameters['orderId']!,
+          ),
+        ),
+      ),
+    ],
   ),
   _placeholderRoute('/orders', 'Orders'),
   GoRoute(

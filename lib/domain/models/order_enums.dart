@@ -9,6 +9,12 @@ enum DeliveryMode {
   pickupCompany,
 }
 
+enum PaymentType {
+  cash,
+  card,
+  online,
+}
+
 enum OrderPaymentStatus {
   unpaid,
   paid,
@@ -19,8 +25,17 @@ enum OrderStatus {
   received,
   preparing,
   ready,
+  served,
+  paid,
   completed,
   cancelled,
+}
+
+enum KitchenStatus {
+  received,
+  preparing,
+  ready,
+  served,
 }
 
 extension OrderTypeX on OrderType {
@@ -35,12 +50,31 @@ extension OrderTypeX on OrderType {
         OrderType.takeaway => 'Take Away',
         OrderType.delivery => 'Delivery',
       };
+
+  bool get defaultIsPrepaid => switch (this) {
+        OrderType.dineIn => false,
+        OrderType.takeaway => true,
+        OrderType.delivery => true,
+      };
 }
 
 extension DeliveryModeX on DeliveryMode {
+  String get wireValue => switch (this) {
+        DeliveryMode.ownRider => 'own_rider',
+        DeliveryMode.pickupCompany => 'pickup_company',
+      };
+
   String get label => switch (this) {
         DeliveryMode.ownRider => 'Own Rider',
         DeliveryMode.pickupCompany => 'Pickup Company',
+      };
+}
+
+extension PaymentTypeX on PaymentType {
+  String get label => switch (this) {
+        PaymentType.cash => 'Cash',
+        PaymentType.card => 'Card',
+        PaymentType.online => 'Online',
       };
 }
 
@@ -51,4 +85,13 @@ extension OrderPaymentStatusX on OrderPaymentStatus {
 extension OrderStatusX on OrderStatus {
   bool get isClosed =>
       this == OrderStatus.completed || this == OrderStatus.cancelled;
+}
+
+extension KitchenStatusX on KitchenStatus {
+  String get label => switch (this) {
+        KitchenStatus.received => 'Received',
+        KitchenStatus.preparing => 'Preparing',
+        KitchenStatus.ready => 'Ready',
+        KitchenStatus.served => 'Served',
+      };
 }

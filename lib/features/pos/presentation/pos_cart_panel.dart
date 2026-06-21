@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_icons.dart';
@@ -225,10 +226,7 @@ class PosCartPanel extends ConsumerWidget {
       AppSnackbar.info(context, warning);
     }
 
-    AppSnackbar.info(
-      context,
-      'Checkout validation passed — order placement in Module 15',
-    );
+    context.go('/sales/checkout');
   }
 }
 

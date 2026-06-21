@@ -37,6 +37,7 @@ class IsarService {
         HallIsarSchema,
         RestaurantTableIsarSchema,
         OrderIsarSchema,
+        OrderItemIsarSchema,
         RiderIsarSchema,
         PickupCompanyIsarSchema,
       ],
