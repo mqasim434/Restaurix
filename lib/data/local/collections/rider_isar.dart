@@ -57,4 +57,23 @@ class RiderIsar {
       ..deviceId = deviceId
       ..version = 1;
   }
+
+  RiderIsar markUpdated({required String deviceId, SyncAction? action}) {
+    updatedAt = DateTime.now();
+    isSynced = false;
+    syncAction = (action ?? SyncAction.update).name;
+    this.deviceId = deviceId;
+    version += 1;
+    return this;
+  }
+
+  RiderIsar markDeleted({required String deviceId}) {
+    deletedAt = DateTime.now();
+    updatedAt = deletedAt!;
+    isSynced = false;
+    syncAction = SyncAction.delete.name;
+    this.deviceId = deviceId;
+    version += 1;
+    return this;
+  }
 }

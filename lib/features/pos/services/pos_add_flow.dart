@@ -60,6 +60,7 @@ Future<void> addProductToCart(
   ref.read(cartProvider.notifier).add(
         CartItem(
           productId: product.id,
+          categoryId: product.categoryId,
           name: product.name,
           unitPrice: unitPrice,
           variantId: selectedVariant?.id,

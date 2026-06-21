@@ -3,38 +3,13 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/device_id_service.dart';
-import '../../../data/local/isar_service.dart';
-import '../../../data/repositories/pickup_company_repository.dart';
-import '../../../data/repositories/rider_repository.dart';
 import '../../../data/repositories/table_repository.dart';
 import '../../../domain/models/order_enums.dart';
-import '../../../domain/models/pickup_company.dart';
 import '../../../domain/models/pos_checkout_draft.dart';
 import '../../../domain/models/restaurant_table.dart';
-import '../../../domain/models/rider.dart';
 import '../../tables/providers/table_providers.dart';
 import '../services/checkout_validation.dart';
 import 'cart_providers.dart';
-
-final riderRepositoryProvider = Provider<RiderRepository>((ref) {
-  return RiderRepository(ref.watch(isarProvider));
-});
-
-final pickupCompanyRepositoryProvider = Provider<PickupCompanyRepository>((ref) {
-  return PickupCompanyRepository(ref.watch(isarProvider));
-});
-
-final activeRidersProvider = StreamProvider<List<Rider>>((ref) {
-  return ref.watch(riderRepositoryProvider).watchActive();
-});
-
-final activePickupCompaniesProvider = StreamProvider<List<PickupCompany>>((ref) {
-  return ref.watch(pickupCompanyRepositoryProvider).watchActive();
-});
-
-final posAvailableTablesProvider = StreamProvider<List<RestaurantTable>>((ref) {
-  return ref.watch(tableRepositoryProvider).watchAvailableForPos();
-});
 
 final checkoutProvider =
     NotifierProvider<CheckoutNotifier, PosCheckoutDraft>(CheckoutNotifier.new);
@@ -44,6 +19,10 @@ final checkoutValidationErrorProvider = Provider<String?>((ref) {
   final cartEmpty = ref.watch(cartProvider).isEmpty;
   if (cartEmpty) return null;
   return CheckoutValidation.validate(draft);
+});
+
+final posAvailableTablesProvider = StreamProvider<List<RestaurantTable>>((ref) {
+  return ref.watch(tableRepositoryProvider).watchAvailableForPos();
 });
 
 class CheckoutNotifier extends Notifier<PosCheckoutDraft> {

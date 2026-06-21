@@ -8,8 +8,12 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../domain/models/cart_item.dart';
+import '../../../domain/models/discount.dart';
 import '../providers/cart_providers.dart';
 import '../providers/checkout_providers.dart';
+import '../providers/discount_providers.dart';
+import '../services/discount_calculator.dart';
+import 'discount_actions.dart';
 import 'pos_order_type_section.dart';
 
 class PosCartPanel extends ConsumerWidget {
@@ -21,7 +25,8 @@ class PosCartPanel extends ConsumerWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final items = ref.watch(cartProvider);
-    final total = ref.watch(cartTotalProvider);
+    final pricing = ref.watch(cartPricingProvider);
+    final discounts = ref.watch(cartDiscountsProvider);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -44,13 +49,20 @@ class PosCartPanel extends ConsumerWidget {
                     ),
                   ),
                 ),
-                if (items.isNotEmpty)
+                if (items.isNotEmpty) ...[
+                  AppButton(
+                    label: 'Category discount',
+                    variant: AppButtonVariant.ghost,
+                    size: AppButtonSize.small,
+                    onPressed: () => showCategoryDiscountPicker(context, ref),
+                  ),
                   AppButton(
                     label: 'Clear',
                     variant: AppButtonVariant.ghost,
                     size: AppButtonSize.small,
                     onPressed: () => _confirmClear(context, ref),
                   ),
+                ],
               ],
             ),
           ),
@@ -71,7 +83,13 @@ class PosCartPanel extends ConsumerWidget {
                     itemCount: items.length,
                     separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
                     itemBuilder: (context, index) {
-                      return _CartLineRow(item: items[index]);
+                      final item = items[index];
+                      final linePricing = pricing.linePricing[item.lineId];
+                      return _CartLineRow(
+                        item: item,
+                        linePricing: linePricing,
+                        itemDiscount: _itemDiscountForLine(discounts, item.lineId),
+                      );
                     },
                   ),
           ),
@@ -88,6 +106,33 @@ class PosCartPanel extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (items.isNotEmpty && pricing.hasDiscounts) ...[
+                  _PricingRow(
+                    label: 'Subtotal',
+                    amount: pricing.subtotal,
+                    style: typography.bodyMedium,
+                  ),
+                  if (pricing.lineDiscountTotal > 0) ...[
+                    SizedBox(height: spacing.xs),
+                    _PricingRow(
+                      label: 'After item & category discounts',
+                      amount: pricing.subtotalAfterLineDiscounts,
+                      style: typography.bodySmall,
+                      muted: true,
+                    ),
+                  ],
+                  if (pricing.orderDiscountTotal > 0) ...[
+                    SizedBox(height: spacing.xs),
+                    _PricingRow(
+                      label: 'Order discount',
+                      amount: -pricing.orderDiscountTotal,
+                      style: typography.bodySmall,
+                      muted: true,
+                      showSign: true,
+                    ),
+                  ],
+                  SizedBox(height: spacing.sm),
+                ],
                 Row(
                   children: [
                     Expanded(
@@ -98,8 +143,21 @@ class PosCartPanel extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    if (items.isNotEmpty)
+                      IconButton(
+                        tooltip: 'Whole-order discount',
+                        icon: Icon(
+                          Icons.discount_outlined,
+                          color: colors.primary,
+                          size: 22,
+                        ),
+                        onPressed: () =>
+                            showWholeOrderDiscountDialog(context, ref),
+                      ),
                     Text(
-                      formatPosPrice(total),
+                      formatPosPrice(
+                        items.isEmpty ? 0 : pricing.total,
+                      ),
                       style: typography.titleLarge.copyWith(
                         color: colors.primary,
                       ),
@@ -122,6 +180,18 @@ class PosCartPanel extends ConsumerWidget {
     );
   }
 
+  AppliedDiscount? _itemDiscountForLine(
+    List<AppliedDiscount> discounts,
+    String lineId,
+  ) {
+    for (final discount in discounts) {
+      if (discount.scope == DiscountScope.item && discount.lineId == lineId) {
+        return discount;
+      }
+    }
+    return null;
+  }
+
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
     final confirmed = await AppDialog.show<bool>(
       context: context,
@@ -138,6 +208,7 @@ class PosCartPanel extends ConsumerWidget {
 
     if (confirmed == true) {
       ref.read(cartProvider.notifier).clear();
+      ref.read(cartDiscountsProvider.notifier).clear();
       ref.read(checkoutProvider.notifier).clear();
     }
   }
@@ -149,6 +220,11 @@ class PosCartPanel extends ConsumerWidget {
       return;
     }
 
+    final pricing = ref.read(cartPricingProvider);
+    for (final warning in pricing.warnings) {
+      AppSnackbar.info(context, warning);
+    }
+
     AppSnackbar.info(
       context,
       'Checkout validation passed — order placement in Module 15',
@@ -156,10 +232,58 @@ class PosCartPanel extends ConsumerWidget {
   }
 }
 
+class _PricingRow extends StatelessWidget {
+  const _PricingRow({
+    required this.label,
+    required this.amount,
+    required this.style,
+    this.muted = false,
+    this.showSign = false,
+  });
+
+  final String label;
+  final double amount;
+  final TextStyle style;
+  final bool muted;
+  final bool showSign;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: style.copyWith(
+              color: muted ? colors.onSurfaceVariant : colors.onSurface,
+            ),
+          ),
+        ),
+        Text(
+          showSign && amount != 0
+              ? '${amount < 0 ? '-' : ''}${formatPosPrice(amount.abs())}'
+              : formatPosPrice(amount),
+          style: style.copyWith(
+            color: muted ? colors.onSurfaceVariant : colors.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _CartLineRow extends ConsumerWidget {
-  const _CartLineRow({required this.item});
+  const _CartLineRow({
+    required this.item,
+    required this.linePricing,
+    required this.itemDiscount,
+  });
 
   final CartItem item;
+  final LinePricing? linePricing;
+  final AppliedDiscount? itemDiscount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -167,6 +291,11 @@ class _CartLineRow extends ConsumerWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final notifier = ref.read(cartProvider.notifier);
+    final discountNotifier = ref.read(cartDiscountsProvider.notifier);
+
+    final displayTotal = linePricing?.netTotal ?? item.lineTotal;
+    final hasLineDiscount =
+        linePricing != null && linePricing!.lineDiscountAmount > 0;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -189,9 +318,39 @@ class _CartLineRow extends ConsumerWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: itemDiscount == null
+                      ? 'Apply item discount'
+                      : 'Edit item discount',
+                  icon: Icon(
+                    Icons.discount_outlined,
+                    color: itemDiscount == null
+                        ? colors.onSurfaceVariant
+                        : colors.primary,
+                    size: 20,
+                  ),
+                  onPressed: () => showItemDiscountDialog(
+                    context,
+                    ref,
+                    lineId: item.lineId,
+                    name: item.name,
+                    targetId: item.productId ?? item.dealId,
+                  ),
+                ),
+                if (itemDiscount != null)
+                  IconButton(
+                    tooltip: 'Remove item discount',
+                    icon: Icon(AppIcons.close, color: colors.error, size: 18),
+                    onPressed: () => discountNotifier.remove(itemDiscount!.id),
+                  ),
+                IconButton(
                   tooltip: 'Remove',
                   icon: Icon(AppIcons.delete, color: colors.error, size: 20),
-                  onPressed: () => notifier.remove(item.lineId),
+                  onPressed: () {
+                    if (itemDiscount != null) {
+                      discountNotifier.remove(itemDiscount!.id);
+                    }
+                    notifier.remove(item.lineId);
+                  },
                 ),
               ],
             ),
@@ -209,6 +368,14 @@ class _CartLineRow extends ConsumerWidget {
                   color: colors.onSurfaceVariant,
                 ),
               ),
+            if (itemDiscount?.reason != null)
+              Text(
+                'Reason: ${itemDiscount!.reason}',
+                style: typography.bodySmall.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             SizedBox(height: spacing.xs),
             Row(
               children: [
@@ -219,7 +386,12 @@ class _CartLineRow extends ConsumerWidget {
                             item.lineId,
                             item.quantity - 1,
                           )
-                      : () => notifier.remove(item.lineId),
+                      : () {
+                          if (itemDiscount != null) {
+                            discountNotifier.remove(itemDiscount!.id);
+                          }
+                          notifier.remove(item.lineId);
+                        },
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: spacing.sm),
@@ -238,8 +410,19 @@ class _CartLineRow extends ConsumerWidget {
                   ),
                 ),
                 const Spacer(),
+                if (hasLineDiscount)
+                  Padding(
+                    padding: EdgeInsets.only(right: spacing.sm),
+                    child: Text(
+                      formatPosPrice(item.lineTotal),
+                      style: typography.bodySmall.copyWith(
+                        color: colors.onSurfaceVariant,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  ),
                 Text(
-                  formatPosPrice(item.lineTotal),
+                  formatPosPrice(displayTotal),
                   style: typography.bodyMedium.copyWith(
                     color: colors.onSurface,
                   ),

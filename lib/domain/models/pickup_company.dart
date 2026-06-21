@@ -37,4 +37,31 @@ class PickupCompany implements SyncableEntity {
   final String deviceId;
   @override
   final int version;
+
+  PickupCompany copyWith({
+    String? name,
+    String? logoUrl,
+    bool clearLogoUrl = false,
+    bool? isActive,
+    DateTime? updatedAt,
+    bool? isSynced,
+    DateTime? deletedAt,
+    SyncAction? syncAction,
+    String? deviceId,
+    int? version,
+  }) {
+    return PickupCompany(
+      id: id,
+      name: name ?? this.name,
+      logoUrl: clearLogoUrl ? null : (logoUrl ?? this.logoUrl),
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncAction: syncAction ?? this.syncAction,
+      deviceId: deviceId ?? this.deviceId,
+      version: version ?? this.version,
+    );
+  }
 }

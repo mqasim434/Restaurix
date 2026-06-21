@@ -21,6 +21,7 @@ class CartItem {
     String? lineId,
     this.productId,
     this.dealId,
+    this.categoryId,
     required this.name,
     required this.unitPrice,
     this.variantId,
@@ -37,6 +38,7 @@ class CartItem {
   final String lineId;
   final String? productId;
   final String? dealId;
+  final String? categoryId;
   final String name;
   final double unitPrice;
   final String? variantId;
@@ -68,6 +70,7 @@ class CartItem {
       lineId: lineId,
       productId: productId,
       dealId: dealId,
+      categoryId: categoryId,
       name: name,
       unitPrice: unitPrice,
       variantId: variantId,

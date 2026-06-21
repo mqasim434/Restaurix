@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../domain/models/pickup_company.dart';
 import '../../../domain/models/rider.dart';
+import '../../delivery_config/providers/delivery_config_providers.dart';
 import '../providers/checkout_providers.dart';
 
 class PosRiderPickerSheet extends ConsumerWidget {
@@ -14,6 +17,7 @@ class PosRiderPickerSheet extends ConsumerWidget {
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => const PosRiderPickerSheet(),
     );
@@ -25,7 +29,7 @@ class PosRiderPickerSheet extends ConsumerWidget {
 
     return _PickerSheetScaffold(
       title: 'Select rider',
-      subtitle: 'Configure riders in Settings (Module 13)',
+      subtitle: 'Own-rider delivery fulfillment',
       child: ridersAsync.when(
         loading: () => const AppLoadingIndicator(message: 'Loading riders...'),
         error: (error, _) => AppEmptyState(
@@ -46,16 +50,23 @@ class _RiderList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (riders.isEmpty) {
-      return const AppEmptyState(
-        title: 'No active riders',
-        message: 'Add riders in delivery configuration (Module 13).',
+      return AppEmptyState(
+        title: 'No riders configured',
+        message:
+            'Add delivery riders in Delivery Config — they appear here when active.',
+        actionLabel: 'Open Delivery Config',
+        onAction: () {
+          Navigator.of(context).pop();
+          context.go('/delivery-config');
+        },
       );
     }
 
     return ListView.separated(
       shrinkWrap: true,
       itemCount: riders.length,
-      separatorBuilder: (_, __) => Divider(height: 1, color: context.appColors.divider),
+      separatorBuilder: (_, __) =>
+          Divider(height: 1, color: context.appColors.divider),
       itemBuilder: (context, index) {
         final rider = riders[index];
         return ListTile(
@@ -80,6 +91,7 @@ class PosPickupCompanyPickerSheet extends ConsumerWidget {
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       builder: (context) => const PosPickupCompanyPickerSheet(),
     );
@@ -91,7 +103,7 @@ class PosPickupCompanyPickerSheet extends ConsumerWidget {
 
     return _PickerSheetScaffold(
       title: 'Select pickup company',
-      subtitle: 'Configure companies in Settings (Module 13)',
+      subtitle: 'Third-party delivery partner',
       child: companiesAsync.when(
         loading: () =>
             const AppLoadingIndicator(message: 'Loading pickup companies...'),
@@ -113,16 +125,23 @@ class _PickupCompanyList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (companies.isEmpty) {
-      return const AppEmptyState(
-        title: 'No active pickup companies',
-        message: 'Add pickup companies in delivery configuration (Module 13).',
+      return AppEmptyState(
+        title: 'No pickup companies configured',
+        message:
+            'Add pickup companies in Delivery Config — they appear here when active.',
+        actionLabel: 'Open Delivery Config',
+        onAction: () {
+          Navigator.of(context).pop();
+          context.go('/delivery-config');
+        },
       );
     }
 
     return ListView.separated(
       shrinkWrap: true,
       itemCount: companies.length,
-      separatorBuilder: (_, __) => Divider(height: 1, color: context.appColors.divider),
+      separatorBuilder: (_, __) =>
+          Divider(height: 1, color: context.appColors.divider),
       itemBuilder: (context, index) {
         final company = companies[index];
         return ListTile(
@@ -157,24 +176,44 @@ class _PickerSheetScaffold extends StatelessWidget {
     final typography = context.appTypography;
     final colors = context.appColors;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(spacing.lg, spacing.sm, spacing.lg, spacing.lg),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            title,
-            style: typography.titleMedium.copyWith(color: colors.onSurface),
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.55,
+      minChildSize: 0.35,
+      maxChildSize: 0.9,
+      builder: (context, scrollController) {
+        return Padding(
+          padding:
+              EdgeInsets.fromLTRB(spacing.lg, spacing.sm, spacing.lg, spacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                title,
+                style: typography.titleMedium.copyWith(color: colors.onSurface),
+              ),
+              Text(
+                subtitle,
+                style: typography.bodySmall.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              SizedBox(height: spacing.md),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: child,
+                ),
+              ),
+              AppButton(
+                label: 'Cancel',
+                variant: AppButtonVariant.ghost,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
           ),
-          Text(
-            subtitle,
-            style: typography.bodySmall.copyWith(color: colors.onSurfaceVariant),
-          ),
-          SizedBox(height: spacing.md),
-          Flexible(child: child),
-        ],
-      ),
+        );
+      },
     );
   }
 }

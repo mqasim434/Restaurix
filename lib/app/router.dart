@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/categories/presentation/categories_screen.dart';
+import '../features/delivery_config/presentation/delivery_config_screen.dart';
 import '../features/deals/presentation/deals_screen.dart';
 import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
@@ -80,6 +81,13 @@ final _shellRoutes = [
     pageBuilder: (context, state) => NoTransitionPage(
       key: state.pageKey,
       child: const TablesScreen(),
+    ),
+  ),
+  GoRoute(
+    path: '/delivery-config',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const DeliveryConfigScreen(),
     ),
   ),
   _placeholderRoute('/employees', 'Employees'),

@@ -37,4 +37,31 @@ class Rider implements SyncableEntity {
   final String deviceId;
   @override
   final int version;
+
+  Rider copyWith({
+    String? name,
+    String? phone,
+    bool clearPhone = false,
+    bool? isActive,
+    DateTime? updatedAt,
+    bool? isSynced,
+    DateTime? deletedAt,
+    SyncAction? syncAction,
+    String? deviceId,
+    int? version,
+  }) {
+    return Rider(
+      id: id,
+      name: name ?? this.name,
+      phone: clearPhone ? null : (phone ?? this.phone),
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      deletedAt: deletedAt ?? this.deletedAt,
+      syncAction: syncAction ?? this.syncAction,
+      deviceId: deviceId ?? this.deviceId,
+      version: version ?? this.version,
+    );
+  }
 }

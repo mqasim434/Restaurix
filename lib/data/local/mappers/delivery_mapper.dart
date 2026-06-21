@@ -1,3 +1,4 @@
+import '../../../core/sync/sync_action.dart';
 import '../../../domain/models/pickup_company.dart';
 import '../../../domain/models/rider.dart';
 import '../collections/pickup_company_isar.dart';
@@ -19,6 +20,20 @@ Rider riderFromIsar(RiderIsar record) {
   );
 }
 
+RiderIsar applyRiderToIsar({
+  required RiderIsar record,
+  required Rider rider,
+  required String deviceId,
+  required SyncAction action,
+}) {
+  record
+    ..name = rider.name
+    ..phone = rider.phone
+    ..isActive = rider.isActive
+    ..markUpdated(deviceId: deviceId, action: action);
+  return record;
+}
+
 PickupCompany pickupCompanyFromIsar(PickupCompanyIsar record) {
   return PickupCompany(
     id: record.uuid,
@@ -33,4 +48,18 @@ PickupCompany pickupCompanyFromIsar(PickupCompanyIsar record) {
     deviceId: record.deviceId,
     version: record.version,
   );
+}
+
+PickupCompanyIsar applyPickupCompanyToIsar({
+  required PickupCompanyIsar record,
+  required PickupCompany company,
+  required String deviceId,
+  required SyncAction action,
+}) {
+  record
+    ..name = company.name
+    ..logoUrl = company.logoUrl
+    ..isActive = company.isActive
+    ..markUpdated(deviceId: deviceId, action: action);
+  return record;
 }
