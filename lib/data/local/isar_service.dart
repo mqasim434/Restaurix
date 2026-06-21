@@ -3,6 +3,8 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'collections/category_isar.dart';
+import 'collections/item_modifier_isar.dart';
+import 'collections/modifier_group_isar.dart';
 import 'collections/product_isar.dart';
 import 'collections/product_variant_isar.dart';
 
@@ -17,7 +19,13 @@ class IsarService {
   static Future<IsarService> open() async {
     final directory = await getApplicationSupportDirectory();
     final isar = await Isar.open(
-      [CategoryIsarSchema, ProductIsarSchema, ProductVariantIsarSchema],
+      [
+        CategoryIsarSchema,
+        ProductIsarSchema,
+        ProductVariantIsarSchema,
+        ModifierGroupIsarSchema,
+        ItemModifierIsarSchema,
+      ],
       directory: directory.path,
       name: 'restaurix',
     );

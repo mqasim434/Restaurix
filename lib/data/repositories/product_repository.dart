@@ -115,6 +115,26 @@ class ProductRepository {
     return productFromIsar(record);
   }
 
+  Future<Product?> updateModifierGroupIds({
+    required String productId,
+    required List<String> groupIds,
+    required String deviceId,
+  }) async {
+    final record =
+        await _isar.productIsars.filter().uuidEqualTo(productId).findFirst();
+    if (record == null || record.isDeleted) return null;
+
+    record
+      ..modifierGroupIds = List.of(groupIds)
+      ..markUpdated(deviceId: deviceId);
+
+    await _isar.writeTxn(() async {
+      await _isar.productIsars.put(record);
+    });
+
+    return productFromIsar(record);
+  }
+
   Future<bool> softDelete({
     required String id,
     required String deviceId,

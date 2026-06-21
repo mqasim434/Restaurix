@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/categories/presentation/categories_screen.dart';
+import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
@@ -49,6 +50,13 @@ final _shellRoutes = [
     pageBuilder: (context, state) => NoTransitionPage(
       key: state.pageKey,
       child: const CategoriesScreen(),
+    ),
+  ),
+  GoRoute(
+    path: '/modifier-groups',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const ModifierGroupsScreen(),
     ),
   ),
   _placeholderRoute('/deals', 'Deals'),

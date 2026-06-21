@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
@@ -77,6 +78,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                 onPressed: categoriesAsync.valueOrNull?.isNotEmpty == true
                     ? () => _openForm(context)
                     : null,
+              ),
+              SizedBox(width: spacing.sm),
+              AppButton(
+                label: 'Modifier Groups',
+                variant: AppButtonVariant.secondary,
+                onPressed: () => context.go('/modifier-groups'),
               ),
             ],
           ),

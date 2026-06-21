@@ -2,11 +2,12 @@ import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/sync/sync_action.dart';
+import '../../../domain/models/modifier_selection_type.dart';
 
-part 'product_isar.g.dart';
+part 'modifier_group_isar.g.dart';
 
 @collection
-class ProductIsar {
+class ModifierGroupIsar {
   Id isarId = Isar.autoIncrement;
 
   @Index(unique: true, replace: true)
@@ -14,24 +15,13 @@ class ProductIsar {
 
   late String name;
 
-  @Index()
-  late String categoryId;
+  late String selectionType;
 
-  double basePrice = 0;
+  bool isRequired = false;
 
-  String? description;
+  int minSelections = 0;
 
-  String? imageUrl;
-
-  @Index()
-  bool isAvailable = true;
-
-  late String kitchenCategory;
-
-  String? printerId;
-
-  /// Assigned modifier group UUIDs — see [modifierGroupAssignmentDoc].
-  List<String> modifierGroupIds = [];
+  int? maxSelections;
 
   late DateTime createdAt;
   late DateTime updatedAt;
@@ -47,33 +37,31 @@ class ProductIsar {
   int version = 1;
 
   @ignore
+  ModifierSelectionType get selectionTypeEnum =>
+      ModifierSelectionType.values.byName(selectionType);
+
+  @ignore
   SyncAction get syncActionEnum => SyncAction.values.byName(syncAction);
 
   @ignore
   bool get isDeleted => deletedAt != null;
 
-  static ProductIsar create({
+  static ModifierGroupIsar create({
     required String name,
-    required String categoryId,
-    required double basePrice,
     required String deviceId,
-    String? description,
-    String? imageUrl,
-    bool isAvailable = true,
-    String kitchenCategory = '',
-    String? printerId,
+    ModifierSelectionType selectionType = ModifierSelectionType.multiple,
+    bool isRequired = false,
+    int minSelections = 0,
+    int? maxSelections,
   }) {
     final now = DateTime.now();
-    return ProductIsar()
+    return ModifierGroupIsar()
       ..uuid = const Uuid().v4()
       ..name = name
-      ..categoryId = categoryId
-      ..basePrice = basePrice
-      ..description = description
-      ..imageUrl = imageUrl
-      ..isAvailable = isAvailable
-      ..kitchenCategory = kitchenCategory
-      ..printerId = printerId
+      ..selectionType = selectionType.name
+      ..isRequired = isRequired
+      ..minSelections = minSelections
+      ..maxSelections = maxSelections
       ..createdAt = now
       ..updatedAt = now
       ..isSynced = false
@@ -82,7 +70,7 @@ class ProductIsar {
       ..version = 1;
   }
 
-  ProductIsar markUpdated({required String deviceId, SyncAction? action}) {
+  ModifierGroupIsar markUpdated({required String deviceId, SyncAction? action}) {
     updatedAt = DateTime.now();
     isSynced = false;
     syncAction = (action ?? SyncAction.update).name;
@@ -91,7 +79,7 @@ class ProductIsar {
     return this;
   }
 
-  ProductIsar markDeleted({required String deviceId}) {
+  ModifierGroupIsar markDeleted({required String deviceId}) {
     deletedAt = DateTime.now();
     updatedAt = deletedAt!;
     isSynced = false;

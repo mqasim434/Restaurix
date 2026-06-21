@@ -10,6 +10,7 @@ import '../../../core/widgets/app_dropdown.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../domain/models/category.dart';
 import '../../../domain/models/product.dart';
+import 'product_modifier_groups_tab.dart';
 import 'product_variants_tab.dart';
 
 class ProductFormResult {
@@ -148,10 +149,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
                 children: [
                   _buildDetailsTab(context),
                   _buildVariantsTab(context),
-                  _buildStubTab(
-                    context,
-                    'Modifier groups are available after Module 8',
-                  ),
+                  _buildModifierGroupsTab(context),
                 ],
               ),
             ),
@@ -312,20 +310,27 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     );
   }
 
-  Widget _buildStubTab(BuildContext context, String message) {
+  Widget _buildModifierGroupsTab(BuildContext context) {
     final typography = context.appTypography;
     final colors = context.appColors;
     final spacing = context.appSpacing;
 
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(spacing.lg),
-        child: Text(
-          message,
-          style: typography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
-          textAlign: TextAlign.center,
+    if (!_isEditing || widget.product == null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(spacing.lg),
+          child: Text(
+            'Save the product first, then edit it to attach modifier groups.',
+            style: typography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
         ),
-      ),
+      );
+    }
+
+    return ProductModifierGroupsTab(
+      productId: widget.product!.id,
+      assignedGroupIds: widget.product!.modifierGroupIds,
     );
   }
 
