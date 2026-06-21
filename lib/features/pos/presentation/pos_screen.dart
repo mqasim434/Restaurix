@@ -10,6 +10,7 @@ import '../../categories/providers/category_providers.dart';
 import '../../deals/presentation/deal_form_dialog.dart';
 import '../../deals/providers/deal_providers.dart';
 import '../../modifiers/providers/modifier_providers.dart';
+import '../../tables/providers/table_providers.dart';
 import '../../products/presentation/product_form_dialog.dart';
 import '../providers/pos_catalog_providers.dart';
 import '../services/pos_add_flow.dart';
@@ -23,6 +24,7 @@ class PosScreen extends ConsumerWidget {
     final spacing = context.appSpacing;
     ref.watch(modifierGroupListProvider);
     ref.watch(dealListProvider);
+    ref.watch(hallListProvider);
     final categoriesAsync = ref.watch(categoryListProvider);
 
     return Padding(

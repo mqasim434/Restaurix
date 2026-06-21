@@ -6,8 +6,11 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_dialog.dart';
+import '../../../core/widgets/app_snackbar.dart';
 import '../../../domain/models/cart_item.dart';
 import '../providers/cart_providers.dart';
+import '../providers/checkout_providers.dart';
+import 'pos_order_type_section.dart';
 
 class PosCartPanel extends ConsumerWidget {
   const PosCartPanel({super.key});
@@ -73,6 +76,13 @@ class PosCartPanel extends ConsumerWidget {
                   ),
           ),
           Divider(height: 1, color: colors.divider),
+          if (items.isNotEmpty) ...[
+            Padding(
+              padding: EdgeInsets.all(spacing.md),
+              child: const PosOrderTypeSection(),
+            ),
+            Divider(height: 1, color: colors.divider),
+          ],
           Padding(
             padding: EdgeInsets.all(spacing.md),
             child: Column(
@@ -102,9 +112,7 @@ class PosCartPanel extends ConsumerWidget {
                   expand: true,
                   onPressed: items.isEmpty
                       ? null
-                      : () {
-                          // Module 12/15 — order type and placement
-                        },
+                      : () => _onCheckout(context, ref),
                 ),
               ],
             ),
@@ -130,7 +138,21 @@ class PosCartPanel extends ConsumerWidget {
 
     if (confirmed == true) {
       ref.read(cartProvider.notifier).clear();
+      ref.read(checkoutProvider.notifier).clear();
     }
+  }
+
+  void _onCheckout(BuildContext context, WidgetRef ref) {
+    final error = ref.read(checkoutValidationErrorProvider);
+    if (error != null) {
+      AppSnackbar.error(context, error);
+      return;
+    }
+
+    AppSnackbar.info(
+      context,
+      'Checkout validation passed — order placement in Module 15',
+    );
   }
 }
 

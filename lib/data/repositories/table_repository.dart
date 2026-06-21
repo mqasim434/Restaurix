@@ -33,6 +33,62 @@ class TableRepository {
         .map((records) => records.map(restaurantTableFromIsar).toList());
   }
 
+  /// Available tables only — occupied/reserved tables hidden from POS picker.
+  Stream<List<RestaurantTable>> watchAvailableForPos() {
+    return _isar.restaurantTableIsars
+        .filter()
+        .deletedAtIsNull()
+        .statusEqualTo(TableStatus.available.name)
+        .sortByLabel()
+        .watch(fireImmediately: true)
+        .map((records) => records.map(restaurantTableFromIsar).toList());
+  }
+
+  Future<void> reserveForCheckout({
+    required String tableId,
+    required String deviceId,
+  }) async {
+    final record = await _isar.restaurantTableIsars
+        .filter()
+        .uuidEqualTo(tableId)
+        .findFirst();
+    if (record == null || record.isDeleted) {
+      throw TableTransferException('Table not found');
+    }
+    if (record.statusEnum != TableStatus.available) {
+      throw TableTransferException('Table is not available');
+    }
+
+    record
+      ..status = TableStatus.reserved.name
+      ..markUpdated(deviceId: deviceId);
+
+    await _isar.writeTxn(() async {
+      await _isar.restaurantTableIsars.put(record);
+    });
+  }
+
+  Future<void> releaseCheckoutReservation({
+    required String tableId,
+    required String deviceId,
+  }) async {
+    final record = await _isar.restaurantTableIsars
+        .filter()
+        .uuidEqualTo(tableId)
+        .findFirst();
+    if (record == null || record.isDeleted) return;
+
+    if (record.statusEnum == TableStatus.reserved) {
+      record
+        ..status = TableStatus.available.name
+        ..markUpdated(deviceId: deviceId);
+
+      await _isar.writeTxn(() async {
+        await _isar.restaurantTableIsars.put(record);
+      });
+    }
+  }
+
   Future<RestaurantTable?> findById(String id) async {
     final record =
         await _isar.restaurantTableIsars.filter().uuidEqualTo(id).findFirst();
