@@ -3,6 +3,7 @@ import 'package:isar/isar.dart';
 import '../../core/sync/sync_action.dart';
 import '../../domain/models/category.dart';
 import '../local/collections/category_isar.dart';
+import '../local/collections/product_isar.dart';
 import '../local/mappers/category_mapper.dart';
 
 class CategoryRepository {
@@ -53,10 +54,12 @@ class CategoryRepository {
   }
 
   /// Returns count of products linked to this category.
-  /// Wired to ProductIsar in Module 6 — returns 0 until then.
   Future<int> countProductsInCategory(String categoryId) async {
-    // Module 6: query products where categoryId == categoryId
-    return 0;
+    return _isar.productIsars
+        .filter()
+        .deletedAtIsNull()
+        .categoryIdEqualTo(categoryId)
+        .count();
   }
 
   Future<Category> create({

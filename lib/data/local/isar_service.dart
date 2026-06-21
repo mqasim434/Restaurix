@@ -3,6 +3,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'collections/category_isar.dart';
+import 'collections/product_isar.dart';
 
 /// Opens and holds the local Isar database instance.
 class IsarService {
@@ -15,7 +16,7 @@ class IsarService {
   static Future<IsarService> open() async {
     final directory = await getApplicationSupportDirectory();
     final isar = await Isar.open(
-      [CategoryIsarSchema],
+      [CategoryIsarSchema, ProductIsarSchema],
       directory: directory.path,
       name: 'restaurix',
     );

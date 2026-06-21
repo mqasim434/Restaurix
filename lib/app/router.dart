@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/categories/presentation/categories_screen.dart';
+import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import 'shell/app_shell.dart';
@@ -36,7 +37,13 @@ final _shellRoutes = [
   _placeholderRoute('/dashboard', 'Dashboard'),
   _placeholderRoute('/sales', 'Sales (POS)'),
   _placeholderRoute('/orders', 'Orders'),
-  _placeholderRoute('/products', 'Products'),
+  GoRoute(
+    path: '/products',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const ProductsScreen(),
+    ),
+  ),
   GoRoute(
     path: '/categories',
     pageBuilder: (context, state) => NoTransitionPage(
