@@ -3,6 +3,8 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'collections/category_isar.dart';
+import 'collections/deal_isar.dart';
+import 'collections/deal_item_isar.dart';
 import 'collections/item_modifier_isar.dart';
 import 'collections/modifier_group_isar.dart';
 import 'collections/product_isar.dart';
@@ -25,6 +27,8 @@ class IsarService {
         ProductVariantIsarSchema,
         ModifierGroupIsarSchema,
         ItemModifierIsarSchema,
+        DealIsarSchema,
+        DealItemIsarSchema,
       ],
       directory: directory.path,
       name: 'restaurix',
