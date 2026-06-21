@@ -7,6 +7,7 @@ import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
+import '../features/tables/presentation/tables_screen.dart';
 import 'shell/app_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -67,7 +68,13 @@ final _shellRoutes = [
       child: const DealsScreen(),
     ),
   ),
-  _placeholderRoute('/tables', 'Tables'),
+  GoRoute(
+    path: '/tables',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const TablesScreen(),
+    ),
+  ),
   _placeholderRoute('/employees', 'Employees'),
   _placeholderRoute('/attendance', 'Attendance'),
   _placeholderRoute('/reports', 'Reports'),
