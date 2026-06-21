@@ -128,6 +128,12 @@ class CheckoutNotifier extends Notifier<PosCheckoutDraft> {
     state = draft;
   }
 
+  /// Clears checkout UI state after saving a draft without releasing any table
+  /// the draft is still holding for the waiting customer.
+  void resetAfterDraftSave() {
+    state = const PosCheckoutDraft();
+  }
+
   Future<void> _releaseTableIfNeeded(String? tableId) async {
     if (tableId == null) return;
     await _tables.releaseCheckoutReservation(

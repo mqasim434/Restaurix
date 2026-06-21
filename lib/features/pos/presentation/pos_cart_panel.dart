@@ -10,12 +10,16 @@ import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../domain/models/cart_item.dart';
 import '../../../domain/models/discount.dart';
+import '../../../data/repositories/draft_order_repository.dart';
 import '../providers/cart_providers.dart';
 import '../providers/checkout_providers.dart';
 import '../providers/discount_providers.dart';
+import '../providers/draft_providers.dart';
 import '../services/discount_calculator.dart';
 import 'discount_actions.dart';
+import 'draft_orders_sheet.dart';
 import 'pos_order_type_section.dart';
+import 'save_draft_dialog.dart';
 
 class PosCartPanel extends ConsumerWidget {
   const PosCartPanel({super.key});
@@ -28,6 +32,7 @@ class PosCartPanel extends ConsumerWidget {
     final items = ref.watch(cartProvider);
     final pricing = ref.watch(cartPricingProvider);
     final discounts = ref.watch(cartDiscountsProvider);
+    final draftCount = ref.watch(draftOrderCountProvider).valueOrNull ?? 0;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -52,6 +57,12 @@ class PosCartPanel extends ConsumerWidget {
                 ),
                 if (items.isNotEmpty) ...[
                   AppButton(
+                    label: 'Save draft',
+                    variant: AppButtonVariant.ghost,
+                    size: AppButtonSize.small,
+                    onPressed: () => _saveDraft(context, ref),
+                  ),
+                  AppButton(
                     label: 'Category discount',
                     variant: AppButtonVariant.ghost,
                     size: AppButtonSize.small,
@@ -64,6 +75,12 @@ class PosCartPanel extends ConsumerWidget {
                     onPressed: () => _confirmClear(context, ref),
                   ),
                 ],
+                AppButton(
+                  label: draftCount > 0 ? 'Drafts ($draftCount)' : 'Drafts',
+                  variant: AppButtonVariant.secondary,
+                  size: AppButtonSize.small,
+                  onPressed: () => DraftOrdersSheet.show(context),
+                ),
               ],
             ),
           ),
@@ -191,6 +208,27 @@ class PosCartPanel extends ConsumerWidget {
       }
     }
     return null;
+  }
+
+  Future<void> _saveDraft(BuildContext context, WidgetRef ref) async {
+    if (ref.read(cartProvider).isEmpty) {
+      AppSnackbar.info(context, 'Add items before saving a draft');
+      return;
+    }
+
+    final label = await SaveDraftDialog.show(context);
+    if (!context.mounted || label == null) return;
+
+    try {
+      await ref.read(draftOrderControllerProvider).save(
+            label: label.isEmpty ? null : label,
+          );
+      if (!context.mounted) return;
+      AppSnackbar.success(context, 'Draft saved');
+    } on DraftOrderException catch (error) {
+      if (!context.mounted) return;
+      AppSnackbar.error(context, error.message);
+    }
   }
 
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {

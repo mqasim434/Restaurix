@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'collections/category_isar.dart';
 import 'collections/deal_isar.dart';
 import 'collections/deal_item_isar.dart';
+import 'collections/draft_order_isar.dart';
 import 'collections/hall_isar.dart';
 import 'collections/item_modifier_isar.dart';
 import 'collections/modifier_group_isar.dart';
@@ -38,6 +39,7 @@ class IsarService {
         RestaurantTableIsarSchema,
         OrderIsarSchema,
         OrderItemIsarSchema,
+        DraftOrderIsarSchema,
         RiderIsarSchema,
         PickupCompanyIsarSchema,
       ],
