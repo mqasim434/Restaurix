@@ -12,5 +12,6 @@ void main() {
     );
 
     expect(find.text('Restaurix'), findsOneWidget);
+    expect(find.text('Open Design System Preview'), findsOneWidget);
   });
 }

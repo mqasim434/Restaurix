@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/constants.dart';
-import '../features/placeholder/presentation/placeholder_home_screen.dart';
+import '../core/theme/app_theme.dart';
+import 'router.dart';
 
-class RestaurixApp extends StatelessWidget {
+class RestaurixApp extends ConsumerWidget {
   const RestaurixApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        useMaterial3: true,
-      ),
-      home: const PlaceholderHomeScreen(),
+      theme: AppTheme.light,
+      routerConfig: router,
     );
   }
 }
