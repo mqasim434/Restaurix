@@ -23,6 +23,11 @@ class Order implements SyncableEntity {
     required this.isPrepaid,
     required this.createdByUserId,
     this.notes,
+    this.cancelReason,
+    this.cancelRefundNote,
+    this.orderDiscountType,
+    this.orderDiscountValue,
+    this.orderDiscountReason,
     required this.createdAt,
     required this.updatedAt,
     required this.isSynced,
@@ -52,6 +57,11 @@ class Order implements SyncableEntity {
   final bool isPrepaid;
   final String createdByUserId;
   final String? notes;
+  final String? cancelReason;
+  final String? cancelRefundNote;
+  final String? orderDiscountType;
+  final double? orderDiscountValue;
+  final String? orderDiscountReason;
 
   @override
   final DateTime createdAt;
@@ -80,6 +90,11 @@ class Order implements SyncableEntity {
   Order copyWith({
     String? tableId,
     bool clearTableId = false,
+    DeliveryMode? deliveryMode,
+    String? riderId,
+    String? riderName,
+    String? pickupCompanyId,
+    String? pickupCompanyName,
     double? subtotal,
     double? itemDiscountTotal,
     double? orderDiscountTotal,
@@ -89,6 +104,11 @@ class Order implements SyncableEntity {
     OrderStatus? status,
     bool? isPrepaid,
     String? notes,
+    String? cancelReason,
+    String? cancelRefundNote,
+    String? orderDiscountType,
+    double? orderDiscountValue,
+    String? orderDiscountReason,
     DateTime? updatedAt,
     bool? isSynced,
     DateTime? deletedAt,
@@ -101,11 +121,11 @@ class Order implements SyncableEntity {
       orderNumber: orderNumber,
       orderType: orderType,
       tableId: clearTableId ? null : (tableId ?? this.tableId),
-      deliveryMode: deliveryMode,
-      riderId: riderId,
-      riderName: riderName,
-      pickupCompanyId: pickupCompanyId,
-      pickupCompanyName: pickupCompanyName,
+      deliveryMode: deliveryMode ?? this.deliveryMode,
+      riderId: riderId ?? this.riderId,
+      riderName: riderName ?? this.riderName,
+      pickupCompanyId: pickupCompanyId ?? this.pickupCompanyId,
+      pickupCompanyName: pickupCompanyName ?? this.pickupCompanyName,
       subtotal: subtotal ?? this.subtotal,
       itemDiscountTotal: itemDiscountTotal ?? this.itemDiscountTotal,
       orderDiscountTotal: orderDiscountTotal ?? this.orderDiscountTotal,
@@ -116,6 +136,11 @@ class Order implements SyncableEntity {
       isPrepaid: isPrepaid ?? this.isPrepaid,
       createdByUserId: createdByUserId,
       notes: notes ?? this.notes,
+      cancelReason: cancelReason ?? this.cancelReason,
+      cancelRefundNote: cancelRefundNote ?? this.cancelRefundNote,
+      orderDiscountType: orderDiscountType ?? this.orderDiscountType,
+      orderDiscountValue: orderDiscountValue ?? this.orderDiscountValue,
+      orderDiscountReason: orderDiscountReason ?? this.orderDiscountReason,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,

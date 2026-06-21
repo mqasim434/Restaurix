@@ -122,6 +122,12 @@ class CheckoutNotifier extends Notifier<PosCheckoutDraft> {
     state = const PosCheckoutDraft();
   }
 
+  /// Restores checkout metadata without touching table reservations — used when
+  /// reopening an unpaid order for editing.
+  void restoreDraft(PosCheckoutDraft draft) {
+    state = draft;
+  }
+
   Future<void> _releaseTableIfNeeded(String? tableId) async {
     if (tableId == null) return;
     await _tables.releaseCheckoutReservation(

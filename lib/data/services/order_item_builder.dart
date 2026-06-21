@@ -81,6 +81,7 @@ List<OrderLineDiscount> _lineDiscounts({
           type: discount.type,
           value: discount.value,
           amountApplied: amount,
+          targetId: discount.targetId,
           reason: discount.reason,
         ),
       );
@@ -120,6 +121,7 @@ List<OrderLineDiscount> _lineDiscounts({
           type: discount.type,
           value: discount.value,
           amountApplied: amount,
+          targetId: discount.targetId,
           reason: discount.reason,
         ),
       );

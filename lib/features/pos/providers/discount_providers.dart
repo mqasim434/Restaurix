@@ -54,4 +54,8 @@ class CartDiscountNotifier extends Notifier<List<AppliedDiscount>> {
   void clear() {
     state = const [];
   }
+
+  void replaceAll(List<AppliedDiscount> discounts) {
+    state = discounts;
+  }
 }

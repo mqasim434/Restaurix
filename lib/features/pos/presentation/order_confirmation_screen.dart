@@ -7,7 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../domain/models/order_enums.dart';
-import '../providers/order_providers.dart';
+import '../../orders/providers/order_management_providers.dart';
 import 'pos_cart_panel.dart';
 
 class OrderConfirmationScreen extends ConsumerWidget {

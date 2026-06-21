@@ -26,6 +26,11 @@ Order orderFromIsar(OrderIsar record) {
     isPrepaid: record.isPrepaid,
     createdByUserId: record.createdByUserId,
     notes: record.notes,
+    cancelReason: record.cancelReason,
+    cancelRefundNote: record.cancelRefundNote,
+    orderDiscountType: record.orderDiscountType,
+    orderDiscountValue: record.orderDiscountValue,
+    orderDiscountReason: record.orderDiscountReason,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -36,11 +41,9 @@ Order orderFromIsar(OrderIsar record) {
   );
 }
 
-OrderIsar applyOrderToIsar({
+void applyOrderFieldsToIsar({
   required OrderIsar record,
   required Order order,
-  required String deviceId,
-  required SyncAction action,
 }) {
   record
     ..orderNumber = order.orderNumber
@@ -61,7 +64,21 @@ OrderIsar applyOrderToIsar({
     ..isPrepaid = order.isPrepaid
     ..createdByUserId = order.createdByUserId
     ..notes = order.notes
-    ..markUpdated(deviceId: deviceId, action: action);
+    ..cancelReason = order.cancelReason
+    ..cancelRefundNote = order.cancelRefundNote
+    ..orderDiscountType = order.orderDiscountType
+    ..orderDiscountValue = order.orderDiscountValue
+    ..orderDiscountReason = order.orderDiscountReason;
+}
+
+OrderIsar applyOrderToIsar({
+  required OrderIsar record,
+  required Order order,
+  required String deviceId,
+  required SyncAction action,
+}) {
+  applyOrderFieldsToIsar(record: record, order: order);
+  record.markUpdated(deviceId: deviceId, action: action);
   return record;
 }
 
@@ -94,6 +111,7 @@ OrderItem orderItemFromIsar(OrderItemIsar record) {
           type: DiscountType.values.byName(discount.type),
           value: discount.value,
           amountApplied: discount.amountApplied,
+          targetId: discount.targetId,
           reason: discount.reason,
         ),
     ],
@@ -137,6 +155,7 @@ OrderItemIsar orderItemToIsar({
           ..type = discount.type.name
           ..value = discount.value
           ..amountApplied = discount.amountApplied
+          ..targetId = discount.targetId
           ..reason = discount.reason),
     ]
     ..kitchenStatus = item.kitchenStatus.name
@@ -147,4 +166,44 @@ OrderItemIsar orderItemToIsar({
     ..syncAction = action.name
     ..deviceId = deviceId
     ..version = item.version;
+}
+
+AppliedDiscount? wholeOrderDiscountFromOrder(Order order) {
+  if (order.orderDiscountValue == null || order.orderDiscountType == null) {
+    return null;
+  }
+
+  return AppliedDiscount(
+    scope: DiscountScope.wholeOrder,
+    type: DiscountType.values.byName(order.orderDiscountType!),
+    value: order.orderDiscountValue!,
+    reason: order.orderDiscountReason,
+  );
+}
+
+class OrderDiscountSnapshot {
+  const OrderDiscountSnapshot({
+    required this.type,
+    required this.value,
+    this.reason,
+  });
+
+  final String type;
+  final double value;
+  final String? reason;
+}
+
+OrderDiscountSnapshot? wholeOrderDiscountSnapshot(
+  List<AppliedDiscount> discounts,
+) {
+  final whole = discounts.where(
+    (discount) => discount.scope == DiscountScope.wholeOrder,
+  );
+  if (whole.isEmpty) return null;
+  final discount = whole.first;
+  return OrderDiscountSnapshot(
+    type: discount.type.name,
+    value: discount.value,
+    reason: discount.reason,
+  );
 }

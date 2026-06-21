@@ -19,6 +19,7 @@ class OrderLineDiscountEmbedded {
   late String type;
   double value = 0;
   double amountApplied = 0;
+  String? targetId;
   String? reason;
 }
 
@@ -61,6 +62,13 @@ class OrderIsar {
   late String createdByUserId;
 
   String? notes;
+
+  String? cancelReason;
+  String? cancelRefundNote;
+
+  String? orderDiscountType;
+  double? orderDiscountValue;
+  String? orderDiscountReason;
 
   late DateTime createdAt;
   late DateTime updatedAt;
@@ -204,4 +212,14 @@ class OrderItemIsar {
 
   @ignore
   bool get isDeleted => deletedAt != null;
+
+  OrderItemIsar markDeleted({required String deviceId}) {
+    deletedAt = DateTime.now();
+    updatedAt = deletedAt!;
+    isSynced = false;
+    syncAction = SyncAction.delete.name;
+    this.deviceId = deviceId;
+    version += 1;
+    return this;
+  }
 }

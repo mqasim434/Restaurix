@@ -21,6 +21,7 @@ class OrderLineDiscount {
     required this.type,
     required this.value,
     required this.amountApplied,
+    this.targetId,
     this.reason,
   });
 
@@ -28,6 +29,7 @@ class OrderLineDiscount {
   final DiscountType type;
   final double value;
   final double amountApplied;
+  final String? targetId;
   final String? reason;
 }
 

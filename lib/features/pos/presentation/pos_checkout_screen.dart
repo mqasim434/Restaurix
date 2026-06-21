@@ -6,12 +6,14 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../data/repositories/order_repository.dart';
+import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
 import '../presentation/pos_cart_panel.dart';
 import '../providers/cart_providers.dart';
 import '../providers/checkout_providers.dart';
 import '../providers/discount_providers.dart';
-import '../providers/order_providers.dart';
+import '../../orders/providers/order_management_providers.dart';
+import '../providers/order_edit_provider.dart';
 
 class PosCheckoutScreen extends ConsumerStatefulWidget {
   const PosCheckoutScreen({super.key});
@@ -241,7 +243,13 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
                   ),
                   SizedBox(height: spacing.md),
                   AppButton(
-                    label: _isPlacing ? 'Placing order…' : 'Place Order',
+                    label: _isPlacing
+                        ? (ref.watch(editingOrderIdProvider) != null
+                            ? 'Updating order…'
+                            : 'Placing order…')
+                        : (ref.watch(editingOrderIdProvider) != null
+                            ? 'Update Order'
+                            : 'Place Order'),
                     expand: true,
                     onPressed: _isPlacing ? null : () => _placeOrder(context),
                   ),
@@ -274,26 +282,46 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
       return;
     }
 
+    final editingOrderId = ref.read(editingOrderIdProvider);
     setState(() => _isPlacing = true);
 
     try {
       final controller = ref.read(placeOrderProvider);
-      final order = await controller.place(
-        PlaceOrderInput(
-          checkout: draft,
-          cartItems: ref.read(cartProvider),
-          discounts: ref.read(cartDiscountsProvider),
-          pricing: ref.read(cartPricingProvider),
-          paymentType: draft.paymentType!,
-          isPrepaid: draft.isPrepaid,
-          createdByUserId: controller.createdByUserId,
-          deviceId: controller.deviceId,
-          notes: draft.notes,
-        ),
-      );
+      final Order order;
+
+      if (editingOrderId != null) {
+        order = await controller.update(
+          UpdateOrderInput(
+            orderId: editingOrderId,
+            checkout: draft,
+            cartItems: ref.read(cartProvider),
+            discounts: ref.read(cartDiscountsProvider),
+            pricing: ref.read(cartPricingProvider),
+            paymentType: draft.paymentType!,
+            isPrepaid: draft.isPrepaid,
+            deviceId: controller.deviceId,
+            notes: draft.notes,
+          ),
+        );
+      } else {
+        order = await controller.place(
+          PlaceOrderInput(
+            checkout: draft,
+            cartItems: ref.read(cartProvider),
+            discounts: ref.read(cartDiscountsProvider),
+            pricing: ref.read(cartPricingProvider),
+            paymentType: draft.paymentType!,
+            isPrepaid: draft.isPrepaid,
+            createdByUserId: controller.createdByUserId,
+            deviceId: controller.deviceId,
+            notes: draft.notes,
+          ),
+        );
+      }
 
       ref.read(cartProvider.notifier).clear();
       ref.read(cartDiscountsProvider.notifier).clear();
+      ref.read(orderEditLoaderProvider).clearEditMode();
       await ref.read(checkoutProvider.notifier).clear();
 
       if (!context.mounted) return;
