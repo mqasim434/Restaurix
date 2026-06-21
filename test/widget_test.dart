@@ -4,14 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:restaurix/app/app.dart';
 
 void main() {
-  testWidgets('shows Restaurix placeholder home screen', (tester) async {
+  testWidgets('shows app shell with dashboard placeholder', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: RestaurixApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.text('Restaurix'), findsOneWidget);
-    expect(find.text('Open Design System Preview'), findsOneWidget);
+    expect(find.text('Dashboard'), findsWidgets);
+    expect(find.text('Admin'), findsOneWidget);
   });
 }
