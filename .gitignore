@@ -45,5 +45,8 @@ app.*.map.json
 /android/app/release
 
 
+# Environment secrets (never commit)
+.env
+
 # Flutter related
 Restaurix_Cursor_Build_Modules.md
