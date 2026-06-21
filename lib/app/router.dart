@@ -6,6 +6,7 @@ import '../features/deals/presentation/deals_screen.dart';
 import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
+import '../features/pos/presentation/pos_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
 import 'shell/app_shell.dart';
@@ -38,7 +39,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 final _shellRoutes = [
   _placeholderRoute('/dashboard', 'Dashboard'),
-  _placeholderRoute('/sales', 'Sales (POS)'),
+  GoRoute(
+    path: '/sales',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const PosScreen(),
+    ),
+  ),
   _placeholderRoute('/orders', 'Orders'),
   GoRoute(
     path: '/products',
