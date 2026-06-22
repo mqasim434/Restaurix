@@ -91,6 +91,17 @@ class PlaceOrderController {
         );
   }
 
+  Future<Order> setHeld({
+    required String orderId,
+    required bool isHeld,
+  }) {
+    return _ref.read(orderRepositoryProvider).setHeld(
+          orderId: orderId,
+          isHeld: isHeld,
+          deviceId: _ref.read(deviceIdProvider),
+        );
+  }
+
   String get deviceId => _ref.read(deviceIdProvider);
 
   String get createdByUserId => _ref.read(currentUserProvider).id;

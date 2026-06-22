@@ -59,6 +59,9 @@ class OrderIsar {
 
   bool isPrepaid = false;
 
+  @Index()
+  bool isHeld = false;
+
   late String createdByUserId;
 
   String? notes;
@@ -136,6 +139,7 @@ class OrderIsar {
       ..paymentStatus = OrderPaymentStatus.unpaid.name
       ..status = OrderStatus.received.name
       ..isPrepaid = false
+      ..isHeld = false
       ..createdByUserId = createdByUserId
       ..createdAt = now
       ..updatedAt = now

@@ -21,6 +21,7 @@ class Order implements SyncableEntity {
     required this.paymentStatus,
     required this.status,
     required this.isPrepaid,
+    this.isHeld = false,
     required this.createdByUserId,
     this.notes,
     this.cancelReason,
@@ -55,6 +56,7 @@ class Order implements SyncableEntity {
   final OrderPaymentStatus paymentStatus;
   final OrderStatus status;
   final bool isPrepaid;
+  final bool isHeld;
   final String createdByUserId;
   final String? notes;
   final String? cancelReason;
@@ -103,6 +105,7 @@ class Order implements SyncableEntity {
     OrderPaymentStatus? paymentStatus,
     OrderStatus? status,
     bool? isPrepaid,
+    bool? isHeld,
     String? notes,
     String? cancelReason,
     String? cancelRefundNote,
@@ -134,6 +137,7 @@ class Order implements SyncableEntity {
       paymentStatus: paymentStatus ?? this.paymentStatus,
       status: status ?? this.status,
       isPrepaid: isPrepaid ?? this.isPrepaid,
+      isHeld: isHeld ?? this.isHeld,
       createdByUserId: createdByUserId,
       notes: notes ?? this.notes,
       cancelReason: cancelReason ?? this.cancelReason,

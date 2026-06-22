@@ -6,7 +6,10 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/app_snackbar.dart';
+import '../../../core/widgets/order_held_badge.dart';
 import '../../../domain/models/order_enums.dart';
+import '../../../domain/services/order_lifecycle.dart';
 import '../../orders/providers/order_management_providers.dart';
 import 'pos_cart_panel.dart';
 
@@ -54,6 +57,15 @@ class OrderConfirmationScreen extends ConsumerWidget {
             loading: () => const Center(child: AppLoadingIndicator()),
             error: (error, _) => Center(child: Text('Error: $error')),
             data: (items) {
+              final canHold = OrderLifecycle.canHold(
+                order,
+                ref.read(placeOrderProvider).role,
+              );
+              final canResume = OrderLifecycle.canResume(
+                order,
+                ref.read(placeOrderProvider).role,
+              );
+
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 560),
@@ -96,11 +108,15 @@ class OrderConfirmationScreen extends ConsumerWidget {
                           ),
                           SizedBox(height: spacing.sm),
                           Text(
-                            '${order.orderType.label} · ${order.paymentStatus.name.toUpperCase()} · ${order.status.name}',
+                            '${order.orderType.label} · ${order.paymentStatus.label} · ${order.status.label}',
                             style: typography.bodyMedium.copyWith(
                               color: colors.onSurfaceVariant,
                             ),
                           ),
+                          if (order.isHeld) ...[
+                            SizedBox(height: spacing.sm),
+                            const OrderHeldBadge(),
+                          ],
                           if (order.isPrepaid)
                             Padding(
                               padding: EdgeInsets.only(top: spacing.xs),
@@ -154,6 +170,31 @@ class OrderConfirmationScreen extends ConsumerWidget {
                             ],
                           ),
                           SizedBox(height: spacing.lg),
+                          if (canHold)
+                            AppButton(
+                              label: 'Hold order',
+                              variant: AppButtonVariant.secondary,
+                              expand: true,
+                              onPressed: () => _setHeld(
+                                context,
+                                ref,
+                                held: true,
+                              ),
+                            ),
+                          if (canResume) ...[
+                            AppButton(
+                              label: 'Resume order',
+                              expand: true,
+                              onPressed: () => _setHeld(
+                                context,
+                                ref,
+                                held: false,
+                              ),
+                            ),
+                            SizedBox(height: spacing.sm),
+                          ],
+                          if (canHold || canResume)
+                            SizedBox(height: spacing.sm),
                           AppButton(
                             label: 'New sale',
                             expand: true,
@@ -170,5 +211,28 @@ class OrderConfirmationScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Future<void> _setHeld(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool held,
+  }) async {
+    try {
+      await ref.read(placeOrderProvider).setHeld(
+            orderId: orderId,
+            isHeld: held,
+          );
+      ref.invalidate(orderDetailProvider(orderId));
+      if (!context.mounted) return;
+      AppSnackbar.success(
+        context,
+        held ? 'Order held' : 'Order resumed',
+      );
+    } on OrderLifecycleException catch (error) {
+      if (context.mounted) {
+        AppSnackbar.error(context, error.message);
+      }
+    }
   }
 }

@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_snackbar.dart';
+import '../../../core/widgets/order_held_badge.dart';
 import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
 import '../../../domain/models/order_item.dart';
@@ -94,6 +95,32 @@ class _OrderDetailBody extends ConsumerWidget {
                     ],
                   ),
                   SizedBox(height: spacing.md),
+                  if (order.isHeld && order.status != OrderStatus.cancelled) ...[
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: colors.warning.withValues(alpha: 0.15),
+                        borderRadius: context.appRadius.mdBorder,
+                        border: Border.all(color: colors.warning),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(spacing.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const OrderHeldBadge(),
+                            SizedBox(height: spacing.xs),
+                            Text(
+                              'This order is temporarily set aside. Status remains ${order.status.label.toLowerCase()} and totals are unchanged.',
+                              style: typography.bodySmall.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: spacing.md),
+                  ],
                   if (order.status == OrderStatus.cancelled) ...[
                     DecoratedBox(
                       decoration: BoxDecoration(
@@ -214,9 +241,11 @@ class _OrderDetailBody extends ConsumerWidget {
                       label: action.label,
                       variant: action.type == OrderActionType.cancel
                           ? AppButtonVariant.danger
-                          : action.type == OrderActionType.editInPos
+                          : action.type == OrderActionType.hold
                               ? AppButtonVariant.secondary
-                              : AppButtonVariant.primary,
+                              : action.type == OrderActionType.editInPos
+                                  ? AppButtonVariant.secondary
+                                  : AppButtonVariant.primary,
                       expand: true,
                       onPressed: () => _handleAction(context, ref, action),
                     ),
@@ -270,6 +299,18 @@ class _OrderDetailBody extends ConsumerWidget {
           }
         case OrderActionType.markPaid:
           break;
+        case OrderActionType.hold:
+          await controller.setHeld(orderId: order.id, isHeld: true);
+          ref.invalidate(orderDetailProvider(order.id));
+          if (context.mounted) {
+            AppSnackbar.success(context, 'Order held');
+          }
+        case OrderActionType.resume:
+          await controller.setHeld(orderId: order.id, isHeld: false);
+          ref.invalidate(orderDetailProvider(order.id));
+          if (context.mounted) {
+            AppSnackbar.success(context, 'Order resumed');
+          }
         case OrderActionType.cancel:
           final result = await CancelOrderDialog.show(
             context,

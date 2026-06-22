@@ -24,6 +24,7 @@ Order orderFromIsar(OrderIsar record) {
     paymentStatus: record.paymentStatusEnum,
     status: record.statusEnum,
     isPrepaid: record.isPrepaid,
+    isHeld: record.isHeld,
     createdByUserId: record.createdByUserId,
     notes: record.notes,
     cancelReason: record.cancelReason,
@@ -62,6 +63,7 @@ void applyOrderFieldsToIsar({
     ..paymentStatus = order.paymentStatus.name
     ..status = order.status.name
     ..isPrepaid = order.isPrepaid
+    ..isHeld = order.isHeld
     ..createdByUserId = order.createdByUserId
     ..notes = order.notes
     ..cancelReason = order.cancelReason

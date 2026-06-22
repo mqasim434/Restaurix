@@ -7,6 +7,8 @@ enum OrderActionType {
   markPaid,
   cancel,
   editInPos,
+  hold,
+  resume,
 }
 
 class OrderAction {
@@ -110,6 +112,18 @@ abstract final class OrderLifecycle {
             order.orderType != OrderType.dineIn);
   }
 
+  static bool canHold(Order order, UserRole role) {
+    if (order.status.isClosed) return false;
+    if (order.isHeld) return false;
+    return role == UserRole.admin || role == UserRole.salesman;
+  }
+
+  static bool canResume(Order order, UserRole role) {
+    if (!order.isHeld) return false;
+    if (order.status.isClosed) return false;
+    return role == UserRole.admin || role == UserRole.salesman;
+  }
+
   static List<OrderAction> availableActions(Order order, UserRole role) {
     final actions = <OrderAction>[];
 
@@ -137,6 +151,24 @@ abstract final class OrderLifecycle {
         const OrderAction(
           type: OrderActionType.cancel,
           label: 'Cancel Order',
+        ),
+      );
+    }
+
+    if (canHold(order, role)) {
+      actions.add(
+        const OrderAction(
+          type: OrderActionType.hold,
+          label: 'Hold Order',
+        ),
+      );
+    }
+
+    if (canResume(order, role)) {
+      actions.add(
+        const OrderAction(
+          type: OrderActionType.resume,
+          label: 'Resume Order',
         ),
       );
     }

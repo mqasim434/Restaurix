@@ -132,6 +132,7 @@ class OrderRepository {
       paymentStatus: paymentStatus,
       status: OrderStatus.received,
       isPrepaid: input.isPrepaid,
+      isHeld: false,
       createdByUserId: input.createdByUserId,
       notes: input.notes,
       orderDiscountType: discountSnapshot?.type,
@@ -374,6 +375,44 @@ class OrderRepository {
         orderId: orderId,
         deviceId: deviceId,
       );
+    });
+
+    return updated;
+  }
+
+  /// Sets the operational hold flag without changing status or totals.
+  ///
+  /// Hold is a visibility/priority flag only — it never affects financials,
+  /// reporting totals, or lifecycle transitions.
+  Future<Order> setHeld({
+    required String orderId,
+    required bool isHeld,
+    required String deviceId,
+  }) async {
+    final order = await findById(orderId);
+    if (order == null) {
+      throw OrderLifecycleException('Order not found');
+    }
+
+    if (order.status.isClosed) {
+      throw OrderLifecycleException('Closed orders cannot be held');
+    }
+
+    if (order.isHeld == isHeld) {
+      return order;
+    }
+
+    final updated = order.copyWith(isHeld: isHeld);
+
+    await _isar.writeTxn(() async {
+      final record = await _requireOrderRecord(orderId);
+      applyOrderToIsar(
+        record: record,
+        order: updated,
+        deviceId: deviceId,
+        action: SyncAction.update,
+      );
+      await _isar.orderIsars.put(record);
     });
 
     return updated;

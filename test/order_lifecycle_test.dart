@@ -73,5 +73,28 @@ void main() {
       expect(OrderLifecycle.canCancel(order, UserRole.admin), isTrue);
       expect(OrderLifecycle.canCancel(order, UserRole.salesman), isFalse);
     });
+
+    test('hold and resume toggle operational flag without blocking status', () {
+      final order = _order(status: OrderStatus.preparing);
+      expect(OrderLifecycle.canHold(order, UserRole.admin), isTrue);
+      expect(OrderLifecycle.canResume(order, UserRole.admin), isFalse);
+
+      final held = order.copyWith(isHeld: true);
+      expect(OrderLifecycle.canHold(held, UserRole.admin), isFalse);
+      expect(OrderLifecycle.canResume(held, UserRole.admin), isTrue);
+      expect(OrderLifecycle.nextStatus(held), OrderStatus.ready);
+    });
+
+    test('closed orders cannot be held or resumed', () {
+      final completed = _order(status: OrderStatus.completed);
+      expect(OrderLifecycle.canHold(completed, UserRole.admin), isFalse);
+      expect(
+        OrderLifecycle.canResume(
+          completed.copyWith(isHeld: true),
+          UserRole.admin,
+        ),
+        isFalse,
+      );
+    });
   });
 }

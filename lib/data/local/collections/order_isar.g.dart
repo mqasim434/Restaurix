@@ -52,123 +52,128 @@ const OrderIsarSchema = CollectionSchema(
       name: r'deviceId',
       type: IsarType.string,
     ),
-    r'isPrepaid': PropertySchema(
+    r'isHeld': PropertySchema(
       id: 7,
+      name: r'isHeld',
+      type: IsarType.bool,
+    ),
+    r'isPrepaid': PropertySchema(
+      id: 8,
       name: r'isPrepaid',
       type: IsarType.bool,
     ),
     r'isSynced': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'itemDiscountTotal': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'itemDiscountTotal',
       type: IsarType.double,
     ),
     r'notes': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'notes',
       type: IsarType.string,
     ),
     r'orderDiscountReason': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'orderDiscountReason',
       type: IsarType.string,
     ),
     r'orderDiscountTotal': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'orderDiscountTotal',
       type: IsarType.double,
     ),
     r'orderDiscountType': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'orderDiscountType',
       type: IsarType.string,
     ),
     r'orderDiscountValue': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'orderDiscountValue',
       type: IsarType.double,
     ),
     r'orderNumber': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'orderNumber',
       type: IsarType.string,
     ),
     r'orderType': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'orderType',
       type: IsarType.string,
     ),
     r'paymentStatus': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'paymentStatus',
       type: IsarType.string,
     ),
     r'paymentType': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'paymentType',
       type: IsarType.string,
     ),
     r'pickupCompanyId': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'pickupCompanyId',
       type: IsarType.string,
     ),
     r'pickupCompanyName': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'pickupCompanyName',
       type: IsarType.string,
     ),
     r'riderId': PropertySchema(
-      id: 21,
+      id: 22,
       name: r'riderId',
       type: IsarType.string,
     ),
     r'riderName': PropertySchema(
-      id: 22,
+      id: 23,
       name: r'riderName',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 23,
+      id: 24,
       name: r'status',
       type: IsarType.string,
     ),
     r'subtotal': PropertySchema(
-      id: 24,
+      id: 25,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'syncAction': PropertySchema(
-      id: 25,
+      id: 26,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'tableId': PropertySchema(
-      id: 26,
+      id: 27,
       name: r'tableId',
       type: IsarType.string,
     ),
     r'total': PropertySchema(
-      id: 27,
+      id: 28,
       name: r'total',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 28,
+      id: 29,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 29,
+      id: 30,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 30,
+      id: 31,
       name: r'version',
       type: IsarType.long,
     )
@@ -228,6 +233,19 @@ const OrderIsarSchema = CollectionSchema(
           name: r'status',
           type: IndexType.hash,
           caseSensitive: true,
+        )
+      ],
+    ),
+    r'isHeld': IndexSchema(
+      id: 8771978306284320336,
+      name: r'isHeld',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'isHeld',
+          type: IndexType.value,
+          caseSensitive: false,
         )
       ],
     )
@@ -342,30 +360,31 @@ void _orderIsarSerialize(
   writer.writeDateTime(offsets[4], object.deletedAt);
   writer.writeString(offsets[5], object.deliveryMode);
   writer.writeString(offsets[6], object.deviceId);
-  writer.writeBool(offsets[7], object.isPrepaid);
-  writer.writeBool(offsets[8], object.isSynced);
-  writer.writeDouble(offsets[9], object.itemDiscountTotal);
-  writer.writeString(offsets[10], object.notes);
-  writer.writeString(offsets[11], object.orderDiscountReason);
-  writer.writeDouble(offsets[12], object.orderDiscountTotal);
-  writer.writeString(offsets[13], object.orderDiscountType);
-  writer.writeDouble(offsets[14], object.orderDiscountValue);
-  writer.writeString(offsets[15], object.orderNumber);
-  writer.writeString(offsets[16], object.orderType);
-  writer.writeString(offsets[17], object.paymentStatus);
-  writer.writeString(offsets[18], object.paymentType);
-  writer.writeString(offsets[19], object.pickupCompanyId);
-  writer.writeString(offsets[20], object.pickupCompanyName);
-  writer.writeString(offsets[21], object.riderId);
-  writer.writeString(offsets[22], object.riderName);
-  writer.writeString(offsets[23], object.status);
-  writer.writeDouble(offsets[24], object.subtotal);
-  writer.writeString(offsets[25], object.syncAction);
-  writer.writeString(offsets[26], object.tableId);
-  writer.writeDouble(offsets[27], object.total);
-  writer.writeDateTime(offsets[28], object.updatedAt);
-  writer.writeString(offsets[29], object.uuid);
-  writer.writeLong(offsets[30], object.version);
+  writer.writeBool(offsets[7], object.isHeld);
+  writer.writeBool(offsets[8], object.isPrepaid);
+  writer.writeBool(offsets[9], object.isSynced);
+  writer.writeDouble(offsets[10], object.itemDiscountTotal);
+  writer.writeString(offsets[11], object.notes);
+  writer.writeString(offsets[12], object.orderDiscountReason);
+  writer.writeDouble(offsets[13], object.orderDiscountTotal);
+  writer.writeString(offsets[14], object.orderDiscountType);
+  writer.writeDouble(offsets[15], object.orderDiscountValue);
+  writer.writeString(offsets[16], object.orderNumber);
+  writer.writeString(offsets[17], object.orderType);
+  writer.writeString(offsets[18], object.paymentStatus);
+  writer.writeString(offsets[19], object.paymentType);
+  writer.writeString(offsets[20], object.pickupCompanyId);
+  writer.writeString(offsets[21], object.pickupCompanyName);
+  writer.writeString(offsets[22], object.riderId);
+  writer.writeString(offsets[23], object.riderName);
+  writer.writeString(offsets[24], object.status);
+  writer.writeDouble(offsets[25], object.subtotal);
+  writer.writeString(offsets[26], object.syncAction);
+  writer.writeString(offsets[27], object.tableId);
+  writer.writeDouble(offsets[28], object.total);
+  writer.writeDateTime(offsets[29], object.updatedAt);
+  writer.writeString(offsets[30], object.uuid);
+  writer.writeLong(offsets[31], object.version);
 }
 
 OrderIsar _orderIsarDeserialize(
@@ -382,31 +401,32 @@ OrderIsar _orderIsarDeserialize(
   object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
   object.deliveryMode = reader.readStringOrNull(offsets[5]);
   object.deviceId = reader.readString(offsets[6]);
-  object.isPrepaid = reader.readBool(offsets[7]);
-  object.isSynced = reader.readBool(offsets[8]);
+  object.isHeld = reader.readBool(offsets[7]);
+  object.isPrepaid = reader.readBool(offsets[8]);
+  object.isSynced = reader.readBool(offsets[9]);
   object.isarId = id;
-  object.itemDiscountTotal = reader.readDouble(offsets[9]);
-  object.notes = reader.readStringOrNull(offsets[10]);
-  object.orderDiscountReason = reader.readStringOrNull(offsets[11]);
-  object.orderDiscountTotal = reader.readDouble(offsets[12]);
-  object.orderDiscountType = reader.readStringOrNull(offsets[13]);
-  object.orderDiscountValue = reader.readDoubleOrNull(offsets[14]);
-  object.orderNumber = reader.readString(offsets[15]);
-  object.orderType = reader.readString(offsets[16]);
-  object.paymentStatus = reader.readString(offsets[17]);
-  object.paymentType = reader.readStringOrNull(offsets[18]);
-  object.pickupCompanyId = reader.readStringOrNull(offsets[19]);
-  object.pickupCompanyName = reader.readStringOrNull(offsets[20]);
-  object.riderId = reader.readStringOrNull(offsets[21]);
-  object.riderName = reader.readStringOrNull(offsets[22]);
-  object.status = reader.readString(offsets[23]);
-  object.subtotal = reader.readDouble(offsets[24]);
-  object.syncAction = reader.readString(offsets[25]);
-  object.tableId = reader.readStringOrNull(offsets[26]);
-  object.total = reader.readDouble(offsets[27]);
-  object.updatedAt = reader.readDateTime(offsets[28]);
-  object.uuid = reader.readString(offsets[29]);
-  object.version = reader.readLong(offsets[30]);
+  object.itemDiscountTotal = reader.readDouble(offsets[10]);
+  object.notes = reader.readStringOrNull(offsets[11]);
+  object.orderDiscountReason = reader.readStringOrNull(offsets[12]);
+  object.orderDiscountTotal = reader.readDouble(offsets[13]);
+  object.orderDiscountType = reader.readStringOrNull(offsets[14]);
+  object.orderDiscountValue = reader.readDoubleOrNull(offsets[15]);
+  object.orderNumber = reader.readString(offsets[16]);
+  object.orderType = reader.readString(offsets[17]);
+  object.paymentStatus = reader.readString(offsets[18]);
+  object.paymentType = reader.readStringOrNull(offsets[19]);
+  object.pickupCompanyId = reader.readStringOrNull(offsets[20]);
+  object.pickupCompanyName = reader.readStringOrNull(offsets[21]);
+  object.riderId = reader.readStringOrNull(offsets[22]);
+  object.riderName = reader.readStringOrNull(offsets[23]);
+  object.status = reader.readString(offsets[24]);
+  object.subtotal = reader.readDouble(offsets[25]);
+  object.syncAction = reader.readString(offsets[26]);
+  object.tableId = reader.readStringOrNull(offsets[27]);
+  object.total = reader.readDouble(offsets[28]);
+  object.updatedAt = reader.readDateTime(offsets[29]);
+  object.uuid = reader.readString(offsets[30]);
+  object.version = reader.readLong(offsets[31]);
   return object;
 }
 
@@ -436,25 +456,25 @@ P _orderIsarDeserializeProp<P>(
     case 8:
       return (reader.readBool(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 10:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 11:
       return (reader.readStringOrNull(offset)) as P;
     case 12:
-      return (reader.readDouble(offset)) as P;
-    case 13:
       return (reader.readStringOrNull(offset)) as P;
+    case 13:
+      return (reader.readDouble(offset)) as P;
     case 14:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 15:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 16:
       return (reader.readString(offset)) as P;
     case 17:
       return (reader.readString(offset)) as P;
     case 18:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 19:
       return (reader.readStringOrNull(offset)) as P;
     case 20:
@@ -464,20 +484,22 @@ P _orderIsarDeserializeProp<P>(
     case 22:
       return (reader.readStringOrNull(offset)) as P;
     case 23:
-      return (reader.readString(offset)) as P;
-    case 24:
-      return (reader.readDouble(offset)) as P;
-    case 25:
-      return (reader.readString(offset)) as P;
-    case 26:
       return (reader.readStringOrNull(offset)) as P;
-    case 27:
-      return (reader.readDouble(offset)) as P;
-    case 28:
-      return (reader.readDateTime(offset)) as P;
-    case 29:
+    case 24:
       return (reader.readString(offset)) as P;
+    case 25:
+      return (reader.readDouble(offset)) as P;
+    case 26:
+      return (reader.readString(offset)) as P;
+    case 27:
+      return (reader.readStringOrNull(offset)) as P;
+    case 28:
+      return (reader.readDouble(offset)) as P;
+    case 29:
+      return (reader.readDateTime(offset)) as P;
     case 30:
+      return (reader.readString(offset)) as P;
+    case 31:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -555,6 +577,14 @@ extension OrderIsarQueryWhereSort
   QueryBuilder<OrderIsar, OrderIsar, QAfterWhere> anyIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhere> anyIsHeld() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'isHeld'),
+      );
     });
   }
 }
@@ -824,6 +854,51 @@ extension OrderIsarQueryWhere
               indexName: r'status',
               lower: [],
               upper: [status],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> isHeldEqualTo(
+      bool isHeld) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'isHeld',
+        value: [isHeld],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> isHeldNotEqualTo(
+      bool isHeld) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isHeld',
+              lower: [],
+              upper: [isHeld],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isHeld',
+              lower: [isHeld],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isHeld',
+              lower: [isHeld],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'isHeld',
+              lower: [],
+              upper: [isHeld],
               includeUpper: false,
             ));
       }
@@ -1681,6 +1756,16 @@ extension OrderIsarQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'deviceId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> isHeldEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isHeld',
+        value: value,
       ));
     });
   }
@@ -4451,6 +4536,18 @@ extension OrderIsarQuerySortBy on QueryBuilder<OrderIsar, OrderIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByIsHeld() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isHeld', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByIsHeldDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isHeld', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByIsPrepaid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isPrepaid', Sort.asc);
@@ -4833,6 +4930,18 @@ extension OrderIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByIsHeld() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isHeld', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByIsHeldDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isHeld', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByIsPrepaid() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isPrepaid', Sort.asc);
@@ -5191,6 +5300,12 @@ extension OrderIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctByIsHeld() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isHeld');
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctByIsPrepaid() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isPrepaid');
@@ -5404,6 +5519,12 @@ extension OrderIsarQueryProperty
   QueryBuilder<OrderIsar, String, QQueryOperations> deviceIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deviceId');
+    });
+  }
+
+  QueryBuilder<OrderIsar, bool, QQueryOperations> isHeldProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isHeld');
     });
   }
 

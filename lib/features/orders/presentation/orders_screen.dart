@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/order_held_badge.dart';
 import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
 import '../../../domain/services/order_lifecycle.dart';
@@ -76,9 +77,14 @@ class _OrderListTile extends StatelessWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final isCancelled = order.status == OrderStatus.cancelled;
+    final isHeld = order.isHeld;
 
     return Material(
-      color: isCancelled ? colors.errorContainer.withValues(alpha: 0.25) : colors.surface,
+      color: isCancelled
+          ? colors.errorContainer.withValues(alpha: 0.25)
+          : isHeld
+              ? colors.warning.withValues(alpha: 0.12)
+              : colors.surface,
       borderRadius: context.appRadius.mdBorder,
       child: InkWell(
         borderRadius: context.appRadius.mdBorder,
@@ -87,7 +93,11 @@ class _OrderListTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: context.appRadius.mdBorder,
             border: Border.all(
-              color: isCancelled ? colors.error.withValues(alpha: 0.4) : colors.border,
+              color: isCancelled
+                  ? colors.error.withValues(alpha: 0.4)
+                  : isHeld
+                      ? colors.warning.withValues(alpha: 0.5)
+                      : colors.border,
             ),
           ),
           padding: EdgeInsets.all(spacing.md),
@@ -110,6 +120,10 @@ class _OrderListTile extends StatelessWidget {
                         color: colors.onSurfaceVariant,
                       ),
                     ),
+                    if (isHeld) ...[
+                      SizedBox(height: spacing.xs),
+                      const OrderHeldBadge(compact: true),
+                    ],
                   ],
                 ),
               ),
