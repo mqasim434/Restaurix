@@ -226,4 +226,13 @@ class OrderItemIsar {
     version += 1;
     return this;
   }
+
+  OrderItemIsar markUpdated({required String deviceId, SyncAction? action}) {
+    updatedAt = DateTime.now();
+    isSynced = false;
+    syncAction = (action ?? SyncAction.update).name;
+    this.deviceId = deviceId;
+    version += 1;
+    return this;
+  }
 }

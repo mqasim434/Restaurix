@@ -7,6 +7,7 @@ import '../features/deals/presentation/deals_screen.dart';
 import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
+import '../features/kitchen/presentation/kitchen_display_screen.dart';
 import '../features/orders/presentation/order_detail_screen.dart';
 import '../features/orders/presentation/orders_screen.dart';
 import '../features/pos/presentation/order_confirmation_screen.dart';
@@ -37,6 +38,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/theme-preview',
         builder: (context, state) => const ThemePreviewScreen(),
+      ),
+      GoRoute(
+        path: '/kitchen',
+        builder: (context, state) => const KitchenDisplayScreen(),
       ),
     ],
   );

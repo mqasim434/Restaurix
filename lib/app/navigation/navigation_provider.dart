@@ -41,6 +41,11 @@ const _adminNavItems = [
   NavItem(label: 'Dashboard', path: '/dashboard', icon: Icons.dashboard_outlined),
   NavItem(label: 'Sales (POS)', path: '/sales', icon: Icons.point_of_sale_outlined),
   NavItem(label: 'Orders', path: '/orders', icon: Icons.receipt_long_outlined),
+  NavItem(
+    label: 'Kitchen',
+    path: '/kitchen',
+    icon: Icons.restaurant_menu_outlined,
+  ),
   NavItem(label: 'Products', path: '/products', icon: Icons.inventory_2_outlined),
   NavItem(label: 'Categories', path: '/categories', icon: Icons.category_outlined),
   NavItem(label: 'Deals', path: '/deals', icon: Icons.local_offer_outlined),
