@@ -9,6 +9,8 @@ class KitchenDisplayItem {
     required this.quantity,
     this.modifierNames = const [],
     required this.kitchenStatus,
+    required this.prepMinutes,
+    required this.kitchenStatusChangedAt,
   });
 
   final String id;
@@ -17,6 +19,8 @@ class KitchenDisplayItem {
   final int quantity;
   final List<String> modifierNames;
   final KitchenStatus kitchenStatus;
+  final int prepMinutes;
+  final DateTime kitchenStatusChangedAt;
 }
 
 /// One order card within a KDS column.

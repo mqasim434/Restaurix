@@ -56,6 +56,11 @@ const _adminNavItems = [
     path: '/attendance',
     icon: Icons.fingerprint_outlined,
   ),
+  NavItem(
+    label: 'Salary',
+    path: '/salary',
+    icon: Icons.payments_outlined,
+  ),
   NavItem(label: 'Reports', path: '/reports', icon: Icons.bar_chart_rounded),
   NavItem(label: 'Analytics', path: '/analytics', icon: Icons.insights_outlined),
   NavItem(label: 'Settings', path: '/settings', icon: Icons.settings_outlined),

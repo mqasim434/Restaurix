@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +16,11 @@ import '../providers/checkout_providers.dart';
 import '../providers/discount_providers.dart';
 import '../../orders/providers/order_management_providers.dart';
 import '../providers/order_edit_provider.dart';
+import '../../printing/providers/kitchen_ticket_providers.dart';
+import '../../printing/providers/receipt_providers.dart';
+import '../../printing/kitchen_ticket/kitchen_ticket_feedback.dart';
+import '../../printing/receipt/receipt_builder.dart';
+import '../../printing/receipt/receipt_feedback.dart';
 
 class PosCheckoutScreen extends ConsumerStatefulWidget {
   const PosCheckoutScreen({super.key});
@@ -24,6 +31,7 @@ class PosCheckoutScreen extends ConsumerStatefulWidget {
 
 class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
   final _notesController = TextEditingController();
+  final _promisedPrepController = TextEditingController();
   bool _isPlacing = false;
 
   @override
@@ -32,6 +40,8 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final draft = ref.read(checkoutProvider);
       _notesController.text = draft.notes ?? '';
+      _promisedPrepController.text =
+          draft.promisedPrepMinutes?.toString() ?? '';
       if (draft.paymentType == null) {
         ref.read(checkoutProvider.notifier).setPaymentType(PaymentType.cash);
       }
@@ -41,6 +51,7 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
   @override
   void dispose() {
     _notesController.dispose();
+    _promisedPrepController.dispose();
     super.dispose();
   }
 
@@ -194,6 +205,31 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
                         ),
                         SizedBox(height: spacing.sm),
                         TextField(
+                          controller: _promisedPrepController,
+                          decoration: const InputDecoration(
+                            labelText: 'Customer wait time (minutes)',
+                            hintText: 'Optional — overrides product prep times',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            final trimmed = value.trim();
+                            if (trimmed.isEmpty) {
+                              ref
+                                  .read(checkoutProvider.notifier)
+                                  .setPromisedPrepMinutes(null);
+                              return;
+                            }
+                            final minutes = int.tryParse(trimmed);
+                            if (minutes != null && minutes > 0) {
+                              ref
+                                  .read(checkoutProvider.notifier)
+                                  .setPromisedPrepMinutes(minutes);
+                            }
+                          },
+                        ),
+                        SizedBox(height: spacing.sm),
+                        TextField(
                           controller: _notesController,
                           decoration: const InputDecoration(
                             labelText: 'Order notes (optional)',
@@ -324,6 +360,14 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
       ref.read(orderEditLoaderProvider).clearEditMode();
       await ref.read(checkoutProvider.notifier).clear();
 
+      if (editingOrderId == null) {
+        final orderId = order.id;
+        unawaited(_printKitchenTicket(orderId));
+        if (ReceiptPrintPolicy.shouldAutoPrint(order)) {
+          unawaited(_printReceipt(orderId));
+        }
+      }
+
       if (!context.mounted) return;
       context.go('/sales/confirmation/${order.id}');
     } on OrderPlacementException catch (error) {
@@ -336,6 +380,38 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
       }
     } finally {
       if (mounted) setState(() => _isPlacing = false);
+    }
+  }
+
+  Future<void> _printKitchenTicket(String orderId) async {
+    try {
+      final result = await ref
+          .read(kitchenTicketPrintControllerProvider)
+          .printOrder(orderId: orderId, isReprint: false);
+      if (!mounted) return;
+      showKitchenPrintFeedback(context, result);
+    } catch (error) {
+      if (!mounted) return;
+      AppSnackbar.info(
+        context,
+        'Order placed, but kitchen printing failed: $error',
+      );
+    }
+  }
+
+  Future<void> _printReceipt(String orderId) async {
+    try {
+      final result = await ref
+          .read(receiptPrintControllerProvider)
+          .printOrder(orderId: orderId, isReprint: false);
+      if (!mounted) return;
+      showReceiptPrintFeedback(context, result);
+    } catch (error) {
+      if (!mounted) return;
+      AppSnackbar.info(
+        context,
+        'Order placed, but receipt printing failed: $error',
+      );
     }
   }
 }

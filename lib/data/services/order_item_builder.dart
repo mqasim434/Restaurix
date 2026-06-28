@@ -5,6 +5,7 @@ import '../../domain/models/cart_item.dart';
 import '../../domain/models/discount.dart';
 import '../../domain/models/order_item.dart';
 import '../../domain/models/order_enums.dart';
+import '../../domain/services/kitchen_prep_resolver.dart';
 import '../../features/pos/services/discount_calculator.dart';
 
 /// Builds persisted order line snapshots from cart + discount state.
@@ -15,6 +16,8 @@ List<OrderItem> buildOrderItems({
   required CartPricingBreakdown pricing,
   required String deviceId,
   required DateTime now,
+  int? orderPromisedPrepMinutes,
+  Map<String, int> productPrepMinutesById = const {},
 }) {
   return [
     for (final item in cartItems)
@@ -42,6 +45,13 @@ List<OrderItem> buildOrderItems({
           linePricing: pricing.linePricing[item.lineId],
         ),
         kitchenStatus: KitchenStatus.received,
+        prepMinutes: KitchenPrepResolver.resolveItemPrepMinutes(
+          item: item,
+          orderPromisedPrepMinutes: orderPromisedPrepMinutes,
+          productPrepMinutesById: productPrepMinutesById,
+        ),
+        kitchenStatusChangedAt: now,
+        kitchenReceivedAt: now,
         createdAt: now,
         updatedAt: now,
         isSynced: false,

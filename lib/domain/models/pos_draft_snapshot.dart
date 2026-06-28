@@ -27,6 +27,7 @@ class PosDraftSnapshot {
         pickupCompanyId: checkout.pickupCompanyId,
         pickupCompanyName: checkout.pickupCompanyName,
         notes: checkout.notes,
+        promisedPrepMinutes: checkout.promisedPrepMinutes,
       );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +60,7 @@ class PosDraftSnapshot {
         'pickupCompanyId': draft.pickupCompanyId,
         'pickupCompanyName': draft.pickupCompanyName,
         'notes': draft.notes,
+        'promisedPrepMinutes': draft.promisedPrepMinutes,
       };
 
   static PosCheckoutDraft _checkoutFromJson(Map<String, dynamic> json) {
@@ -88,6 +90,7 @@ class PosDraftSnapshot {
       pickupCompanyId: json['pickupCompanyId'] as String?,
       pickupCompanyName: json['pickupCompanyName'] as String?,
       notes: json['notes'] as String?,
+      promisedPrepMinutes: json['promisedPrepMinutes'] as int?,
     );
   }
 

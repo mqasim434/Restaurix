@@ -40,7 +40,10 @@ OrderItem _item({
   String orderId = 'o1',
   KitchenStatus kitchenStatus = KitchenStatus.received,
   String name = 'Burger',
+  int prepMinutes = 10,
+  DateTime? kitchenStatusChangedAt,
 }) {
+  final changedAt = kitchenStatusChangedAt ?? DateTime(2024, 6, 21, 12);
   return OrderItem(
     id: id,
     orderId: orderId,
@@ -49,8 +52,10 @@ OrderItem _item({
     quantity: 1,
     lineTotal: 10,
     kitchenStatus: kitchenStatus,
-    createdAt: DateTime(2024, 6, 21, 12),
-    updatedAt: DateTime(2024, 6, 21, 12),
+    prepMinutes: prepMinutes,
+    kitchenStatusChangedAt: changedAt,
+    createdAt: changedAt,
+    updatedAt: changedAt,
     isSynced: false,
     syncAction: SyncAction.create,
     deviceId: 'd1',

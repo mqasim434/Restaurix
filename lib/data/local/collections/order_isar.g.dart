@@ -127,53 +127,58 @@ const OrderIsarSchema = CollectionSchema(
       name: r'pickupCompanyName',
       type: IsarType.string,
     ),
-    r'riderId': PropertySchema(
+    r'promisedPrepMinutes': PropertySchema(
       id: 22,
+      name: r'promisedPrepMinutes',
+      type: IsarType.long,
+    ),
+    r'riderId': PropertySchema(
+      id: 23,
       name: r'riderId',
       type: IsarType.string,
     ),
     r'riderName': PropertySchema(
-      id: 23,
+      id: 24,
       name: r'riderName',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 24,
+      id: 25,
       name: r'status',
       type: IsarType.string,
     ),
     r'subtotal': PropertySchema(
-      id: 25,
+      id: 26,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'syncAction': PropertySchema(
-      id: 26,
+      id: 27,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'tableId': PropertySchema(
-      id: 27,
+      id: 28,
       name: r'tableId',
       type: IsarType.string,
     ),
     r'total': PropertySchema(
-      id: 28,
+      id: 29,
       name: r'total',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 29,
+      id: 30,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 30,
+      id: 31,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 31,
+      id: 32,
       name: r'version',
       type: IsarType.long,
     )
@@ -244,6 +249,19 @@ const OrderIsarSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'isHeld',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    ),
+    r'createdAt': IndexSchema(
+      id: -3433535483987302584,
+      name: r'createdAt',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'createdAt',
           type: IndexType.value,
           caseSensitive: false,
         )
@@ -375,16 +393,17 @@ void _orderIsarSerialize(
   writer.writeString(offsets[19], object.paymentType);
   writer.writeString(offsets[20], object.pickupCompanyId);
   writer.writeString(offsets[21], object.pickupCompanyName);
-  writer.writeString(offsets[22], object.riderId);
-  writer.writeString(offsets[23], object.riderName);
-  writer.writeString(offsets[24], object.status);
-  writer.writeDouble(offsets[25], object.subtotal);
-  writer.writeString(offsets[26], object.syncAction);
-  writer.writeString(offsets[27], object.tableId);
-  writer.writeDouble(offsets[28], object.total);
-  writer.writeDateTime(offsets[29], object.updatedAt);
-  writer.writeString(offsets[30], object.uuid);
-  writer.writeLong(offsets[31], object.version);
+  writer.writeLong(offsets[22], object.promisedPrepMinutes);
+  writer.writeString(offsets[23], object.riderId);
+  writer.writeString(offsets[24], object.riderName);
+  writer.writeString(offsets[25], object.status);
+  writer.writeDouble(offsets[26], object.subtotal);
+  writer.writeString(offsets[27], object.syncAction);
+  writer.writeString(offsets[28], object.tableId);
+  writer.writeDouble(offsets[29], object.total);
+  writer.writeDateTime(offsets[30], object.updatedAt);
+  writer.writeString(offsets[31], object.uuid);
+  writer.writeLong(offsets[32], object.version);
 }
 
 OrderIsar _orderIsarDeserialize(
@@ -417,16 +436,17 @@ OrderIsar _orderIsarDeserialize(
   object.paymentType = reader.readStringOrNull(offsets[19]);
   object.pickupCompanyId = reader.readStringOrNull(offsets[20]);
   object.pickupCompanyName = reader.readStringOrNull(offsets[21]);
-  object.riderId = reader.readStringOrNull(offsets[22]);
-  object.riderName = reader.readStringOrNull(offsets[23]);
-  object.status = reader.readString(offsets[24]);
-  object.subtotal = reader.readDouble(offsets[25]);
-  object.syncAction = reader.readString(offsets[26]);
-  object.tableId = reader.readStringOrNull(offsets[27]);
-  object.total = reader.readDouble(offsets[28]);
-  object.updatedAt = reader.readDateTime(offsets[29]);
-  object.uuid = reader.readString(offsets[30]);
-  object.version = reader.readLong(offsets[31]);
+  object.promisedPrepMinutes = reader.readLongOrNull(offsets[22]);
+  object.riderId = reader.readStringOrNull(offsets[23]);
+  object.riderName = reader.readStringOrNull(offsets[24]);
+  object.status = reader.readString(offsets[25]);
+  object.subtotal = reader.readDouble(offsets[26]);
+  object.syncAction = reader.readString(offsets[27]);
+  object.tableId = reader.readStringOrNull(offsets[28]);
+  object.total = reader.readDouble(offsets[29]);
+  object.updatedAt = reader.readDateTime(offsets[30]);
+  object.uuid = reader.readString(offsets[31]);
+  object.version = reader.readLong(offsets[32]);
   return object;
 }
 
@@ -482,24 +502,26 @@ P _orderIsarDeserializeProp<P>(
     case 21:
       return (reader.readStringOrNull(offset)) as P;
     case 22:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 23:
       return (reader.readStringOrNull(offset)) as P;
     case 24:
-      return (reader.readString(offset)) as P;
-    case 25:
-      return (reader.readDouble(offset)) as P;
-    case 26:
-      return (reader.readString(offset)) as P;
-    case 27:
       return (reader.readStringOrNull(offset)) as P;
-    case 28:
-      return (reader.readDouble(offset)) as P;
-    case 29:
-      return (reader.readDateTime(offset)) as P;
-    case 30:
+    case 25:
       return (reader.readString(offset)) as P;
+    case 26:
+      return (reader.readDouble(offset)) as P;
+    case 27:
+      return (reader.readString(offset)) as P;
+    case 28:
+      return (reader.readStringOrNull(offset)) as P;
+    case 29:
+      return (reader.readDouble(offset)) as P;
+    case 30:
+      return (reader.readDateTime(offset)) as P;
     case 31:
+      return (reader.readString(offset)) as P;
+    case 32:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -584,6 +606,14 @@ extension OrderIsarQueryWhereSort
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         const IndexWhereClause.any(indexName: r'isHeld'),
+      );
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhere> anyCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'createdAt'),
       );
     });
   }
@@ -902,6 +932,96 @@ extension OrderIsarQueryWhere
               includeUpper: false,
             ));
       }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdAtEqualTo(
+      DateTime createdAt) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'createdAt',
+        value: [createdAt],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdAtNotEqualTo(
+      DateTime createdAt) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [],
+              upper: [createdAt],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [createdAt],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [createdAt],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [],
+              upper: [createdAt],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdAtGreaterThan(
+    DateTime createdAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'createdAt',
+        lower: [createdAt],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdAtLessThan(
+    DateTime createdAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'createdAt',
+        lower: [],
+        upper: [createdAt],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdAtBetween(
+    DateTime lowerCreatedAt,
+    DateTime upperCreatedAt, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'createdAt',
+        lower: [lowerCreatedAt],
+        includeLower: includeLower,
+        upper: [upperCreatedAt],
+        includeUpper: includeUpper,
+      ));
     });
   }
 }
@@ -3375,6 +3495,80 @@ extension OrderIsarQueryFilter
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      promisedPrepMinutesIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'promisedPrepMinutes',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      promisedPrepMinutesIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'promisedPrepMinutes',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      promisedPrepMinutesEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'promisedPrepMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      promisedPrepMinutesGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'promisedPrepMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      promisedPrepMinutesLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'promisedPrepMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      promisedPrepMinutesBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'promisedPrepMinutes',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> riderIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -4722,6 +4916,19 @@ extension OrderIsarQuerySortBy on QueryBuilder<OrderIsar, OrderIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByPromisedPrepMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promisedPrepMinutes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy>
+      sortByPromisedPrepMinutesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promisedPrepMinutes', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByRiderId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'riderId', Sort.asc);
@@ -5128,6 +5335,19 @@ extension OrderIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByPromisedPrepMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promisedPrepMinutes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy>
+      thenByPromisedPrepMinutesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'promisedPrepMinutes', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByRiderId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'riderId', Sort.asc);
@@ -5404,6 +5624,13 @@ extension OrderIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QDistinct>
+      distinctByPromisedPrepMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'promisedPrepMinutes');
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctByRiderId(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -5618,6 +5845,13 @@ extension OrderIsarQueryProperty
     });
   }
 
+  QueryBuilder<OrderIsar, int?, QQueryOperations>
+      promisedPrepMinutesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'promisedPrepMinutes');
+    });
+  }
+
   QueryBuilder<OrderIsar, String?, QQueryOperations> riderIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'riderId');
@@ -5721,69 +5955,89 @@ const OrderItemIsarSchema = CollectionSchema(
       name: r'isSynced',
       type: IsarType.bool,
     ),
-    r'kitchenStatus': PropertySchema(
+    r'kitchenReadyAt': PropertySchema(
       id: 6,
+      name: r'kitchenReadyAt',
+      type: IsarType.dateTime,
+    ),
+    r'kitchenReceivedAt': PropertySchema(
+      id: 7,
+      name: r'kitchenReceivedAt',
+      type: IsarType.dateTime,
+    ),
+    r'kitchenStatus': PropertySchema(
+      id: 8,
       name: r'kitchenStatus',
       type: IsarType.string,
     ),
+    r'kitchenStatusChangedAt': PropertySchema(
+      id: 9,
+      name: r'kitchenStatusChangedAt',
+      type: IsarType.dateTime,
+    ),
     r'lineTotal': PropertySchema(
-      id: 7,
+      id: 10,
       name: r'lineTotal',
       type: IsarType.double,
     ),
     r'modifiers': PropertySchema(
-      id: 8,
+      id: 11,
       name: r'modifiers',
       type: IsarType.objectList,
       target: r'OrderItemModifierEmbedded',
     ),
     r'name': PropertySchema(
-      id: 9,
+      id: 12,
       name: r'name',
       type: IsarType.string,
     ),
     r'orderId': PropertySchema(
-      id: 10,
+      id: 13,
       name: r'orderId',
       type: IsarType.string,
     ),
+    r'prepMinutes': PropertySchema(
+      id: 14,
+      name: r'prepMinutes',
+      type: IsarType.long,
+    ),
     r'productId': PropertySchema(
-      id: 11,
+      id: 15,
       name: r'productId',
       type: IsarType.string,
     ),
     r'quantity': PropertySchema(
-      id: 12,
+      id: 16,
       name: r'quantity',
       type: IsarType.long,
     ),
     r'syncAction': PropertySchema(
-      id: 13,
+      id: 17,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'unitPrice': PropertySchema(
-      id: 14,
+      id: 18,
       name: r'unitPrice',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 15,
+      id: 19,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 16,
+      id: 20,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'variantName': PropertySchema(
-      id: 17,
+      id: 21,
       name: r'variantName',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 18,
+      id: 22,
       name: r'version',
       type: IsarType.long,
     )
@@ -5900,24 +6154,28 @@ void _orderItemIsarSerialize(
   writer.writeDateTime(offsets[3], object.deletedAt);
   writer.writeString(offsets[4], object.deviceId);
   writer.writeBool(offsets[5], object.isSynced);
-  writer.writeString(offsets[6], object.kitchenStatus);
-  writer.writeDouble(offsets[7], object.lineTotal);
+  writer.writeDateTime(offsets[6], object.kitchenReadyAt);
+  writer.writeDateTime(offsets[7], object.kitchenReceivedAt);
+  writer.writeString(offsets[8], object.kitchenStatus);
+  writer.writeDateTime(offsets[9], object.kitchenStatusChangedAt);
+  writer.writeDouble(offsets[10], object.lineTotal);
   writer.writeObjectList<OrderItemModifierEmbedded>(
-    offsets[8],
+    offsets[11],
     allOffsets,
     OrderItemModifierEmbeddedSchema.serialize,
     object.modifiers,
   );
-  writer.writeString(offsets[9], object.name);
-  writer.writeString(offsets[10], object.orderId);
-  writer.writeString(offsets[11], object.productId);
-  writer.writeLong(offsets[12], object.quantity);
-  writer.writeString(offsets[13], object.syncAction);
-  writer.writeDouble(offsets[14], object.unitPrice);
-  writer.writeDateTime(offsets[15], object.updatedAt);
-  writer.writeString(offsets[16], object.uuid);
-  writer.writeString(offsets[17], object.variantName);
-  writer.writeLong(offsets[18], object.version);
+  writer.writeString(offsets[12], object.name);
+  writer.writeString(offsets[13], object.orderId);
+  writer.writeLong(offsets[14], object.prepMinutes);
+  writer.writeString(offsets[15], object.productId);
+  writer.writeLong(offsets[16], object.quantity);
+  writer.writeString(offsets[17], object.syncAction);
+  writer.writeDouble(offsets[18], object.unitPrice);
+  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeString(offsets[20], object.uuid);
+  writer.writeString(offsets[21], object.variantName);
+  writer.writeLong(offsets[22], object.version);
 }
 
 OrderItemIsar _orderItemIsarDeserialize(
@@ -5940,25 +6198,29 @@ OrderItemIsar _orderItemIsarDeserialize(
   object.deviceId = reader.readString(offsets[4]);
   object.isSynced = reader.readBool(offsets[5]);
   object.isarId = id;
-  object.kitchenStatus = reader.readString(offsets[6]);
-  object.lineTotal = reader.readDouble(offsets[7]);
+  object.kitchenReadyAt = reader.readDateTimeOrNull(offsets[6]);
+  object.kitchenReceivedAt = reader.readDateTimeOrNull(offsets[7]);
+  object.kitchenStatus = reader.readString(offsets[8]);
+  object.kitchenStatusChangedAt = reader.readDateTimeOrNull(offsets[9]);
+  object.lineTotal = reader.readDouble(offsets[10]);
   object.modifiers = reader.readObjectList<OrderItemModifierEmbedded>(
-        offsets[8],
+        offsets[11],
         OrderItemModifierEmbeddedSchema.deserialize,
         allOffsets,
         OrderItemModifierEmbedded(),
       ) ??
       [];
-  object.name = reader.readString(offsets[9]);
-  object.orderId = reader.readString(offsets[10]);
-  object.productId = reader.readStringOrNull(offsets[11]);
-  object.quantity = reader.readLong(offsets[12]);
-  object.syncAction = reader.readString(offsets[13]);
-  object.unitPrice = reader.readDouble(offsets[14]);
-  object.updatedAt = reader.readDateTime(offsets[15]);
-  object.uuid = reader.readString(offsets[16]);
-  object.variantName = reader.readStringOrNull(offsets[17]);
-  object.version = reader.readLong(offsets[18]);
+  object.name = reader.readString(offsets[12]);
+  object.orderId = reader.readString(offsets[13]);
+  object.prepMinutes = reader.readLong(offsets[14]);
+  object.productId = reader.readStringOrNull(offsets[15]);
+  object.quantity = reader.readLong(offsets[16]);
+  object.syncAction = reader.readString(offsets[17]);
+  object.unitPrice = reader.readDouble(offsets[18]);
+  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.uuid = reader.readString(offsets[20]);
+  object.variantName = reader.readStringOrNull(offsets[21]);
+  object.version = reader.readLong(offsets[22]);
   return object;
 }
 
@@ -5988,10 +6250,16 @@ P _orderItemIsarDeserializeProp<P>(
     case 5:
       return (reader.readBool(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 8:
+      return (reader.readString(offset)) as P;
+    case 9:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
       return (reader.readObjectList<OrderItemModifierEmbedded>(
             offset,
             OrderItemModifierEmbeddedSchema.deserialize,
@@ -5999,25 +6267,27 @@ P _orderItemIsarDeserializeProp<P>(
             OrderItemModifierEmbedded(),
           ) ??
           []) as P;
-    case 9:
-      return (reader.readString(offset)) as P;
-    case 10:
-      return (reader.readString(offset)) as P;
-    case 11:
-      return (reader.readStringOrNull(offset)) as P;
     case 12:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 13:
       return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 15:
-      return (reader.readDateTime(offset)) as P;
-    case 16:
-      return (reader.readString(offset)) as P;
-    case 17:
       return (reader.readStringOrNull(offset)) as P;
+    case 16:
+      return (reader.readLong(offset)) as P;
+    case 17:
+      return (reader.readString(offset)) as P;
     case 18:
+      return (reader.readDouble(offset)) as P;
+    case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
+      return (reader.readString(offset)) as P;
+    case 21:
+      return (reader.readStringOrNull(offset)) as P;
+    case 22:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -6840,6 +7110,154 @@ extension OrderItemIsarQueryFilter
   }
 
   QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReadyAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'kitchenReadyAt',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReadyAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'kitchenReadyAt',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReadyAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'kitchenReadyAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReadyAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'kitchenReadyAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReadyAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'kitchenReadyAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReadyAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'kitchenReadyAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReceivedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'kitchenReceivedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReceivedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'kitchenReceivedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReceivedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'kitchenReceivedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReceivedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'kitchenReceivedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReceivedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'kitchenReceivedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenReceivedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'kitchenReceivedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
       kitchenStatusEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -6971,6 +7389,80 @@ extension OrderItemIsarQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'kitchenStatus',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenStatusChangedAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'kitchenStatusChangedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenStatusChangedAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'kitchenStatusChangedAt',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenStatusChangedAtEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'kitchenStatusChangedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenStatusChangedAtGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'kitchenStatusChangedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenStatusChangedAtLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'kitchenStatusChangedAt',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      kitchenStatusChangedAtBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'kitchenStatusChangedAt',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -7397,6 +7889,62 @@ extension OrderItemIsarQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'orderId',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      prepMinutesEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'prepMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      prepMinutesGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'prepMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      prepMinutesLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'prepMinutes',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
+      prepMinutesBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'prepMinutes',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -8302,6 +8850,34 @@ extension OrderItemIsarQuerySortBy
   }
 
   QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByKitchenReadyAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReadyAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByKitchenReadyAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReadyAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByKitchenReceivedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReceivedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByKitchenReceivedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReceivedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
       sortByKitchenStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'kitchenStatus', Sort.asc);
@@ -8312,6 +8888,20 @@ extension OrderItemIsarQuerySortBy
       sortByKitchenStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'kitchenStatus', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByKitchenStatusChangedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenStatusChangedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByKitchenStatusChangedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenStatusChangedAt', Sort.desc);
     });
   }
 
@@ -8349,6 +8939,19 @@ extension OrderItemIsarQuerySortBy
   QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy> sortByOrderIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'orderId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy> sortByPrepMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'prepMinutes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      sortByPrepMinutesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'prepMinutes', Sort.desc);
     });
   }
 
@@ -8534,6 +9137,34 @@ extension OrderItemIsarQuerySortThenBy
   }
 
   QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByKitchenReadyAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReadyAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByKitchenReadyAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReadyAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByKitchenReceivedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReceivedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByKitchenReceivedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenReceivedAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
       thenByKitchenStatus() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'kitchenStatus', Sort.asc);
@@ -8544,6 +9175,20 @@ extension OrderItemIsarQuerySortThenBy
       thenByKitchenStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'kitchenStatus', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByKitchenStatusChangedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenStatusChangedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByKitchenStatusChangedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'kitchenStatusChangedAt', Sort.desc);
     });
   }
 
@@ -8581,6 +9226,19 @@ extension OrderItemIsarQuerySortThenBy
   QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy> thenByOrderIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'orderId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy> thenByPrepMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'prepMinutes', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterSortBy>
+      thenByPrepMinutesDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'prepMinutes', Sort.desc);
     });
   }
 
@@ -8721,11 +9379,32 @@ extension OrderItemIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QDistinct>
+      distinctByKitchenReadyAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'kitchenReadyAt');
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QDistinct>
+      distinctByKitchenReceivedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'kitchenReceivedAt');
+    });
+  }
+
   QueryBuilder<OrderItemIsar, OrderItemIsar, QDistinct> distinctByKitchenStatus(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'kitchenStatus',
           caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QDistinct>
+      distinctByKitchenStatusChangedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'kitchenStatusChangedAt');
     });
   }
 
@@ -8746,6 +9425,13 @@ extension OrderItemIsarQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'orderId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, OrderItemIsar, QDistinct>
+      distinctByPrepMinutes() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'prepMinutes');
     });
   }
 
@@ -8847,10 +9533,31 @@ extension OrderItemIsarQueryProperty
     });
   }
 
+  QueryBuilder<OrderItemIsar, DateTime?, QQueryOperations>
+      kitchenReadyAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'kitchenReadyAt');
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, DateTime?, QQueryOperations>
+      kitchenReceivedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'kitchenReceivedAt');
+    });
+  }
+
   QueryBuilder<OrderItemIsar, String, QQueryOperations>
       kitchenStatusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'kitchenStatus');
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, DateTime?, QQueryOperations>
+      kitchenStatusChangedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'kitchenStatusChangedAt');
     });
   }
 
@@ -8876,6 +9583,12 @@ extension OrderItemIsarQueryProperty
   QueryBuilder<OrderItemIsar, String, QQueryOperations> orderIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'orderId');
+    });
+  }
+
+  QueryBuilder<OrderItemIsar, int, QQueryOperations> prepMinutesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'prepMinutes');
     });
   }
 

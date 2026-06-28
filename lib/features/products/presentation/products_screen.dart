@@ -180,6 +180,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
         imageUrl: result.imageUrl,
         isAvailable: result.isAvailable,
         kitchenCategory: result.kitchenCategory,
+        estimatedPrepMinutes: result.estimatedPrepMinutes,
         printerId: result.printerId,
       );
     } else {
@@ -194,6 +195,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           clearImageUrl: result.clearImage,
           isAvailable: result.isAvailable,
           kitchenCategory: result.kitchenCategory,
+          estimatedPrepMinutes: result.estimatedPrepMinutes,
           printerId: result.printerId,
           clearPrinterId: result.clearPrinterId,
         ),

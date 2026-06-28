@@ -14,6 +14,7 @@ import '../../domain/services/order_lifecycle.dart';
 import '../../domain/services/order_placement.dart';
 import '../../features/pos/services/discount_calculator.dart';
 import '../local/collections/order_isar.dart';
+import '../local/collections/product_isar.dart';
 import '../local/collections/restaurant_table_isar.dart';
 import '../local/mappers/order_mapper.dart';
 import '../services/order_item_builder.dart';
@@ -138,6 +139,7 @@ class OrderRepository {
       orderDiscountType: discountSnapshot?.type,
       orderDiscountValue: discountSnapshot?.value,
       orderDiscountReason: discountSnapshot?.reason,
+      promisedPrepMinutes: input.checkout.promisedPrepMinutes,
       createdAt: now,
       updatedAt: now,
       isSynced: false,
@@ -146,6 +148,9 @@ class OrderRepository {
       version: 1,
     );
 
+    final productPrepMinutes =
+        await _loadProductPrepMinutesById(input.cartItems);
+
     final orderItems = buildOrderItems(
       orderId: orderId,
       cartItems: input.cartItems,
@@ -153,6 +158,8 @@ class OrderRepository {
       pricing: input.pricing,
       deviceId: input.deviceId,
       now: now,
+      orderPromisedPrepMinutes: input.checkout.promisedPrepMinutes,
+      productPrepMinutesById: productPrepMinutes,
     );
 
     await _isar.writeTxn(() async {
@@ -212,8 +219,12 @@ class OrderRepository {
       orderDiscountType: discountSnapshot?.type,
       orderDiscountValue: discountSnapshot?.value,
       orderDiscountReason: discountSnapshot?.reason,
+      promisedPrepMinutes: input.checkout.promisedPrepMinutes,
       updatedAt: now,
     );
+
+    final productPrepMinutes =
+        await _loadProductPrepMinutesById(input.cartItems);
 
     final orderItems = buildOrderItems(
       orderId: input.orderId,
@@ -222,6 +233,8 @@ class OrderRepository {
       pricing: input.pricing,
       deviceId: input.deviceId,
       now: now,
+      orderPromisedPrepMinutes: input.checkout.promisedPrepMinutes,
+      productPrepMinutesById: productPrepMinutes,
     );
 
     await _isar.writeTxn(() async {
@@ -541,5 +554,26 @@ class OrderRepository {
       ..markUpdated(deviceId: deviceId);
 
     await _isar.restaurantTableIsars.put(tableRecord);
+  }
+
+  Future<Map<String, int>> _loadProductPrepMinutesById(
+    List<CartItem> cartItems,
+  ) async {
+    final productIds =
+        cartItems.map((item) => item.productId).whereType<String>().toSet();
+    if (productIds.isEmpty) return const {};
+
+    final records = await _isar.productIsars
+        .filter()
+        .deletedAtIsNull()
+        .findAll();
+
+    final result = <String, int>{};
+    for (final record in records) {
+      if (productIds.contains(record.uuid)) {
+        result[record.uuid] = record.estimatedPrepMinutes;
+      }
+    }
+    return result;
   }
 }

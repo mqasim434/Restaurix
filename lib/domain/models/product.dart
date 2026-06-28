@@ -1,5 +1,6 @@
 import '../../core/sync/sync_action.dart';
 import '../../core/sync/syncable_entity.dart';
+import '../../core/constants.dart';
 
 class Product implements SyncableEntity {
   const Product({
@@ -13,6 +14,7 @@ class Product implements SyncableEntity {
     required this.kitchenCategory,
     this.printerId,
     this.modifierGroupIds = const [],
+    this.estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes,
     required this.createdAt,
     required this.updatedAt,
     required this.isSynced,
@@ -34,6 +36,7 @@ class Product implements SyncableEntity {
   final String kitchenCategory;
   final String? printerId;
   final List<String> modifierGroupIds;
+  final int estimatedPrepMinutes;
 
   @override
   final DateTime createdAt;
@@ -69,6 +72,7 @@ class Product implements SyncableEntity {
     String? printerId,
     bool clearPrinterId = false,
     List<String>? modifierGroupIds,
+    int? estimatedPrepMinutes,
     DateTime? updatedAt,
     bool? isSynced,
     DateTime? deletedAt,
@@ -87,6 +91,8 @@ class Product implements SyncableEntity {
       kitchenCategory: kitchenCategory ?? this.kitchenCategory,
       printerId: clearPrinterId ? null : (printerId ?? this.printerId),
       modifierGroupIds: modifierGroupIds ?? this.modifierGroupIds,
+      estimatedPrepMinutes:
+          estimatedPrepMinutes ?? this.estimatedPrepMinutes,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,

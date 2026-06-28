@@ -1,3 +1,4 @@
+import '../../../domain/services/kitchen_status_timestamps.dart';
 import '../../../core/sync/sync_action.dart';
 import '../../../domain/models/discount.dart';
 import '../../../domain/models/order.dart';
@@ -32,6 +33,7 @@ Order orderFromIsar(OrderIsar record) {
     orderDiscountType: record.orderDiscountType,
     orderDiscountValue: record.orderDiscountValue,
     orderDiscountReason: record.orderDiscountReason,
+    promisedPrepMinutes: record.promisedPrepMinutes,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -70,7 +72,10 @@ void applyOrderFieldsToIsar({
     ..cancelRefundNote = order.cancelRefundNote
     ..orderDiscountType = order.orderDiscountType
     ..orderDiscountValue = order.orderDiscountValue
-    ..orderDiscountReason = order.orderDiscountReason;
+    ..orderDiscountReason = order.orderDiscountReason
+    ..promisedPrepMinutes = order.promisedPrepMinutes
+    ..createdAt = order.createdAt
+    ..updatedAt = order.updatedAt;
 }
 
 OrderIsar applyOrderToIsar({
@@ -118,6 +123,16 @@ OrderItem orderItemFromIsar(OrderItemIsar record) {
         ),
     ],
     kitchenStatus: record.kitchenStatusEnum,
+    prepMinutes: record.prepMinutes,
+    kitchenStatusChangedAt:
+        record.kitchenStatusChangedAt ?? record.createdAt,
+    kitchenReceivedAt: record.kitchenReceivedAt ?? record.createdAt,
+    kitchenReadyAt: KitchenStatusTimestamps.resolveReadyAt(
+      status: record.kitchenStatusEnum,
+      kitchenStatusChangedAt:
+          record.kitchenStatusChangedAt ?? record.createdAt,
+      kitchenReadyAt: record.kitchenReadyAt,
+    ),
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -161,6 +176,10 @@ OrderItemIsar orderItemToIsar({
           ..reason = discount.reason),
     ]
     ..kitchenStatus = item.kitchenStatus.name
+    ..prepMinutes = item.prepMinutes
+    ..kitchenStatusChangedAt = item.kitchenStatusChangedAt
+    ..kitchenReceivedAt = item.kitchenReceivedAt
+    ..kitchenReadyAt = item.kitchenReadyAt
     ..createdAt = item.createdAt
     ..updatedAt = item.updatedAt
     ..isSynced = item.isSynced

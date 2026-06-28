@@ -14,6 +14,10 @@ import '../../../domain/models/order_item.dart';
 import '../../../domain/services/order_lifecycle.dart';
 import '../../pos/presentation/pos_cart_panel.dart';
 import '../../pos/providers/order_edit_provider.dart';
+import '../../printing/providers/kitchen_ticket_providers.dart';
+import '../../printing/providers/receipt_providers.dart';
+import '../../printing/kitchen_ticket/kitchen_ticket_feedback.dart';
+import '../../printing/receipt/receipt_feedback.dart';
 import '../providers/order_management_providers.dart';
 import 'cancel_order_dialog.dart';
 import 'mark_paid_dialog.dart';
@@ -236,6 +240,22 @@ class _OrderDetailBody extends ConsumerWidget {
                   Divider(height: spacing.lg, color: colors.divider),
                   _InfoRow('Total', formatPosPrice(order.total), bold: true),
                   SizedBox(height: spacing.lg),
+                  if (order.status != OrderStatus.cancelled && items.isNotEmpty) ...[
+                    AppButton(
+                      label: 'Reprint Kitchen Ticket',
+                      variant: AppButtonVariant.secondary,
+                      expand: true,
+                      onPressed: () => _reprintKitchenTicket(context, ref),
+                    ),
+                    SizedBox(height: spacing.sm),
+                    AppButton(
+                      label: 'Reprint Receipt',
+                      variant: AppButtonVariant.secondary,
+                      expand: true,
+                      onPressed: () => _reprintReceipt(context, ref),
+                    ),
+                    SizedBox(height: spacing.sm),
+                  ],
                   for (final action in actions) ...[
                     AppButton(
                       label: action.label,
@@ -288,13 +308,17 @@ class _OrderDetailBody extends ConsumerWidget {
             paymentType = order.paymentType;
           }
 
+          final markPaid = action.nextStatus == OrderStatus.paid;
           await controller.advance(
             orderId: order.id,
             targetStatus: action.nextStatus!,
             paymentType: paymentType,
           );
           ref.invalidate(orderDetailProvider(order.id));
-          if (context.mounted) {
+          if (!context.mounted) return;
+          if (markPaid) {
+            await _printReceiptAfterPayment(context, ref);
+          } else {
             AppSnackbar.success(context, '${action.label} succeeded');
           }
         case OrderActionType.markPaid:
@@ -334,6 +358,69 @@ class _OrderDetailBody extends ConsumerWidget {
       if (context.mounted) {
         AppSnackbar.error(context, error.toString());
       }
+    }
+  }
+
+  Future<void> _reprintKitchenTicket(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    try {
+      final result = await ref
+          .read(kitchenTicketPrintControllerProvider)
+          .printOrder(orderId: order.id, isReprint: true);
+      if (!context.mounted) return;
+      showKitchenPrintFeedback(
+        context,
+        result,
+        successMessage: 'Kitchen ticket reprinted',
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackbar.error(context, 'Kitchen reprint failed: $error');
+    }
+  }
+
+  Future<void> _reprintReceipt(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    try {
+      final result = await ref
+          .read(receiptPrintControllerProvider)
+          .printOrder(orderId: order.id, isReprint: true);
+      if (!context.mounted) return;
+      showReceiptPrintFeedback(
+        context,
+        result,
+        successMessage: 'Receipt reprinted',
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackbar.error(context, 'Receipt reprint failed: $error');
+    }
+  }
+
+  Future<void> _printReceiptAfterPayment(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    try {
+      final result = await ref
+          .read(receiptPrintControllerProvider)
+          .printOrder(orderId: order.id, isReprint: false);
+      if (!context.mounted) return;
+      if (result.hasWarnings) {
+        showReceiptPrintFeedback(context, result);
+      } else {
+        AppSnackbar.success(context, 'Marked paid and receipt printed');
+      }
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackbar.info(
+        context,
+        'Order marked paid, but receipt printing failed: $error',
+      );
     }
   }
 }

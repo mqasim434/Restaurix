@@ -13,8 +13,12 @@ import 'collections/order_isar.dart';
 import 'collections/product_isar.dart';
 import 'collections/product_variant_isar.dart';
 import 'collections/pickup_company_isar.dart';
+import 'collections/app_setting_isar.dart';
 import 'collections/restaurant_table_isar.dart';
+import 'collections/attendance_record_isar.dart';
+import 'collections/employee_isar.dart';
 import 'collections/rider_isar.dart';
+import 'collections/salary_slip_isar.dart';
 
 /// Opens and holds the local Isar database instance.
 class IsarService {
@@ -42,6 +46,10 @@ class IsarService {
         DraftOrderIsarSchema,
         RiderIsarSchema,
         PickupCompanyIsarSchema,
+        AppSettingIsarSchema,
+        EmployeeIsarSchema,
+        AttendanceRecordIsarSchema,
+        SalarySlipIsarSchema,
       ],
       directory: directory.path,
       name: 'restaurix',

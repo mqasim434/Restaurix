@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/device_id_service.dart';
 import '../../../data/local/isar_service.dart';
+import '../../../core/constants.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../domain/models/product.dart';
 
@@ -87,6 +88,7 @@ class ProductListNotifier extends AsyncNotifier<List<Product>> {
     bool isAvailable = true,
     String kitchenCategory = '',
     String? printerId,
+    int estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes,
   }) async {
     if (name.trim().isEmpty) {
       return const ProductMutationResult(
@@ -117,6 +119,7 @@ class ProductListNotifier extends AsyncNotifier<List<Product>> {
       isAvailable: isAvailable,
       kitchenCategory: kitchenCategory,
       printerId: printerId,
+      estimatedPrepMinutes: estimatedPrepMinutes,
     );
 
     return const ProductMutationResult(success: true);

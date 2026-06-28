@@ -5,20 +5,13 @@ import 'package:isar/isar.dart';
 import '../../core/sync/sync_action.dart';
 import '../../domain/models/kitchen_board.dart';
 import '../../domain/models/order_item.dart';
+import '../../domain/services/kitchen_status_timestamps.dart';
 import '../../domain/services/kitchen_lifecycle.dart';
+import '../../domain/services/kitchen_prep_timer.dart';
 import '../local/collections/order_isar.dart';
 import '../local/collections/restaurant_table_isar.dart';
 import '../local/mappers/order_mapper.dart';
 import '../local/mappers/restaurant_table_mapper.dart';
-
-class KitchenRepositoryException implements Exception {
-  KitchenRepositoryException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
-}
 
 class KitchenRepository {
   KitchenRepository(this._isar);
@@ -53,6 +46,45 @@ class KitchenRepository {
     };
 
     return controller.stream;
+  }
+
+  Future<void> processDueItems({required String deviceId}) async {
+    final now = DateTime.now();
+    final orderRecords = await _isar.orderIsars
+        .filter()
+        .deletedAtIsNull()
+        .findAll();
+
+    final heldByOrderId = <String, bool>{
+      for (final record in orderRecords)
+        record.uuid: record.isHeld,
+    };
+
+    final itemRecords = await _isar.orderItemIsars
+        .filter()
+        .deletedAtIsNull()
+        .findAll();
+
+    final dueItemIds = <String>[];
+    for (final record in itemRecords) {
+      final item = orderItemFromIsar(record);
+      if (!KitchenLifecycle.isItemVisibleOnKitchen(item)) continue;
+
+      final due = KitchenPrepTimer.dueAdvanceStatus(
+        item: item,
+        now: now,
+        orderIsHeld: heldByOrderId[item.orderId] ?? false,
+      );
+      if (due != null) {
+        dueItemIds.add(item.id);
+      }
+    }
+
+    if (dueItemIds.isEmpty) return;
+
+    for (final itemId in dueItemIds) {
+      await _advanceItemRecord(orderItemId: itemId, deviceId: deviceId);
+    }
   }
 
   Future<KitchenBoard> _loadBoard() async {
@@ -109,7 +141,7 @@ class KitchenRepository {
     );
   }
 
-  Future<void> advanceItem({
+  Future<void> _advanceItemRecord({
     required String orderItemId,
     required String deviceId,
   }) async {
@@ -119,19 +151,23 @@ class KitchenRepository {
           .uuidEqualTo(orderItemId)
           .findFirst();
 
-      if (record == null || record.isDeleted) {
-        throw KitchenRepositoryException('Item not found');
-      }
+      if (record == null || record.isDeleted) return;
 
       final item = orderItemFromIsar(record);
       final next = KitchenLifecycle.nextItemStatus(item.kitchenStatus);
-      if (next == null) {
-        throw KitchenRepositoryException('Item cannot be advanced further');
-      }
+      if (next == null) return;
 
+      final now = DateTime.now();
       record
         ..kitchenStatus = next.name
-        ..markUpdated(deviceId: deviceId, action: SyncAction.update);
+        ..kitchenStatusChangedAt = now;
+      KitchenStatusTimestamps.applyTransition(
+        nextStatus: next,
+        now: now,
+        currentKitchenReadyAt: record.kitchenReadyAt,
+        setKitchenReadyAt: (value) => record.kitchenReadyAt = value,
+      );
+      record.markUpdated(deviceId: deviceId, action: SyncAction.update);
       await _isar.orderItemIsars.put(record);
 
       await _syncOrderStatusFromItems(

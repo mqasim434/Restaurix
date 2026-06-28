@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 
 import '../../core/sync/sync_action.dart';
+import '../../core/constants.dart';
 import '../../domain/models/product.dart';
 import '../local/collections/product_isar.dart';
 import '../local/mappers/product_mapper.dart';
@@ -54,6 +55,7 @@ class ProductRepository {
     bool isAvailable = true,
     String kitchenCategory = '',
     String? printerId,
+    int estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes,
   }) async {
     final record = ProductIsar.create(
       name: name.trim(),
@@ -65,6 +67,7 @@ class ProductRepository {
       isAvailable: isAvailable,
       kitchenCategory: kitchenCategory.trim(),
       printerId: printerId?.trim(),
+      estimatedPrepMinutes: estimatedPrepMinutes,
     );
 
     await _isar.writeTxn(() async {

@@ -157,6 +157,8 @@ abstract final class KitchenLifecycle {
         for (final modifier in item.modifiers) modifier.name,
       ],
       kitchenStatus: item.kitchenStatus,
+      prepMinutes: item.prepMinutes,
+      kitchenStatusChangedAt: item.kitchenStatusChangedAt,
     );
   }
 }

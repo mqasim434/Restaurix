@@ -29,6 +29,7 @@ class Order implements SyncableEntity {
     this.orderDiscountType,
     this.orderDiscountValue,
     this.orderDiscountReason,
+    this.promisedPrepMinutes,
     required this.createdAt,
     required this.updatedAt,
     required this.isSynced,
@@ -64,6 +65,8 @@ class Order implements SyncableEntity {
   final String? orderDiscountType;
   final double? orderDiscountValue;
   final String? orderDiscountReason;
+  /// Waiter/tablet override for customer-promised wait time (minutes).
+  final int? promisedPrepMinutes;
 
   @override
   final DateTime createdAt;
@@ -112,6 +115,8 @@ class Order implements SyncableEntity {
     String? orderDiscountType,
     double? orderDiscountValue,
     String? orderDiscountReason,
+    int? promisedPrepMinutes,
+    bool clearPromisedPrepMinutes = false,
     DateTime? updatedAt,
     bool? isSynced,
     DateTime? deletedAt,
@@ -144,7 +149,11 @@ class Order implements SyncableEntity {
       cancelRefundNote: cancelRefundNote ?? this.cancelRefundNote,
       orderDiscountType: orderDiscountType ?? this.orderDiscountType,
       orderDiscountValue: orderDiscountValue ?? this.orderDiscountValue,
-      orderDiscountReason: orderDiscountReason ?? this.orderDiscountReason,
+      orderDiscountReason:
+          orderDiscountReason ?? this.orderDiscountReason,
+      promisedPrepMinutes: clearPromisedPrepMinutes
+          ? null
+          : (promisedPrepMinutes ?? this.promisedPrepMinutes),
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,

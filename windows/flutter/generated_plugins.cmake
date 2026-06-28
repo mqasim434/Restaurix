@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   isar_flutter_libs
   passkeys_windows
   url_launcher_windows
+  windows_printer
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

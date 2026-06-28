@@ -1,6 +1,7 @@
 import '../../core/sync/sync_action.dart';
 import '../../core/sync/syncable_entity.dart';
 import 'discount.dart';
+import '../../core/constants.dart';
 import 'order_enums.dart';
 
 class OrderItemModifier {
@@ -47,6 +48,10 @@ class OrderItem implements SyncableEntity {
     this.modifiers = const [],
     this.appliedDiscounts = const [],
     required this.kitchenStatus,
+    this.prepMinutes = AppConstants.defaultProductPrepMinutes,
+    required this.kitchenStatusChangedAt,
+    this.kitchenReceivedAt,
+    this.kitchenReadyAt,
     required this.createdAt,
     required this.updatedAt,
     required this.isSynced,
@@ -69,6 +74,10 @@ class OrderItem implements SyncableEntity {
   final List<OrderItemModifier> modifiers;
   final List<OrderLineDiscount> appliedDiscounts;
   final KitchenStatus kitchenStatus;
+  final int prepMinutes;
+  final DateTime kitchenStatusChangedAt;
+  final DateTime? kitchenReceivedAt;
+  final DateTime? kitchenReadyAt;
 
   @override
   final DateTime createdAt;

@@ -117,6 +117,13 @@ class CheckoutNotifier extends Notifier<PosCheckoutDraft> {
     state = state.copyWith(notes: notes);
   }
 
+  void setPromisedPrepMinutes(int? minutes) {
+    state = state.copyWith(
+      promisedPrepMinutes: minutes,
+      clearPromisedPrepMinutes: minutes == null,
+    );
+  }
+
   Future<void> clear() async {
     await _releaseTableIfNeeded(state.tableId);
     state = const PosCheckoutDraft();

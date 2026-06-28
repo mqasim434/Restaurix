@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -5,18 +7,42 @@ import 'package:intl/intl.dart';
 import '../../../core/widgets/order_held_badge.dart';
 import '../../../domain/models/kitchen_board.dart';
 import '../../../domain/models/order_enums.dart';
-import '../../../domain/services/kitchen_lifecycle.dart';
+import '../../../domain/services/kitchen_prep_timer.dart';
 import '../providers/kitchen_providers.dart';
+import '../../printing/providers/kitchen_ticket_providers.dart';
+import '../../printing/kitchen_ticket/kitchen_ticket_feedback.dart';
 
-class KitchenDisplayScreen extends ConsumerWidget {
+class KitchenDisplayScreen extends ConsumerStatefulWidget {
   const KitchenDisplayScreen({super.key});
 
-  static const _columnIncoming = KitchenStatus.received;
-  static const _columnPreparing = KitchenStatus.preparing;
-  static const _columnReady = KitchenStatus.ready;
+  @override
+  ConsumerState<KitchenDisplayScreen> createState() =>
+      _KitchenDisplayScreenState();
+}
+
+class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
+  late DateTime _now;
+  Timer? _uiTimer;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _now = DateTime.now();
+    _uiTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _uiTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.watch(kitchenAutoAdvanceProvider);
     final boardAsync = ref.watch(kitchenBoardProvider);
     final timeFormat = DateFormat.jm();
 
@@ -30,7 +56,7 @@ class KitchenDisplayScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _KitchenHeader(timeFormat: timeFormat),
+              _KitchenHeader(timeFormat: timeFormat, now: _now),
               Expanded(
                 child: boardAsync.when(
                   loading: () => const Center(
@@ -53,7 +79,7 @@ class KitchenDisplayScreen extends ConsumerWidget {
                           title: 'Incoming',
                           accent: const Color(0xFF42A5F5),
                           cards: board.incoming,
-                          columnStatus: _columnIncoming,
+                          now: _now,
                         ),
                       ),
                       const VerticalDivider(width: 1, color: Color(0xFF2A2A2A)),
@@ -62,7 +88,7 @@ class KitchenDisplayScreen extends ConsumerWidget {
                           title: 'Preparing',
                           accent: const Color(0xFFFFA726),
                           cards: board.preparing,
-                          columnStatus: _columnPreparing,
+                          now: _now,
                         ),
                       ),
                       const VerticalDivider(width: 1, color: Color(0xFF2A2A2A)),
@@ -71,7 +97,7 @@ class KitchenDisplayScreen extends ConsumerWidget {
                           title: 'Ready',
                           accent: const Color(0xFF66BB6A),
                           cards: board.ready,
-                          columnStatus: _columnReady,
+                          now: _now,
                         ),
                       ),
                     ],
@@ -87,9 +113,10 @@ class KitchenDisplayScreen extends ConsumerWidget {
 }
 
 class _KitchenHeader extends StatelessWidget {
-  const _KitchenHeader({required this.timeFormat});
+  const _KitchenHeader({required this.timeFormat, required this.now});
 
   final DateFormat timeFormat;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -108,49 +135,25 @@ class _KitchenHeader extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+          const SizedBox(width: 16),
+          Text(
+            'Auto',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.45),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const Spacer(),
-          _LiveClock(timeFormat: timeFormat),
+          Text(
+            timeFormat.format(now),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
-      ),
-    );
-  }
-}
-
-class _LiveClock extends StatefulWidget {
-  const _LiveClock({required this.timeFormat});
-
-  final DateFormat timeFormat;
-
-  @override
-  State<_LiveClock> createState() => _LiveClockState();
-}
-
-class _LiveClockState extends State<_LiveClock> {
-  late DateTime _now;
-
-  @override
-  void initState() {
-    super.initState();
-    _now = DateTime.now();
-    _tick();
-  }
-
-  Future<void> _tick() async {
-    while (mounted) {
-      await Future<void>.delayed(const Duration(seconds: 30));
-      if (!mounted) return;
-      setState(() => _now = DateTime.now());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      widget.timeFormat.format(_now),
-      style: const TextStyle(
-        color: Colors.white70,
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
       ),
     );
   }
@@ -161,13 +164,13 @@ class _KitchenColumn extends StatelessWidget {
     required this.title,
     required this.accent,
     required this.cards,
-    required this.columnStatus,
+    required this.now,
   });
 
   final String title;
   final Color accent;
   final List<KitchenOrderCard> cards;
-  final KitchenStatus columnStatus;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +244,7 @@ class _KitchenColumn extends StatelessWidget {
                     itemBuilder: (context, index) {
                       return _KitchenOrderCard(
                         card: cards[index],
-                        columnStatus: columnStatus,
+                        now: now,
                       );
                     },
                   ),
@@ -255,11 +258,11 @@ class _KitchenColumn extends StatelessWidget {
 class _KitchenOrderCard extends ConsumerWidget {
   const _KitchenOrderCard({
     required this.card,
-    required this.columnStatus,
+    required this.now,
   });
 
   final KitchenOrderCard card;
-  final KitchenStatus columnStatus;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -309,6 +312,14 @@ class _KitchenOrderCard extends ConsumerWidget {
                     ],
                   ),
                 ),
+                IconButton(
+                  tooltip: 'Reprint kitchen ticket',
+                  onPressed: () => _reprint(context, ref),
+                  icon: Icon(
+                    Icons.print_outlined,
+                    color: Colors.white.withValues(alpha: 0.65),
+                  ),
+                ),
                 Text(
                   timeLabel,
                   style: TextStyle(
@@ -354,13 +365,7 @@ class _KitchenOrderCard extends ConsumerWidget {
             ],
             const SizedBox(height: 12),
             ...card.items.map(
-              (item) => _KitchenItemRow(
-                item: item,
-                onAdvance: KitchenLifecycle.nextItemStatus(item.kitchenStatus) !=
-                        null
-                    ? () => _advanceItem(context, ref, item.id)
-                    : null,
-              ),
+              (item) => _KitchenItemRow(item: item, now: now),
             ),
           ],
         ),
@@ -368,18 +373,22 @@ class _KitchenOrderCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _advanceItem(
-    BuildContext context,
-    WidgetRef ref,
-    String itemId,
-  ) async {
+  Future<void> _reprint(BuildContext context, WidgetRef ref) async {
     try {
-      await ref.read(kitchenControllerProvider).advanceItem(itemId);
+      final result = await ref
+          .read(kitchenTicketPrintControllerProvider)
+          .printOrder(orderId: card.orderId, isReprint: true);
+      if (!context.mounted) return;
+      showKitchenPrintFeedback(
+        context,
+        result,
+        successMessage: 'Kitchen ticket reprinted',
+      );
     } catch (error) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.toString()),
+          content: Text('Kitchen reprint failed: $error'),
           backgroundColor: Colors.red.shade800,
         ),
       );
@@ -390,17 +399,27 @@ class _KitchenOrderCard extends ConsumerWidget {
 class _KitchenItemRow extends StatelessWidget {
   const _KitchenItemRow({
     required this.item,
-    this.onAdvance,
+    required this.now,
   });
 
   final KitchenDisplayItem item;
-  final VoidCallback? onAdvance;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
     final label = item.variantName == null || item.variantName!.isEmpty
         ? item.name
         : '${item.name} (${item.variantName})';
+
+    final remaining = KitchenPrepTimer.remainingForDisplayItem(
+      item: item,
+      now: now,
+    );
+    final progress = KitchenPrepTimer.displayStageProgress(
+      item: item,
+      now: now,
+    );
+    final showTimer = item.kitchenStatus != KitchenStatus.ready;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -448,32 +467,30 @@ class _KitchenItemRow extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (showTimer) ...[
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 6,
+                      backgroundColor: const Color(0xFF333333),
+                      color: const Color(0xFF66BB6A),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    KitchenPrepTimer.formatRemaining(remaining),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-          if (onAdvance != null) ...[
-            const SizedBox(width: 8),
-            Material(
-              color: const Color(0xFF2E7D32),
-              borderRadius: BorderRadius.circular(8),
-              child: InkWell(
-                onTap: onAdvance,
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Text(
-                    KitchenLifecycle.advanceItemLabel(item.kitchenStatus),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );

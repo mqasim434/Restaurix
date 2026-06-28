@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/sync/sync_action.dart';
+import '../../../core/constants.dart';
 
 part 'product_isar.g.dart';
 
@@ -29,6 +30,8 @@ class ProductIsar {
   late String kitchenCategory;
 
   String? printerId;
+
+  int estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes;
 
   /// Assigned modifier group UUIDs — see [modifierGroupAssignmentDoc].
   List<String> modifierGroupIds = [];
@@ -62,6 +65,7 @@ class ProductIsar {
     bool isAvailable = true,
     String kitchenCategory = '',
     String? printerId,
+    int estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes,
   }) {
     final now = DateTime.now();
     return ProductIsar()
@@ -74,6 +78,7 @@ class ProductIsar {
       ..isAvailable = isAvailable
       ..kitchenCategory = kitchenCategory
       ..printerId = printerId
+      ..estimatedPrepMinutes = estimatedPrepMinutes
       ..createdAt = now
       ..updatedAt = now
       ..isSynced = false

@@ -101,6 +101,7 @@ OrderEditSnapshot buildOrderEditSnapshot({
     paymentType: order.paymentType,
     isPrepaidOverride: order.isPrepaid,
     notes: order.notes,
+    promisedPrepMinutes: order.promisedPrepMinutes,
   );
 
   return OrderEditSnapshot(

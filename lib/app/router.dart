@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/attendance/presentation/attendance_screen.dart';
+import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/categories/presentation/categories_screen.dart';
 import '../features/delivery_config/presentation/delivery_config_screen.dart';
 import '../features/deals/presentation/deals_screen.dart';
+import '../features/employees/presentation/employees_screen.dart';
 import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
@@ -13,6 +16,8 @@ import '../features/orders/presentation/orders_screen.dart';
 import '../features/pos/presentation/order_confirmation_screen.dart';
 import '../features/pos/presentation/pos_checkout_screen.dart';
 import '../features/pos/presentation/pos_screen.dart';
+import '../features/reports/presentation/reports_hub_screen.dart';
+import '../features/salary/presentation/salary_hub_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
 import 'shell/app_shell.dart';
@@ -48,7 +53,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 final _shellRoutes = [
-  _placeholderRoute('/dashboard', 'Dashboard'),
+  GoRoute(
+    path: '/dashboard',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const DashboardScreen(),
+    ),
+  ),
   GoRoute(
     path: '/sales',
     pageBuilder: (context, state) => NoTransitionPage(
@@ -134,9 +145,34 @@ final _shellRoutes = [
       child: const DeliveryConfigScreen(),
     ),
   ),
-  _placeholderRoute('/employees', 'Employees'),
-  _placeholderRoute('/attendance', 'Attendance'),
-  _placeholderRoute('/reports', 'Reports'),
+  GoRoute(
+    path: '/employees',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const EmployeesScreen(),
+    ),
+  ),
+  GoRoute(
+    path: '/attendance',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const AttendanceScreen(),
+    ),
+  ),
+  GoRoute(
+    path: '/salary',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const SalaryHubScreen(),
+    ),
+  ),
+  GoRoute(
+    path: '/reports',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const ReportsHubScreen(),
+    ),
+  ),
   _placeholderRoute('/analytics', 'Analytics'),
   _placeholderRoute('/settings', 'Settings'),
   _placeholderRoute('/users', 'Users'),

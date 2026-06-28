@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/sync/sync_action.dart';
+import '../../../core/constants.dart';
 import '../../../domain/models/order_enums.dart';
 
 part 'order_isar.g.dart';
@@ -73,7 +74,11 @@ class OrderIsar {
   double? orderDiscountValue;
   String? orderDiscountReason;
 
+  int? promisedPrepMinutes;
+
+  @Index()
   late DateTime createdAt;
+
   late DateTime updatedAt;
 
   bool isSynced = false;
@@ -193,6 +198,14 @@ class OrderItemIsar {
   List<OrderLineDiscountEmbedded> appliedDiscounts = [];
 
   late String kitchenStatus;
+
+  int prepMinutes = AppConstants.defaultProductPrepMinutes;
+
+  DateTime? kitchenStatusChangedAt;
+
+  DateTime? kitchenReceivedAt;
+
+  DateTime? kitchenReadyAt;
 
   late DateTime createdAt;
   late DateTime updatedAt;

@@ -10,6 +10,7 @@
 #include <isar_flutter_libs/isar_flutter_libs_plugin.h>
 #include <passkeys_windows/passkeys_windows_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
+#include <windows_printer/windows_printer_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   AppLinksPluginCApiRegisterWithRegistrar(
@@ -20,4 +21,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("PasskeysWindowsPlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
+  WindowsPrinterPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("WindowsPrinterPluginCApi"));
 }

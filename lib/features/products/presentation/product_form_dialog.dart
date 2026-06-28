@@ -23,6 +23,7 @@ class ProductFormResult {
     required this.isAvailable,
     required this.kitchenCategory,
     this.printerId,
+    this.estimatedPrepMinutes = 10,
     this.clearImage = false,
     this.clearPrinterId = false,
   });
@@ -35,6 +36,7 @@ class ProductFormResult {
   final bool isAvailable;
   final String kitchenCategory;
   final String? printerId;
+  final int estimatedPrepMinutes;
   final bool clearImage;
   final bool clearPrinterId;
 }
@@ -75,6 +77,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
   late final TextEditingController _descriptionController;
   late final TextEditingController _kitchenCategoryController;
   late final TextEditingController _printerIdController;
+  late final TextEditingController _prepMinutesController;
 
   String? _categoryId;
   String? _imagePath;
@@ -100,6 +103,9 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     );
     _printerIdController =
         TextEditingController(text: widget.product?.printerId ?? '');
+    _prepMinutesController = TextEditingController(
+      text: '${widget.product?.estimatedPrepMinutes ?? 10}',
+    );
     _categoryId = widget.product?.categoryId ??
         (widget.categories.isNotEmpty ? widget.categories.first.id : null);
     _imagePath = widget.product?.imageUrl;
@@ -114,6 +120,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     _descriptionController.dispose();
     _kitchenCategoryController.dispose();
     _printerIdController.dispose();
+    _prepMinutesController.dispose();
     super.dispose();
   }
 
@@ -222,6 +229,13 @@ class _ProductFormDialogState extends State<ProductFormDialog>
             controller: _kitchenCategoryController,
             label: 'Kitchen category',
             hint: 'e.g. Grill, Cold, Drinks',
+          ),
+          SizedBox(height: spacing.md),
+          AppTextField(
+            controller: _prepMinutesController,
+            label: 'Estimated prep time (minutes)',
+            hint: '10',
+            keyboardType: TextInputType.number,
           ),
           SizedBox(height: spacing.md),
           AppTextField(
@@ -356,6 +370,9 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     final price = double.tryParse(_priceController.text.trim());
     if (price == null || price < 0) return;
 
+    final prepMinutes = int.tryParse(_prepMinutesController.text.trim());
+    if (prepMinutes == null || prepMinutes < 1) return;
+
     final printerText = _printerIdController.text.trim();
 
     Navigator.of(context).pop(
@@ -369,6 +386,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
         imageUrl: _imagePath,
         isAvailable: _isAvailable,
         kitchenCategory: _kitchenCategoryController.text.trim(),
+        estimatedPrepMinutes: prepMinutes,
         printerId: printerText.isEmpty ? null : printerText,
         clearImage: _clearedImage,
         clearPrinterId: printerText.isEmpty && _isEditing,

@@ -14,6 +14,7 @@ class PosCheckoutDraft {
     this.paymentType,
     this.isPrepaidOverride,
     this.notes,
+    this.promisedPrepMinutes,
   });
 
   final OrderType? orderType;
@@ -27,6 +28,8 @@ class PosCheckoutDraft {
   final PaymentType? paymentType;
   final bool? isPrepaidOverride;
   final String? notes;
+  /// Waiter/tablet override — replaces per-product prep times for this order.
+  final int? promisedPrepMinutes;
 
   bool get isPrepaid =>
       isPrepaidOverride ?? orderType?.defaultIsPrepaid ?? false;
@@ -51,6 +54,8 @@ class PosCheckoutDraft {
     bool clearIsPrepaidOverride = false,
     String? notes,
     bool clearNotes = false,
+    int? promisedPrepMinutes,
+    bool clearPromisedPrepMinutes = false,
   }) {
     return PosCheckoutDraft(
       orderType: clearOrderType ? null : (orderType ?? this.orderType),
@@ -71,6 +76,9 @@ class PosCheckoutDraft {
           ? null
           : (isPrepaidOverride ?? this.isPrepaidOverride),
       notes: clearNotes ? null : (notes ?? this.notes),
+      promisedPrepMinutes: clearPromisedPrepMinutes
+          ? null
+          : (promisedPrepMinutes ?? this.promisedPrepMinutes),
     );
   }
 }
