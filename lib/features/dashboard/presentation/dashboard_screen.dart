@@ -6,7 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
-import '../../../app/navigation/navigation_provider.dart';
+import '../../../features/auth/providers/auth_providers.dart';
 import '../../../domain/models/user_role.dart';
 import '../providers/dashboard_providers.dart';
 import 'widgets/dashboard_charts.dart';

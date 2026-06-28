@@ -2,8 +2,7 @@ import '../../domain/models/user_role.dart';
 
 /// Client-side route allowlist per role (Module 32).
 ///
-/// Real auth replaces the mock session in Module 33; keep this as the single
-/// source of truth for permitted paths until then.
+/// Server-side enforcement is provided by Supabase RLS (Module 33).
 abstract final class RoleRouteAccess {
   static bool isAllowed(String path, UserRole role) {
     if (role == UserRole.admin) return true;

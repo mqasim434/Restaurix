@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/env_config.dart';
+import '../../data/remote/supabase_service.dart';
 import '../../core/constants.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../core/theme/app_icons.dart';
@@ -10,6 +11,7 @@ import '../../core/theme/app_theme.dart';
 import '../../domain/models/user_role.dart';
 import '../../features/sync/providers/sync_engine_providers.dart';
 import '../../features/sync/providers/sync_queue_providers.dart';
+import '../../features/auth/providers/auth_providers.dart';
 import '../navigation/navigation_provider.dart';
 
 class AppShell extends ConsumerWidget {
@@ -302,39 +304,63 @@ class AppTopBar extends ConsumerWidget {
               borderRadius: context.appRadius.fullBorder,
               border: Border.all(color: colors.border),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: spacing.sm + spacing.xs,
-                  backgroundColor: colors.primaryContainer,
-                  child: Text(
-                    user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                    style: typography.labelMedium.copyWith(
-                      color: colors.onPrimaryContainer,
+            child: PopupMenuButton<String>(
+              tooltip: 'Account',
+              offset: Offset(0, spacing.xxl),
+              onSelected: (value) async {
+                if (value == 'sign_out') {
+                  await ref.read(authControllerProvider.notifier).signOut();
+                  if (context.mounted) context.go('/login');
+                }
+              },
+              itemBuilder: (context) => [
+                if (EnvConfig.isSupabaseConfigured &&
+                    SupabaseService.isInitialized)
+                  const PopupMenuItem(
+                    value: 'sign_out',
+                    child: Text('Sign out'),
+                  ),
+              ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: spacing.sm + spacing.xs,
+                    backgroundColor: colors.primaryContainer,
+                    child: Text(
+                      user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                      style: typography.labelMedium.copyWith(
+                        color: colors.onPrimaryContainer,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: spacing.sm),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.name,
-                      style: typography.labelLarge.copyWith(
-                        color: colors.onSurface,
+                  SizedBox(width: spacing.sm),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        style: typography.labelLarge.copyWith(
+                          color: colors.onSurface,
+                        ),
                       ),
-                    ),
-                    Text(
-                      user.role.name,
-                      style: typography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
+                      Text(
+                        user.role.name,
+                        style: typography.labelSmall.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(width: spacing.xs),
+                  Icon(
+                    Icons.expand_more,
+                    color: colors.onSurfaceVariant,
+                    size: spacing.md,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

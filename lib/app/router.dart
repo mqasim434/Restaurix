@@ -1,7 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/config/env_config.dart';
+import '../data/remote/supabase_service.dart';
 import '../features/attendance/presentation/attendance_screen.dart';
+import '../features/auth/presentation/login_screen.dart';
+import '../features/auth/providers/auth_providers.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/categories/presentation/categories_screen.dart';
 import '../features/delivery_config/presentation/delivery_config_screen.dart';
@@ -22,24 +26,56 @@ import '../features/salary/presentation/salary_hub_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import '../features/sync/presentation/sync_status_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
-import 'navigation/navigation_provider.dart';
+import '../features/users/presentation/users_screen.dart';
+import '../domain/models/user_role.dart';
 import 'navigation/role_route_access.dart';
 import 'shell/app_shell.dart';
-import '../domain/models/user_role.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  ref.watch(mockUserRoleProvider);
+  ref.watch(authControllerProvider);
+
+  final authEnabled =
+      EnvConfig.isSupabaseConfigured && SupabaseService.isInitialized;
 
   return GoRouter(
     initialLocation: '/dashboard',
     redirect: (context, state) {
       final path = state.uri.path;
-      if (path == '/') return '/dashboard';
+      if (path == '/') {
+        return authEnabled ? _postAuthHome(ref) : '/dashboard';
+      }
 
-      final role = ref.read(currentUserProvider).role;
-      if (!RoleRouteAccess.isAllowed(path, role)) {
+      if (authEnabled) {
+        final auth = ref.read(authControllerProvider);
+
+        if (auth.status == AuthStatus.loading) {
+          return null;
+        }
+
+        final isLoginRoute = path == '/login';
+
+        if (auth.status == AuthStatus.unauthenticated && !isLoginRoute) {
+          return '/login';
+        }
+
+        if (auth.status == AuthStatus.authenticated && isLoginRoute) {
+          return '/dashboard';
+        }
+      }
+
+      if (path == '/login' && !authEnabled) {
         return '/dashboard';
       }
+
+      try {
+        final role = ref.read(currentUserProvider).role;
+        if (!RoleRouteAccess.isAllowed(path, role)) {
+          return '/dashboard';
+        }
+      } on StateError {
+        if (authEnabled && path != '/login') return '/login';
+      }
+
       return null;
     },
     errorBuilder: (context, state) => AppShell(
@@ -49,6 +85,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: _shellRoutes,
@@ -69,6 +109,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+String _postAuthHome(Ref ref) {
+  final auth = ref.read(authControllerProvider);
+  if (auth.status == AuthStatus.authenticated) return '/dashboard';
+  return '/login';
+}
 
 final _shellRoutes = [
   GoRoute(
@@ -206,7 +252,13 @@ final _shellRoutes = [
       child: const SettingsScreen(),
     ),
   ),
-  _placeholderRoute('/users', 'Users'),
+  GoRoute(
+    path: '/users',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const UsersScreen(),
+    ),
+  ),
 ];
 
 GoRoute _placeholderRoute(String path, String title) {

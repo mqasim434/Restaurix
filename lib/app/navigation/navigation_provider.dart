@@ -1,21 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/models/app_user.dart';
 import '../../domain/models/user_role.dart';
-
-/// Flip to [UserRole.salesman] to test Module 32 restrictions before Module 33.
-final mockUserRoleProvider = StateProvider<UserRole>((ref) => UserRole.admin);
-
-/// Mock session — replaced by real Supabase Auth in Module 33.
-final currentUserProvider = Provider<AppUser>((ref) {
-  final role = ref.watch(mockUserRoleProvider);
-  return AppUser(
-    id: role == UserRole.admin ? 'mock-admin' : 'mock-salesman',
-    name: role == UserRole.admin ? 'Admin' : 'Salesman',
-    role: role,
-  );
-});
+import '../../features/auth/providers/auth_providers.dart';
 
 /// Sidebar expanded state — session-only UI preference (not persisted to Isar).
 final sidebarExpandedProvider = StateProvider<bool>((ref) => true);

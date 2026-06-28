@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/navigation/navigation_provider.dart';
+import '../../../features/auth/providers/auth_providers.dart';
 import '../../../data/local/device_id_service.dart';
 import '../../../data/local/isar_service.dart';
 import '../../../data/repositories/attendance_repository.dart';

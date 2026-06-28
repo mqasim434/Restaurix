@@ -23,4 +23,7 @@ abstract final class AppSettingKeys {
   static const syncLastSuccessfulAt = 'sync.last_successful_at';
   static const syncConflictLog = 'sync.conflict_log';
   static const syncEntityCursorPrefix = 'sync.cursor';
+
+  /// JSON-encoded [AppUser] for offline session restore.
+  static const authCachedSession = 'auth.cached_session';
 }
