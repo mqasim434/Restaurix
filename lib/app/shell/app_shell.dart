@@ -6,6 +6,7 @@ import '../../core/constants.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
 import '../navigation/navigation_provider.dart';
+import '../../features/sync/providers/sync_queue_providers.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
@@ -213,6 +214,7 @@ class AppTopBar extends ConsumerWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final user = ref.watch(currentUserProvider);
+    final pendingSyncCount = ref.watch(pendingSyncCountProvider);
 
     return Container(
       height: spacing.xxl + spacing.sm,
@@ -230,6 +232,41 @@ class AppTopBar extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          if (pendingSyncCount > 0) ...[
+            Tooltip(
+              message:
+                  '$pendingSyncCount change${pendingSyncCount == 1 ? '' : 's'} pending sync',
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: spacing.sm,
+                  vertical: spacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.warningContainer,
+                  borderRadius: context.appRadius.fullBorder,
+                  border: Border.all(color: colors.warning),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.cloud_upload_outlined,
+                      size: spacing.md,
+                      color: colors.onWarningContainer,
+                    ),
+                    SizedBox(width: spacing.xs),
+                    Text(
+                      '$pendingSyncCount',
+                      style: typography.labelLarge.copyWith(
+                        color: colors.onWarningContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(width: spacing.md),
+          ],
           Container(
             padding: EdgeInsets.symmetric(
               horizontal: spacing.md,

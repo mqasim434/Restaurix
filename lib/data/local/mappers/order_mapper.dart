@@ -148,7 +148,7 @@ OrderItemIsar orderItemToIsar({
   required String deviceId,
   required SyncAction action,
 }) {
-  return OrderItemIsar()
+  final record = OrderItemIsar()
     ..uuid = item.id
     ..orderId = item.orderId
     ..productId = item.productId
@@ -182,11 +182,19 @@ OrderItemIsar orderItemToIsar({
     ..kitchenReadyAt = item.kitchenReadyAt
     ..createdAt = item.createdAt
     ..updatedAt = item.updatedAt
-    ..isSynced = item.isSynced
-    ..deletedAt = item.deletedAt
-    ..syncAction = action.name
-    ..deviceId = deviceId
-    ..version = item.version;
+    ..deletedAt = item.deletedAt;
+
+  if (action == SyncAction.create) {
+    record
+      ..isSynced = false
+      ..syncAction = SyncAction.create.name
+      ..deviceId = deviceId
+      ..version = item.version;
+  } else {
+    record.markUpdated(deviceId: deviceId, action: action);
+  }
+
+  return record;
 }
 
 AppliedDiscount? wholeOrderDiscountFromOrder(Order order) {

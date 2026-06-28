@@ -28,29 +28,31 @@ class IsarService {
 
   Isar get instance => _isar;
 
+  static final List<CollectionSchema> schemas = [
+    CategoryIsarSchema,
+    ProductIsarSchema,
+    ProductVariantIsarSchema,
+    ModifierGroupIsarSchema,
+    ItemModifierIsarSchema,
+    DealIsarSchema,
+    DealItemIsarSchema,
+    HallIsarSchema,
+    RestaurantTableIsarSchema,
+    OrderIsarSchema,
+    OrderItemIsarSchema,
+    DraftOrderIsarSchema,
+    RiderIsarSchema,
+    PickupCompanyIsarSchema,
+    AppSettingIsarSchema,
+    EmployeeIsarSchema,
+    AttendanceRecordIsarSchema,
+    SalarySlipIsarSchema,
+  ];
+
   static Future<IsarService> open() async {
     final directory = await getApplicationSupportDirectory();
     final isar = await Isar.open(
-      [
-        CategoryIsarSchema,
-        ProductIsarSchema,
-        ProductVariantIsarSchema,
-        ModifierGroupIsarSchema,
-        ItemModifierIsarSchema,
-        DealIsarSchema,
-        DealItemIsarSchema,
-        HallIsarSchema,
-        RestaurantTableIsarSchema,
-        OrderIsarSchema,
-        OrderItemIsarSchema,
-        DraftOrderIsarSchema,
-        RiderIsarSchema,
-        PickupCompanyIsarSchema,
-        AppSettingIsarSchema,
-        EmployeeIsarSchema,
-        AttendanceRecordIsarSchema,
-        SalarySlipIsarSchema,
-      ],
+      schemas,
       directory: directory.path,
       name: 'restaurix',
     );
