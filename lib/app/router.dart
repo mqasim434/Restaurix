@@ -20,14 +20,26 @@ import '../features/reports/presentation/reports_hub_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/salary/presentation/salary_hub_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
+import '../features/sync/presentation/sync_status_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
+import 'navigation/navigation_provider.dart';
+import 'navigation/role_route_access.dart';
 import 'shell/app_shell.dart';
+import '../domain/models/user_role.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  ref.watch(mockUserRoleProvider);
+
   return GoRouter(
     initialLocation: '/dashboard',
     redirect: (context, state) {
-      if (state.uri.path == '/') return '/dashboard';
+      final path = state.uri.path;
+      if (path == '/') return '/dashboard';
+
+      final role = ref.read(currentUserProvider).role;
+      if (!RoleRouteAccess.isAllowed(path, role)) {
+        return '/dashboard';
+      }
       return null;
     },
     errorBuilder: (context, state) => AppShell(
@@ -47,7 +59,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/kitchen',
-        builder: (context, state) => const KitchenDisplayScreen(),
+        builder: (context, state) {
+          final container = ProviderScope.containerOf(context);
+          final readOnly =
+              container.read(currentUserProvider).role == UserRole.salesman;
+          return KitchenDisplayScreen(readOnly: readOnly);
+        },
       ),
     ],
   );
@@ -172,6 +189,13 @@ final _shellRoutes = [
     pageBuilder: (context, state) => NoTransitionPage(
       key: state.pageKey,
       child: const ReportsHubScreen(),
+    ),
+  ),
+  GoRoute(
+    path: '/sync',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const SyncStatusScreen(),
     ),
   ),
   _placeholderRoute('/analytics', 'Analytics'),

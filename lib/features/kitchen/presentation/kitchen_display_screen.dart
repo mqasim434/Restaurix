@@ -13,7 +13,10 @@ import '../../printing/providers/kitchen_ticket_providers.dart';
 import '../../printing/kitchen_ticket/kitchen_ticket_feedback.dart';
 
 class KitchenDisplayScreen extends ConsumerStatefulWidget {
-  const KitchenDisplayScreen({super.key});
+  const KitchenDisplayScreen({super.key, this.readOnly = false});
+
+  /// When true, hides kitchen actions such as ticket reprint (salesman view).
+  final bool readOnly;
 
   @override
   ConsumerState<KitchenDisplayScreen> createState() =>
@@ -45,6 +48,7 @@ class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
     ref.watch(kitchenAutoAdvanceProvider);
     final boardAsync = ref.watch(kitchenBoardProvider);
     final timeFormat = DateFormat.jm();
+    final readOnly = widget.readOnly;
 
     return Theme(
       data: Theme.of(context).copyWith(
@@ -56,7 +60,11 @@ class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _KitchenHeader(timeFormat: timeFormat, now: _now),
+              _KitchenHeader(
+                timeFormat: timeFormat,
+                now: _now,
+                readOnly: readOnly,
+              ),
               Expanded(
                 child: boardAsync.when(
                   loading: () => const Center(
@@ -80,6 +88,7 @@ class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
                           accent: const Color(0xFF42A5F5),
                           cards: board.incoming,
                           now: _now,
+                          readOnly: readOnly,
                         ),
                       ),
                       const VerticalDivider(width: 1, color: Color(0xFF2A2A2A)),
@@ -89,6 +98,7 @@ class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
                           accent: const Color(0xFFFFA726),
                           cards: board.preparing,
                           now: _now,
+                          readOnly: readOnly,
                         ),
                       ),
                       const VerticalDivider(width: 1, color: Color(0xFF2A2A2A)),
@@ -98,6 +108,7 @@ class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
                           accent: const Color(0xFF66BB6A),
                           cards: board.ready,
                           now: _now,
+                          readOnly: readOnly,
                         ),
                       ),
                     ],
@@ -113,10 +124,15 @@ class _KitchenDisplayScreenState extends ConsumerState<KitchenDisplayScreen> {
 }
 
 class _KitchenHeader extends StatelessWidget {
-  const _KitchenHeader({required this.timeFormat, required this.now});
+  const _KitchenHeader({
+    required this.timeFormat,
+    required this.now,
+    required this.readOnly,
+  });
 
   final DateFormat timeFormat;
   final DateTime now;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +143,9 @@ class _KitchenHeader extends StatelessWidget {
         children: [
           const Icon(Icons.restaurant_menu, color: Colors.white, size: 28),
           const SizedBox(width: 12),
-          const Text(
-            'Kitchen Display',
-            style: TextStyle(
+          Text(
+            readOnly ? 'Kitchen Status' : 'Kitchen Display',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -137,7 +153,7 @@ class _KitchenHeader extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Text(
-            'Auto',
+            readOnly ? 'View only' : 'Auto',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.45),
               fontSize: 14,
@@ -165,12 +181,14 @@ class _KitchenColumn extends StatelessWidget {
     required this.accent,
     required this.cards,
     required this.now,
+    required this.readOnly,
   });
 
   final String title;
   final Color accent;
   final List<KitchenOrderCard> cards;
   final DateTime now;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -245,6 +263,7 @@ class _KitchenColumn extends StatelessWidget {
                       return _KitchenOrderCard(
                         card: cards[index],
                         now: now,
+                        readOnly: readOnly,
                       );
                     },
                   ),
@@ -259,10 +278,12 @@ class _KitchenOrderCard extends ConsumerWidget {
   const _KitchenOrderCard({
     required this.card,
     required this.now,
+    required this.readOnly,
   });
 
   final KitchenOrderCard card;
   final DateTime now;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -312,14 +333,15 @@ class _KitchenOrderCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Reprint kitchen ticket',
-                  onPressed: () => _reprint(context, ref),
-                  icon: Icon(
-                    Icons.print_outlined,
-                    color: Colors.white.withValues(alpha: 0.65),
+                if (!readOnly)
+                  IconButton(
+                    tooltip: 'Reprint kitchen ticket',
+                    onPressed: () => _reprint(context, ref),
+                    icon: Icon(
+                      Icons.print_outlined,
+                      color: Colors.white.withValues(alpha: 0.65),
+                    ),
                   ),
-                ),
                 Text(
                   timeLabel,
                   style: TextStyle(

@@ -49,11 +49,14 @@ abstract final class EnvConfig {
     }
   }
 
-  static String get supabaseUrl =>
-      dotenv.env[_supabaseUrlKey]?.trim() ?? '';
+  static String _envValue(String key) {
+    if (!dotenv.isInitialized) return '';
+    return dotenv.env[key]?.trim() ?? '';
+  }
 
-  static String get supabaseAnonKey =>
-      dotenv.env[_supabaseAnonKeyKey]?.trim() ?? '';
+  static String get supabaseUrl => _envValue(_supabaseUrlKey);
+
+  static String get supabaseAnonKey => _envValue(_supabaseAnonKeyKey);
 
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty &&

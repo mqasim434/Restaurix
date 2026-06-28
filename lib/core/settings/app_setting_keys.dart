@@ -19,4 +19,8 @@ abstract final class AppSettingKeys {
 
   static const salaryGenerationDay = 'salary.generation_day';
   static const salaryLastAutoPeriodEnd = 'salary.last_auto_period_end';
+
+  static const syncLastSuccessfulAt = 'sync.last_successful_at';
+  static const syncConflictLog = 'sync.conflict_log';
+  static const syncEntityCursorPrefix = 'sync.cursor';
 }

@@ -6,6 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../app/navigation/navigation_provider.dart';
+import '../../../domain/models/user_role.dart';
 import '../providers/dashboard_providers.dart';
 import 'widgets/dashboard_charts.dart';
 
@@ -19,6 +21,8 @@ class DashboardScreen extends ConsumerWidget {
     final colors = context.appColors;
     final snapshotAsync = ref.watch(dashboardSnapshotProvider);
     final currency = NumberFormat.currency(symbol: r'$', decimalDigits: 0);
+    final role = ref.watch(currentUserProvider).role;
+    final isSalesman = role == UserRole.salesman;
 
     return Padding(
       padding: EdgeInsets.all(spacing.lg),
@@ -36,7 +40,9 @@ class DashboardScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Live overview of sales, kitchen flow, and staff presence',
+                  isSalesman
+                      ? 'Operational overview for today\'s service'
+                      : 'Live overview of sales, kitchen flow, and staff presence',
                   style: typography.bodyMedium.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
@@ -46,11 +52,12 @@ class DashboardScreen extends ConsumerWidget {
                   spacing: spacing.md,
                   runSpacing: spacing.md,
                   children: [
-                    _StatCard(
-                      label: "Today's sales",
-                      value: currency.format(cards.todaySales),
-                      icon: Icons.payments_outlined,
-                    ),
+                    if (!isSalesman)
+                      _StatCard(
+                        label: "Today's sales",
+                        value: currency.format(cards.todaySales),
+                        icon: Icons.payments_outlined,
+                      ),
                     _StatCard(
                       label: 'Orders today',
                       value: '${cards.ordersToday}',
@@ -76,25 +83,29 @@ class DashboardScreen extends ConsumerWidget {
                       value: '${cards.cancelledToday}',
                       icon: Icons.cancel_outlined,
                     ),
-                    _StatCard(
-                      label: 'Employees present',
-                      value: '${cards.employeesPresent}',
-                      icon: Icons.groups_outlined,
-                    ),
-                    _StatCard(
-                      label: 'Monthly revenue',
-                      value: currency.format(cards.monthlyRevenue),
-                      icon: Icons.calendar_month_outlined,
-                    ),
-                    _StatCard(
-                      label: 'Average ticket',
-                      value: currency.format(cards.averageTicketToday),
-                      icon: Icons.local_offer_outlined,
-                    ),
+                    if (!isSalesman) ...[
+                      _StatCard(
+                        label: 'Employees present',
+                        value: '${cards.employeesPresent}',
+                        icon: Icons.groups_outlined,
+                      ),
+                      _StatCard(
+                        label: 'Monthly revenue',
+                        value: currency.format(cards.monthlyRevenue),
+                        icon: Icons.calendar_month_outlined,
+                      ),
+                      _StatCard(
+                        label: 'Average ticket',
+                        value: currency.format(cards.averageTicketToday),
+                        icon: Icons.local_offer_outlined,
+                      ),
+                    ],
                   ],
                 ),
-                SizedBox(height: spacing.xl),
-                DashboardChartsSection(charts: snapshot.charts),
+                if (!isSalesman) ...[
+                  SizedBox(height: spacing.xl),
+                  DashboardChartsSection(charts: snapshot.charts),
+                ],
               ],
             ),
           );

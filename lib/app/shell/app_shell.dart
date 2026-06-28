@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/env_config.dart';
 import '../../core/constants.dart';
+import '../../core/sync/sync_engine.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
-import '../navigation/navigation_provider.dart';
+import '../../domain/models/user_role.dart';
+import '../../features/sync/providers/sync_engine_providers.dart';
 import '../../features/sync/providers/sync_queue_providers.dart';
+import '../navigation/navigation_provider.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
@@ -215,6 +219,11 @@ class AppTopBar extends ConsumerWidget {
     final typography = context.appTypography;
     final user = ref.watch(currentUserProvider);
     final pendingSyncCount = ref.watch(pendingSyncCountProvider);
+    final syncState = ref.watch(syncUiStateProvider);
+    final isAdmin = user.role == UserRole.admin;
+    final syncEnabled = isAdmin &&
+        EnvConfig.isSupabaseConfigured &&
+        syncState.runState != SyncRunState.disabled;
 
     return Container(
       height: spacing.xxl + spacing.sm,
@@ -232,36 +241,52 @@ class AppTopBar extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          if (pendingSyncCount > 0) ...[
+          if (syncEnabled) ...[
+            IconButton(
+              tooltip: 'Sync status',
+              icon: Icon(
+                syncState.runState == SyncRunState.syncing
+                    ? Icons.sync_rounded
+                    : Icons.cloud_sync_outlined,
+                color: colors.onSurfaceVariant,
+              ),
+              onPressed: () => context.go('/sync'),
+            ),
+          ],
+          if (isAdmin && pendingSyncCount > 0) ...[
             Tooltip(
               message:
-                  '$pendingSyncCount change${pendingSyncCount == 1 ? '' : 's'} pending sync',
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: spacing.sm,
-                  vertical: spacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.warningContainer,
-                  borderRadius: context.appRadius.fullBorder,
-                  border: Border.all(color: colors.warning),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.cloud_upload_outlined,
-                      size: spacing.md,
-                      color: colors.onWarningContainer,
-                    ),
-                    SizedBox(width: spacing.xs),
-                    Text(
-                      '$pendingSyncCount',
-                      style: typography.labelLarge.copyWith(
+                  '$pendingSyncCount change${pendingSyncCount == 1 ? '' : 's'} pending sync — open sync status',
+              child: InkWell(
+                onTap: () => context.go('/sync'),
+                borderRadius: context.appRadius.fullBorder,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: spacing.sm,
+                    vertical: spacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.warningContainer,
+                    borderRadius: context.appRadius.fullBorder,
+                    border: Border.all(color: colors.warning),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.cloud_upload_outlined,
+                        size: spacing.md,
                         color: colors.onWarningContainer,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: spacing.xs),
+                      Text(
+                        '$pendingSyncCount',
+                        style: typography.labelLarge.copyWith(
+                          color: colors.onWarningContainer,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -323,7 +348,11 @@ class AppTopBar extends ConsumerWidget {
       if (item.path == path || (path == '/' && item.path == '/dashboard')) {
         return item.label;
       }
+      if (path.startsWith('${item.path}/')) {
+        return item.label;
+      }
     }
+    if (path == '/sync') return 'Sync Status';
     return 'Restaurix';
   }
 }

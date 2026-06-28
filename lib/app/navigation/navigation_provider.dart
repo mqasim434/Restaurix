@@ -4,12 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/app_user.dart';
 import '../../domain/models/user_role.dart';
 
+/// Flip to [UserRole.salesman] to test Module 32 restrictions before Module 33.
+final mockUserRoleProvider = StateProvider<UserRole>((ref) => UserRole.admin);
+
 /// Mock session — replaced by real Supabase Auth in Module 33.
 final currentUserProvider = Provider<AppUser>((ref) {
-  return const AppUser(
-    id: 'mock-admin',
-    name: 'Admin',
-    role: UserRole.admin,
+  final role = ref.watch(mockUserRoleProvider);
+  return AppUser(
+    id: role == UserRole.admin ? 'mock-admin' : 'mock-salesman',
+    name: role == UserRole.admin ? 'Admin' : 'Salesman',
+    role: role,
   );
 });
 
@@ -33,9 +37,21 @@ final navigationItemsProvider = Provider<List<NavItem>>((ref) {
 
   return switch (role) {
     UserRole.admin => _adminNavItems,
-    UserRole.salesman => const [], // Module 32
+    UserRole.salesman => _salesmanNavItems,
   };
 });
+
+const _salesmanNavItems = [
+  NavItem(label: 'Dashboard', path: '/dashboard', icon: Icons.dashboard_outlined),
+  NavItem(label: 'New Order', path: '/sales', icon: Icons.point_of_sale_outlined),
+  NavItem(label: 'Orders', path: '/orders', icon: Icons.receipt_long_outlined),
+  NavItem(label: 'Tables', path: '/tables', icon: Icons.table_restaurant_outlined),
+  NavItem(
+    label: 'Kitchen Status',
+    path: '/kitchen',
+    icon: Icons.restaurant_menu_outlined,
+  ),
+];
 
 const _adminNavItems = [
   NavItem(label: 'Dashboard', path: '/dashboard', icon: Icons.dashboard_outlined),
