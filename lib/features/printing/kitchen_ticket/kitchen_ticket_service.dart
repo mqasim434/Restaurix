@@ -47,20 +47,25 @@ class KitchenTicketService {
 
     final items = await _orders.findItemsByOrderId(orderId);
     final productMeta = await _loadProductMeta(items);
-    final defaultPrinter = await _settings.getKitchenDefaultPrinterId();
+    final settings = await _settings.loadSettings();
     final tableLabels = await _loadTableLabels([order.tableId]);
+    final resolveTarget = settings.resolvePrinterTarget;
 
     final warnings = KitchenTicketGrouper.collectMissingPrinterWarnings(
       items: items,
       productMetaById: productMeta,
-      defaultPrinterId: defaultPrinter,
+      defaultPrinterId: settings.kitchenDefaultPrinterTarget,
+      categoryPrinterMap: settings.kitchenCategoryPrinters,
+      resolveTarget: resolveTarget,
     );
 
     final jobs = KitchenTicketGrouper.buildPrintJobs(
       order: order,
       items: items,
       productMetaById: productMeta,
-      defaultPrinterId: defaultPrinter,
+      defaultPrinterId: settings.kitchenDefaultPrinterTarget,
+      categoryPrinterMap: settings.kitchenCategoryPrinters,
+      resolveTarget: resolveTarget,
       isReprint: isReprint,
       contextLabel: KitchenTicketGrouper.contextLabel(
         order: order,

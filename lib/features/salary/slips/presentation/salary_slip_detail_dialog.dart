@@ -8,7 +8,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../domain/models/employee.dart';
 import '../../../../domain/models/salary_slip.dart';
-import '../../../printing/providers/kitchen_ticket_providers.dart';
+import '../../../settings/providers/settings_providers.dart';
 import '../providers/salary_slip_providers.dart';
 import '../salary_slip_preview.dart';
 

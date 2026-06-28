@@ -45,6 +45,9 @@ class ReceiptLine {
 class CustomerReceiptData {
   const CustomerReceiptData({
     required this.businessName,
+    this.receiptHeaderText,
+    this.receiptFooterText,
+    this.businessAddress,
     required this.orderNumber,
     required this.orderTypeLabel,
     required this.contextLabel,
@@ -60,6 +63,9 @@ class CustomerReceiptData {
   });
 
   final String businessName;
+  final String? businessAddress;
+  final String? receiptHeaderText;
+  final String? receiptFooterText;
   final String orderNumber;
   final String orderTypeLabel;
   final String contextLabel;

@@ -10,6 +10,9 @@ abstract final class ReceiptBuilder {
     required Order order,
     required List<OrderItem> items,
     required String businessName,
+    String? businessAddress,
+    String? receiptHeaderText,
+    String? receiptFooterText,
     required Map<String, String> tableLabelsById,
     bool isReprint = false,
   }) {
@@ -17,6 +20,9 @@ abstract final class ReceiptBuilder {
 
     return CustomerReceiptData(
       businessName: businessName,
+      businessAddress: businessAddress,
+      receiptHeaderText: receiptHeaderText,
+      receiptFooterText: receiptFooterText,
       orderNumber: order.orderNumber,
       orderTypeLabel: order.orderType.label,
       contextLabel: _contextLabel(order, tableLabelsById),

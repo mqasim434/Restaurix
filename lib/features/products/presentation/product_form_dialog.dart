@@ -241,7 +241,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
           AppTextField(
             controller: _printerIdController,
             label: 'Printer ID',
-            hint: 'Optional — configured in Settings (Module 29)',
+            hint: 'Optional — override in Settings → Printers',
           ),
           SizedBox(height: spacing.md),
           Text(

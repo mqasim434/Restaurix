@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/isar_service.dart';
 import '../../orders/providers/order_management_providers.dart';
-import '../providers/kitchen_ticket_providers.dart';
+import '../../settings/providers/settings_providers.dart';
 import '../receipt/receipt_data.dart';
 import '../receipt/receipt_service.dart';
 

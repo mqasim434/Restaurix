@@ -49,8 +49,8 @@ class DeliveryConfigScreen extends ConsumerWidget {
             const Expanded(
               child: TabBarView(
                 children: [
-                  _RidersPanel(),
-                  _PickupCompaniesPanel(),
+                  DeliveryRidersPanel(),
+                  DeliveryPickupCompaniesPanel(),
                 ],
               ),
             ),
@@ -61,8 +61,8 @@ class DeliveryConfigScreen extends ConsumerWidget {
   }
 }
 
-class _RidersPanel extends ConsumerWidget {
-  const _RidersPanel();
+class DeliveryRidersPanel extends ConsumerWidget {
+  const DeliveryRidersPanel({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -163,8 +163,8 @@ class _RidersPanel extends ConsumerWidget {
   }
 }
 
-class _PickupCompaniesPanel extends ConsumerWidget {
-  const _PickupCompaniesPanel();
+class DeliveryPickupCompaniesPanel extends ConsumerWidget {
+  const DeliveryPickupCompaniesPanel({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

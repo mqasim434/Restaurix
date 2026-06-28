@@ -16,6 +16,14 @@ abstract final class ReceiptPreview {
     }
 
     lines.add(receipt.businessName);
+    if (receipt.businessAddress != null &&
+        receipt.businessAddress!.trim().isNotEmpty) {
+      lines.add(receipt.businessAddress!.trim());
+    }
+    if (receipt.receiptHeaderText != null &&
+        receipt.receiptHeaderText!.trim().isNotEmpty) {
+      lines.add(receipt.receiptHeaderText!.trim());
+    }
     lines.add('RECEIPT');
     lines.add(receipt.orderNumber);
     lines.add(
@@ -54,6 +62,10 @@ abstract final class ReceiptPreview {
     lines.add('TOTAL: ${formatReceiptMoney(receipt.total)}');
     lines.add('Payment: ${receipt.paymentTypeLabel}');
     lines.add('Status: ${receipt.paymentStatusLabel}');
+    if (receipt.receiptFooterText != null &&
+        receipt.receiptFooterText!.trim().isNotEmpty) {
+      lines.add(receipt.receiptFooterText!.trim());
+    }
 
     return lines;
   }

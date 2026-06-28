@@ -9,7 +9,7 @@ import '../../../../domain/models/salary_calculation.dart';
 import '../../../../domain/models/salary_slip.dart';
 import '../../../attendance/providers/attendance_providers.dart';
 import '../../../employees/providers/employee_providers.dart';
-import '../../../printing/providers/kitchen_ticket_providers.dart';
+import '../../../settings/providers/settings_providers.dart';
 import '../../calculation/providers/salary_calculation_providers.dart';
 
 final salarySlipRepositoryProvider = Provider<SalarySlipRepository>((ref) {

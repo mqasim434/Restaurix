@@ -17,6 +17,7 @@ import '../features/pos/presentation/order_confirmation_screen.dart';
 import '../features/pos/presentation/pos_checkout_screen.dart';
 import '../features/pos/presentation/pos_screen.dart';
 import '../features/reports/presentation/reports_hub_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/salary/presentation/salary_hub_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
@@ -174,7 +175,13 @@ final _shellRoutes = [
     ),
   ),
   _placeholderRoute('/analytics', 'Analytics'),
-  _placeholderRoute('/settings', 'Settings'),
+  GoRoute(
+    path: '/settings',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const SettingsScreen(),
+    ),
+  ),
   _placeholderRoute('/users', 'Users'),
 ];
 

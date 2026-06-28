@@ -1,17 +1,22 @@
 /// Known keys for [AppSettingIsar].
 abstract final class AppSettingKeys {
-  /// Fallback kitchen printer target when a product has no printer ID.
-  static const kitchenDefaultPrinterId = 'kitchen.default_printer_id';
+  static const businessName = 'business.name';
+  static const businessAddress = 'business.address';
+  static const receiptHeaderText = 'receipt.header_text';
+  static const receiptFooterText = 'receipt.footer_text';
 
-  /// Customer receipt printer — Windows name or network IP/IP:port.
+  /// Customer receipt printer — config id or raw Windows name / IP.
   static const receiptPrinterId = 'receipt.printer_id';
 
-  /// Business name shown on customer receipts (Module 29 Settings UI).
-  static const businessName = 'business.name';
+  /// Fallback kitchen printer — config id or raw target.
+  static const kitchenDefaultPrinterId = 'kitchen.default_printer_id';
 
-  /// Day of month (1–28) when prior-period salary slips auto-generate.
+  /// JSON array of [PrinterConfig].
+  static const printerConfigs = 'printers.configs';
+
+  /// JSON map of kitchen category label -> printer config id or raw target.
+  static const kitchenCategoryPrinterMap = 'kitchen.category_printer_map';
+
   static const salaryGenerationDay = 'salary.generation_day';
-
-  /// ISO date of the last auto-generated salary slip period end.
   static const salaryLastAutoPeriodEnd = 'salary.last_auto_period_end';
 }

@@ -8,11 +8,63 @@ import 'product_kitchen_meta.dart';
 abstract final class KitchenTicketGrouper {
   static const uncategorizedLabel = 'General';
 
+  static String? _resolvePrinter({
+    required ProductKitchenMeta? meta,
+    required String? defaultPrinterId,
+    required Map<String, String> categoryPrinterMap,
+    required String? Function(String? reference) resolveTarget,
+  }) {
+    final productPrinter = meta?.printerId?.trim();
+    if (productPrinter != null && productPrinter.isNotEmpty) {
+      return resolveTarget(productPrinter);
+    }
+
+    final category = meta?.kitchenCategory?.trim();
+    if (category != null && category.isNotEmpty) {
+      final categoryPrinter = categoryPrinterMap[category];
+      if (categoryPrinter != null && categoryPrinter.trim().isNotEmpty) {
+        return resolveTarget(categoryPrinter);
+      }
+    }
+
+    return resolveTarget(defaultPrinterId);
+  }
+
+  static List<String> collectMissingPrinterWarnings({
+    required List<OrderItem> items,
+    required Map<String, ProductKitchenMeta> productMetaById,
+    required String? defaultPrinterId,
+    required Map<String, String> categoryPrinterMap,
+    required String? Function(String? reference) resolveTarget,
+  }) {
+    final warnings = <String>[];
+    for (final item in items.where((i) => i.deletedAt == null)) {
+      if (_resolvePrinter(
+            meta: item.productId != null
+                ? productMetaById[item.productId!]
+                : null,
+            defaultPrinterId: defaultPrinterId,
+            categoryPrinterMap: categoryPrinterMap,
+            resolveTarget: resolveTarget,
+          ) ==
+          null) {
+        warnings.add(
+          'No kitchen printer configured for "${item.name}". '
+          'Set a printer on the product, map the kitchen category in Settings, '
+          'or configure a default kitchen printer.',
+        );
+      }
+    }
+    return warnings;
+  }
+
   static List<KitchenTicketPrintJob> buildPrintJobs({
     required Order order,
     required List<OrderItem> items,
     required Map<String, ProductKitchenMeta> productMetaById,
     required String? defaultPrinterId,
+    required Map<String, String> categoryPrinterMap,
+    required String? Function(String? reference) resolveTarget,
     required bool isReprint,
     required String contextLabel,
   }) {
@@ -27,6 +79,8 @@ abstract final class KitchenTicketGrouper {
       final printer = _resolvePrinter(
         meta: meta,
         defaultPrinterId: defaultPrinterId,
+        categoryPrinterMap: categoryPrinterMap,
+        resolveTarget: resolveTarget,
       );
       if (printer == null) continue;
 
@@ -49,27 +103,6 @@ abstract final class KitchenTicketGrouper {
     ];
   }
 
-  static List<String> collectMissingPrinterWarnings({
-    required List<OrderItem> items,
-    required Map<String, ProductKitchenMeta> productMetaById,
-    required String? defaultPrinterId,
-  }) {
-    final warnings = <String>[];
-    for (final item in items.where((i) => i.deletedAt == null)) {
-      final meta = item.productId != null
-          ? productMetaById[item.productId!]
-          : null;
-      if (_resolvePrinter(meta: meta, defaultPrinterId: defaultPrinterId) ==
-          null) {
-        warnings.add(
-          'No kitchen printer configured for "${item.name}". '
-          'Set a printer on the product or configure a default kitchen printer.',
-        );
-      }
-    }
-    return warnings;
-  }
-
   static String contextLabel({
     required Order order,
     required Map<String, String> tableLabelsById,
@@ -81,23 +114,6 @@ abstract final class KitchenTicketGrouper {
       OrderType.takeaway => 'Take Away',
       OrderType.delivery => 'Delivery',
     };
-  }
-
-  static String? _resolvePrinter({
-    required ProductKitchenMeta? meta,
-    required String? defaultPrinterId,
-  }) {
-    final productPrinter = meta?.printerId?.trim();
-    if (productPrinter != null && productPrinter.isNotEmpty) {
-      return productPrinter;
-    }
-
-    final fallback = defaultPrinterId?.trim();
-    if (fallback != null && fallback.isNotEmpty) {
-      return fallback;
-    }
-
-    return null;
   }
 
   static List<KitchenTicketCategoryGroup> _categoryGroups(

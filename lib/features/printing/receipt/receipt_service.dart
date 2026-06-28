@@ -48,24 +48,26 @@ class ReceiptService {
       );
     }
 
-    final printerTarget = await _settings.getReceiptPrinterId();
+    final appSettings = await _settings.loadSettings();
+    final printerTarget = appSettings.resolvedReceiptPrinterTarget();
     if (printerTarget == null || printerTarget.trim().isEmpty) {
       return const ReceiptPrintResult(
         warnings: [
-          'No receipt printer configured. '
-          'Set receipt.printer_id in local settings (Settings UI in Module 29).',
+          'No receipt printer configured. Set one in Settings → Printers.',
         ],
       );
     }
 
     final items = await _orders.findItemsByOrderId(orderId);
-    final businessName = await _settings.getBusinessName();
     final tableLabels = await _loadTableLabels([order.tableId]);
 
     final receipt = ReceiptBuilder.fromPersisted(
       order: order,
       items: items,
-      businessName: businessName,
+      businessName: appSettings.businessName,
+      businessAddress: appSettings.businessAddress,
+      receiptHeaderText: appSettings.receiptHeaderText,
+      receiptFooterText: appSettings.receiptFooterText,
       tableLabelsById: tableLabels,
       isReprint: isReprint,
     );

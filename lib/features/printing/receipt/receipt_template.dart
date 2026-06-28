@@ -34,6 +34,21 @@ abstract final class ReceiptTemplate {
         width: PosTextSize.size2,
       ),
     );
+    if (receipt.businessAddress != null &&
+        receipt.businessAddress!.trim().isNotEmpty) {
+      bytes += generator.text(
+        receipt.businessAddress!.trim(),
+        styles: const PosStyles(align: PosAlign.center),
+      );
+    }
+    if (receipt.receiptHeaderText != null &&
+        receipt.receiptHeaderText!.trim().isNotEmpty) {
+      bytes += generator.text(
+        receipt.receiptHeaderText!.trim(),
+        styles: const PosStyles(align: PosAlign.center),
+        linesAfter: 1,
+      );
+    }
     bytes += generator.text(
       'RECEIPT',
       styles: const PosStyles(align: PosAlign.center, bold: true),
@@ -141,7 +156,9 @@ abstract final class ReceiptTemplate {
     bytes += generator.text('Status: ${receipt.paymentStatusLabel}');
     bytes += generator.feed(2);
     bytes += generator.text(
-      'Thank you!',
+      receipt.receiptFooterText?.trim().isNotEmpty == true
+          ? receipt.receiptFooterText!.trim()
+          : 'Thank you!',
       styles: const PosStyles(align: PosAlign.center),
     );
     bytes += generator.feed(2);

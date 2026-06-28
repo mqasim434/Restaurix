@@ -3,6 +3,6 @@ abstract final class AppConstants {
   static const String appName = 'Restaurix';
   static const int defaultProductPrepMinutes = 10;
 
-  /// Placeholder until Settings (Module 29) — override via AppSettingIsar.
+  /// Fallback when no business name is stored in settings.
   static const String defaultBusinessName = appName;
 }
