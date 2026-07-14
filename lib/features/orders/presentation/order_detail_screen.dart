@@ -12,12 +12,13 @@ import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
 import '../../../domain/models/order_item.dart';
 import '../../../domain/services/order_lifecycle.dart';
-import '../../pos/presentation/pos_cart_panel.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../../pos/providers/order_edit_provider.dart';
 import '../../printing/providers/kitchen_ticket_providers.dart';
 import '../../printing/providers/receipt_providers.dart';
 import '../../printing/kitchen_ticket/kitchen_ticket_feedback.dart';
 import '../../printing/receipt/receipt_feedback.dart';
+import '../../credit_customers/providers/credit_customer_providers.dart';
 import '../providers/order_management_providers.dart';
 import 'cancel_order_dialog.dart';
 import 'mark_paid_dialog.dart';
@@ -68,6 +69,15 @@ class _OrderDetailBody extends ConsumerWidget {
     final typography = context.appTypography;
     final actions = ref.watch(orderActionsProvider(order));
     final editBlocked = OrderLifecycle.editBlockedReason(order);
+    final formatMoney = ref.watch(formatMoneyProvider);
+    final creditCustomerName = order.creditCustomerId == null
+        ? null
+        : ref
+            .watch(creditCustomerByIdProvider(order.creditCustomerId!))
+            .maybeWhen(
+              data: (customer) => customer?.fullName ?? 'Unknown customer',
+              orElse: () => 'Loading...',
+            );
 
     return Padding(
       padding: EdgeInsets.all(spacing.lg),
@@ -173,6 +183,8 @@ class _OrderDetailBody extends ConsumerWidget {
                       _InfoRow('Payment', order.paymentStatus.label),
                       if (order.paymentType != null)
                         _InfoRow('Payment type', order.paymentType!.label),
+                      if (creditCustomerName != null)
+                        _InfoRow('Credit account', creditCustomerName),
                       _InfoRow(
                         'Created',
                         DateFormat.yMMMd().add_jm().format(order.createdAt),
@@ -197,7 +209,7 @@ class _OrderDetailBody extends ConsumerWidget {
                                     style: typography.bodyMedium,
                                   ),
                                 ),
-                                Text(formatPosPrice(item.lineTotal)),
+                                Text(formatMoney(item.lineTotal)),
                               ],
                             ),
                           ),
@@ -226,26 +238,26 @@ class _OrderDetailBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _InfoRow('Subtotal', formatPosPrice(order.subtotal)),
+                  _InfoRow('Subtotal', formatMoney(order.subtotal)),
                   if (order.itemDiscountTotal > 0)
                     _InfoRow(
                       'Line discounts',
-                      '-${formatPosPrice(order.itemDiscountTotal)}',
+                      '-${formatMoney(order.itemDiscountTotal)}',
                     ),
                   if (order.orderDiscountTotal > 0)
                     _InfoRow(
                       'Order discount',
-                      '-${formatPosPrice(order.orderDiscountTotal)}',
+                      '-${formatMoney(order.orderDiscountTotal)}',
                     ),
                   Divider(height: spacing.lg, color: colors.divider),
-                  _InfoRow('Total', formatPosPrice(order.total), bold: true),
+                  _InfoRow('Total', formatMoney(order.total), bold: true),
                   SizedBox(height: spacing.lg),
                   if (order.status != OrderStatus.cancelled && items.isNotEmpty) ...[
                     AppButton(
-                      label: 'Reprint Kitchen Ticket',
+                      label: 'Reprint Kitchen Copy',
                       variant: AppButtonVariant.secondary,
                       expand: true,
-                      onPressed: () => _reprintKitchenTicket(context, ref),
+                      onPressed: () => _reprintKitchenCopy(context, ref),
                     ),
                     SizedBox(height: spacing.sm),
                     AppButton(
@@ -361,7 +373,7 @@ class _OrderDetailBody extends ConsumerWidget {
     }
   }
 
-  Future<void> _reprintKitchenTicket(
+  Future<void> _reprintKitchenCopy(
     BuildContext context,
     WidgetRef ref,
   ) async {
@@ -373,7 +385,7 @@ class _OrderDetailBody extends ConsumerWidget {
       showKitchenPrintFeedback(
         context,
         result,
-        successMessage: 'Kitchen ticket reprinted',
+        successMessage: 'Kitchen copy reprinted',
       );
     } catch (error) {
       if (!context.mounted) return;

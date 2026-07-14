@@ -11,7 +11,10 @@ import 'printer_target_parser.dart';
 /// commands as plain text (see windows_printer package docs).
 class EscPosWindowsTransport implements EscPosTransport {
   @override
-  bool supports(String target) => !PrinterTargetParser.isNetworkTarget(target);
+  bool supports(String target) {
+    if (target.trim().isEmpty) return true;
+    return !PrinterTargetParser.isNetworkTarget(target);
+  }
 
   @override
   Future<void> send({
@@ -19,7 +22,7 @@ class EscPosWindowsTransport implements EscPosTransport {
     required Uint8List bytes,
   }) async {
     await WindowsPrinter.printRawData(
-      printerName: target.trim(),
+      printerName: target.trim().isEmpty ? null : target.trim(),
       data: bytes,
       useRawDatatype: true,
     );

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
+import '../../../core/format/money_format.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -15,6 +14,7 @@ import '../providers/cart_providers.dart';
 import '../providers/checkout_providers.dart';
 import '../providers/discount_providers.dart';
 import '../providers/draft_providers.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../services/discount_calculator.dart';
 import 'discount_actions.dart';
 import 'draft_orders_sheet.dart';
@@ -33,6 +33,7 @@ class PosCartPanel extends ConsumerWidget {
     final pricing = ref.watch(cartPricingProvider);
     final discounts = ref.watch(cartDiscountsProvider);
     final draftCount = ref.watch(draftOrderCountProvider).valueOrNull ?? 0;
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -129,6 +130,7 @@ class PosCartPanel extends ConsumerWidget {
                     label: 'Subtotal',
                     amount: pricing.subtotal,
                     style: typography.bodyMedium,
+                    formatMoney: formatMoney,
                   ),
                   if (pricing.lineDiscountTotal > 0) ...[
                     SizedBox(height: spacing.xs),
@@ -137,6 +139,7 @@ class PosCartPanel extends ConsumerWidget {
                       amount: pricing.subtotalAfterLineDiscounts,
                       style: typography.bodySmall,
                       muted: true,
+                      formatMoney: formatMoney,
                     ),
                   ],
                   if (pricing.orderDiscountTotal > 0) ...[
@@ -147,6 +150,7 @@ class PosCartPanel extends ConsumerWidget {
                       style: typography.bodySmall,
                       muted: true,
                       showSign: true,
+                      formatMoney: formatMoney,
                     ),
                   ],
                   SizedBox(height: spacing.sm),
@@ -173,9 +177,7 @@ class PosCartPanel extends ConsumerWidget {
                             showWholeOrderDiscountDialog(context, ref),
                       ),
                     Text(
-                      formatPosPrice(
-                        items.isEmpty ? 0 : pricing.total,
-                      ),
+                      formatMoney(items.isEmpty ? 0 : pricing.total),
                       style: typography.titleLarge.copyWith(
                         color: colors.primary,
                       ),
@@ -273,6 +275,7 @@ class _PricingRow extends StatelessWidget {
     required this.label,
     required this.amount,
     required this.style,
+    required this.formatMoney,
     this.muted = false,
     this.showSign = false,
   });
@@ -280,6 +283,7 @@ class _PricingRow extends StatelessWidget {
   final String label;
   final double amount;
   final TextStyle style;
+  final MoneyFormatter formatMoney;
   final bool muted;
   final bool showSign;
 
@@ -299,8 +303,8 @@ class _PricingRow extends StatelessWidget {
         ),
         Text(
           showSign && amount != 0
-              ? '${amount < 0 ? '-' : ''}${formatPosPrice(amount.abs())}'
-              : formatPosPrice(amount),
+              ? '${amount < 0 ? '-' : ''}${formatMoney(amount.abs())}'
+              : formatMoney(amount),
           style: style.copyWith(
             color: muted ? colors.onSurfaceVariant : colors.onSurface,
           ),
@@ -329,6 +333,7 @@ class _CartLineRow extends ConsumerWidget {
     final notifier = ref.read(cartProvider.notifier);
     final discountNotifier = ref.read(cartDiscountsProvider.notifier);
 
+    final formatMoney = ref.watch(formatMoneyProvider);
     final displayTotal = linePricing?.netTotal ?? item.lineTotal;
     final hasLineDiscount =
         linePricing != null && linePricing!.lineDiscountAmount > 0;
@@ -397,13 +402,6 @@ class _CartLineRow extends ConsumerWidget {
                   color: colors.onSurfaceVariant,
                 ),
               ),
-            if (item.modifiers.isNotEmpty)
-              Text(
-                item.modifiers.map((m) => m.name).join(', '),
-                style: typography.bodySmall.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
             if (itemDiscount?.reason != null)
               Text(
                 'Reason: ${itemDiscount!.reason}',
@@ -450,7 +448,7 @@ class _CartLineRow extends ConsumerWidget {
                   Padding(
                     padding: EdgeInsets.only(right: spacing.sm),
                     child: Text(
-                      formatPosPrice(item.lineTotal),
+                      formatMoney(item.lineTotal),
                       style: typography.bodySmall.copyWith(
                         color: colors.onSurfaceVariant,
                         decoration: TextDecoration.lineThrough,
@@ -458,7 +456,7 @@ class _CartLineRow extends ConsumerWidget {
                     ),
                   ),
                 Text(
-                  formatPosPrice(displayTotal),
+                  formatMoney(displayTotal),
                   style: typography.bodyMedium.copyWith(
                     color: colors.onSurface,
                   ),
@@ -496,8 +494,4 @@ class _QuantityButton extends StatelessWidget {
       ),
     );
   }
-}
-
-String formatPosPrice(double price) {
-  return NumberFormat.simpleCurrency().format(price);
 }

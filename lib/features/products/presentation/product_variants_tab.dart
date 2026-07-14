@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/format/money_format.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -9,8 +10,8 @@ import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../domain/models/product_variant.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../providers/variant_providers.dart';
-import 'product_form_dialog.dart';
 import 'variant_form_dialog.dart';
 
 class ProductVariantsTab extends ConsumerStatefulWidget {
@@ -51,12 +52,15 @@ class _ProductVariantsTabState extends ConsumerState<ProductVariantsTab> {
             .map((v) => v.id)
             .firstOrNull;
 
+        final formatMoney = ref.watch(formatMoneyProvider);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _CustomerPreview(
               basePrice: widget.basePrice(),
               variants: displayVariants,
+              formatMoney: formatMoney,
             ),
             SizedBox(height: spacing.md),
             Row(
@@ -113,6 +117,7 @@ class _ProductVariantsTabState extends ConsumerState<ProductVariantsTab> {
                           variant: variant,
                           index: index,
                           defaultVariantId: defaultVariantId,
+                          formatMoney: formatMoney,
                           onEdit: () => _editVariant(context, actions, variant),
                           onDelete: () =>
                               _deleteVariant(context, actions, variant),
@@ -196,10 +201,12 @@ class _CustomerPreview extends StatelessWidget {
   const _CustomerPreview({
     required this.basePrice,
     required this.variants,
+    required this.formatMoney,
   });
 
   final double basePrice;
   final List<ProductVariant> variants;
+  final MoneyFormatter formatMoney;
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +231,7 @@ class _CustomerPreview extends StatelessWidget {
           SizedBox(height: spacing.sm),
           if (variants.isEmpty)
             Text(
-              'One tap add — ${formatProductPrice(basePrice)}',
+              'One tap add — ${formatMoney(basePrice)}',
               style: typography.bodyMedium.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -232,7 +239,7 @@ class _CustomerPreview extends StatelessWidget {
           else if (variants.length == 1)
             Text(
               'Auto-selected at POS — ${variants.first.name} '
-              '(${formatProductPrice(variants.first.price)})',
+              '(${formatMoney(variants.first.price)})',
               style: typography.bodySmall.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -243,7 +250,7 @@ class _CustomerPreview extends StatelessWidget {
             children: variants.map((variant) {
               return ChoiceChip(
                 label: Text(
-                  '${variant.name} · ${formatProductPrice(variant.price)}',
+                  '${variant.name} · ${formatMoney(variant.price)}',
                   style: typography.labelMedium.copyWith(
                     color: variant.isDefault
                         ? colors.onPrimaryContainer
@@ -272,6 +279,7 @@ class _VariantRow extends StatelessWidget {
     required this.variant,
     required this.index,
     required this.defaultVariantId,
+    required this.formatMoney,
     required this.onEdit,
     required this.onDelete,
     required this.onSetDefault,
@@ -280,6 +288,7 @@ class _VariantRow extends StatelessWidget {
   final ProductVariant variant;
   final int index;
   final String? defaultVariantId;
+  final MoneyFormatter formatMoney;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onSetDefault;
@@ -311,7 +320,7 @@ class _VariantRow extends StatelessWidget {
                     style: typography.bodyMedium.copyWith(color: colors.onSurface),
                   ),
                   Text(
-                    formatProductPrice(variant.price),
+                    formatMoney(variant.price),
                     style: typography.bodySmall.copyWith(
                       color: colors.onSurfaceVariant,
                     ),

@@ -6,8 +6,7 @@ import 'package:restaurix/domain/models/order_item.dart';
 import 'package:restaurix/features/printing/kitchen_ticket/kitchen_ticket_grouper.dart';
 import 'package:restaurix/features/printing/kitchen_ticket/kitchen_ticket_preview.dart';
 import 'package:restaurix/features/printing/kitchen_ticket/product_kitchen_meta.dart';
-
-String? _identityResolver(String? reference) => reference;
+import 'package:restaurix/features/printing/system_printer.dart';
 
 Order _order() {
   return Order(
@@ -55,13 +54,12 @@ OrderItem _item({
     syncAction: SyncAction.create,
     deviceId: 'd1',
     version: 1,
-    modifiers: const [],
   );
 }
 
 void main() {
   group('KitchenTicketGrouper', () {
-    test('splits jobs by printer target', () {
+    test('prints all items on the system default printer', () {
       final jobs = KitchenTicketGrouper.buildPrintJobs(
         order: _order(),
         items: [
@@ -69,27 +67,15 @@ void main() {
           _item(id: 'i2', productId: 'p2', name: 'Cola'),
         ],
         productMetaById: const {
-          'p1': ProductKitchenMeta(
-            kitchenCategory: 'Grill',
-            printerId: '192.168.1.10',
-          ),
-          'p2': ProductKitchenMeta(
-            kitchenCategory: 'Bar',
-            printerId: '192.168.1.20',
-          ),
+          'p1': ProductKitchenMeta(kitchenCategory: 'Grill'),
+          'p2': ProductKitchenMeta(kitchenCategory: 'Bar'),
         },
-        defaultPrinterId: null,
-        categoryPrinterMap: const {},
-        resolveTarget: _identityResolver,
         isReprint: false,
         contextLabel: 'Table 5',
       );
 
-      expect(jobs, hasLength(2));
-      expect(jobs.map((job) => job.printerTarget).toSet(), {
-        '192.168.1.10',
-        '192.168.1.20',
-      });
+      expect(jobs, hasLength(1));
+      expect(jobs.first.printerTarget, SystemPrinter.defaultTarget);
     });
 
     test('groups lines by kitchen category within a ticket', () {
@@ -100,18 +86,9 @@ void main() {
           _item(id: 'i2', productId: 'p2', name: 'Salad'),
         ],
         productMetaById: const {
-          'p1': ProductKitchenMeta(
-            kitchenCategory: 'Grill',
-            printerId: 'Kitchen',
-          ),
-          'p2': ProductKitchenMeta(
-            kitchenCategory: 'Cold',
-            printerId: 'Kitchen',
-          ),
+          'p1': ProductKitchenMeta(kitchenCategory: 'Grill'),
+          'p2': ProductKitchenMeta(kitchenCategory: 'Cold'),
         },
-        defaultPrinterId: null,
-        categoryPrinterMap: const {},
-        resolveTarget: _identityResolver,
         isReprint: false,
         contextLabel: 'Table 5',
       );
@@ -129,50 +106,14 @@ void main() {
         order: _order(),
         items: [_item()],
         productMetaById: const {
-          'p1': ProductKitchenMeta(printerId: 'Kitchen'),
+          'p1': ProductKitchenMeta(kitchenCategory: 'Grill'),
         },
-        defaultPrinterId: null,
-        categoryPrinterMap: const {},
-        resolveTarget: _identityResolver,
         isReprint: true,
         contextLabel: 'Table 5',
       );
 
       final preview = KitchenTicketPreview.renderLines(jobs.first.ticket);
       expect(preview.first, '*** REPRINT ***');
-    });
-
-    test('routes by kitchen category when product has no printer', () {
-      final jobs = KitchenTicketGrouper.buildPrintJobs(
-        order: _order(),
-        items: [_item(productId: 'p1', name: 'Cola')],
-        productMetaById: const {
-          'p1': ProductKitchenMeta(kitchenCategory: 'Bar'),
-        },
-        defaultPrinterId: null,
-        categoryPrinterMap: const {'Bar': 'bar-printer-id'},
-        resolveTarget: (reference) => switch (reference) {
-          'bar-printer-id' => '192.168.1.20',
-          _ => reference,
-        },
-        isReprint: false,
-        contextLabel: 'Table 5',
-      );
-
-      expect(jobs, hasLength(1));
-      expect(jobs.first.printerTarget, '192.168.1.20');
-    });
-
-    test('warns when no printer can be resolved', () {
-      final warnings = KitchenTicketGrouper.collectMissingPrinterWarnings(
-        items: [_item(productId: 'p1')],
-        productMetaById: const {'p1': ProductKitchenMeta()},
-        defaultPrinterId: null,
-        categoryPrinterMap: const {},
-        resolveTarget: _identityResolver,
-      );
-
-      expect(warnings, isNotEmpty);
     });
   });
 }

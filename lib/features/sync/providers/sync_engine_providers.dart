@@ -124,7 +124,9 @@ class SyncUiController extends StateNotifier<SyncUiState> {
     if (!EnvConfig.isSupabaseConfigured || !SupabaseService.isInitialized) {
       state = state.copyWith(
         runState: SyncRunState.disabled,
-        lastError: 'Supabase is not configured',
+        lastError: EnvConfig.isSupabaseConfigured
+            ? 'Supabase failed to initialize — restart the app'
+            : EnvConfig.deploymentHint(),
       );
       return;
     }

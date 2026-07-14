@@ -1,20 +1,22 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/config/desktop_features.dart';
 import '../core/config/env_config.dart';
 import '../data/remote/supabase_service.dart';
 import '../features/attendance/presentation/attendance_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/providers/auth_providers.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/credit_customers/presentation/credit_customer_detail_screen.dart';
+import '../features/credit_customers/presentation/credit_customers_screen.dart';
 import '../features/categories/presentation/categories_screen.dart';
 import '../features/delivery_config/presentation/delivery_config_screen.dart';
 import '../features/deals/presentation/deals_screen.dart';
 import '../features/employees/presentation/employees_screen.dart';
-import '../features/modifiers/presentation/modifier_groups_screen.dart';
 import '../features/products/presentation/products_screen.dart';
 import '../features/debug/presentation/theme_preview_screen.dart';
-import '../features/kitchen/presentation/kitchen_display_screen.dart';
 import '../features/orders/presentation/order_detail_screen.dart';
 import '../features/orders/presentation/orders_screen.dart';
 import '../features/pos/presentation/order_confirmation_screen.dart';
@@ -25,9 +27,9 @@ import '../features/settings/presentation/settings_screen.dart';
 import '../features/salary/presentation/salary_hub_screen.dart';
 import '../features/placeholder/presentation/coming_soon_screen.dart';
 import '../features/sync/presentation/sync_status_screen.dart';
+import '../features/tablet_orders/presentation/tablet_orders_screen.dart';
 import '../features/tables/presentation/tables_screen.dart';
 import '../features/users/presentation/users_screen.dart';
-import '../domain/models/user_role.dart';
 import 'navigation/role_route_access.dart';
 import 'shell/app_shell.dart';
 
@@ -38,18 +40,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       EnvConfig.isSupabaseConfigured && SupabaseService.isInitialized;
 
   return GoRouter(
-    initialLocation: '/dashboard',
+    initialLocation: DesktopFeatures.homeRoute,
     redirect: (context, state) {
       final path = state.uri.path;
       if (path == '/') {
-        return authEnabled ? _postAuthHome(ref) : '/dashboard';
+        return authEnabled ? _postAuthHome(ref) : DesktopFeatures.homeRoute;
+      }
+
+      if (DesktopFeatures.hidePosAndDashboard &&
+          (path == '/dashboard' || path.startsWith('/sales'))) {
+        return DesktopFeatures.tabletOrdersRoute;
       }
 
       if (authEnabled) {
         final auth = ref.read(authControllerProvider);
 
         if (auth.status == AuthStatus.loading) {
-          return null;
+          return path == '/login' ? null : '/login';
         }
 
         final isLoginRoute = path == '/login';
@@ -59,18 +66,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
 
         if (auth.status == AuthStatus.authenticated && isLoginRoute) {
-          return '/dashboard';
+          return DesktopFeatures.homeRoute;
         }
       }
 
       if (path == '/login' && !authEnabled) {
-        return '/dashboard';
+        return DesktopFeatures.homeRoute;
+      }
+
+      if (path == '/analytics') {
+        return DesktopFeatures.homeRoute;
       }
 
       try {
         final role = ref.read(currentUserProvider).role;
         if (!RoleRouteAccess.isAllowed(path, role)) {
-          return '/dashboard';
+          return DesktopFeatures.homeRoute;
         }
       } on StateError {
         if (authEnabled && path != '/login') return '/login';
@@ -90,21 +101,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginScreen(),
       ),
       ShellRoute(
-        builder: (context, state, child) => AppShell(child: child),
+        builder: (context, state, child) {
+          if (authEnabled) {
+            final auth = ProviderScope.containerOf(context)
+                .read(authControllerProvider);
+            if (auth.status != AuthStatus.authenticated) {
+              return const SizedBox.shrink();
+            }
+          }
+          return AppShell(child: child);
+        },
         routes: _shellRoutes,
       ),
       GoRoute(
         path: '/theme-preview',
         builder: (context, state) => const ThemePreviewScreen(),
-      ),
-      GoRoute(
-        path: '/kitchen',
-        builder: (context, state) {
-          final container = ProviderScope.containerOf(context);
-          final readOnly =
-              container.read(currentUserProvider).role == UserRole.salesman;
-          return KitchenDisplayScreen(readOnly: readOnly);
-        },
       ),
     ],
   );
@@ -112,11 +123,18 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 String _postAuthHome(Ref ref) {
   final auth = ref.read(authControllerProvider);
-  if (auth.status == AuthStatus.authenticated) return '/dashboard';
+  if (auth.status == AuthStatus.authenticated) return DesktopFeatures.homeRoute;
   return '/login';
 }
 
 final _shellRoutes = [
+  GoRoute(
+    path: DesktopFeatures.tabletOrdersRoute,
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const TabletOrdersScreen(),
+    ),
+  ),
   GoRoute(
     path: '/dashboard',
     pageBuilder: (context, state) => NoTransitionPage(
@@ -182,13 +200,6 @@ final _shellRoutes = [
     ),
   ),
   GoRoute(
-    path: '/modifier-groups',
-    pageBuilder: (context, state) => NoTransitionPage(
-      key: state.pageKey,
-      child: const ModifierGroupsScreen(),
-    ),
-  ),
-  GoRoute(
     path: '/deals',
     pageBuilder: (context, state) => NoTransitionPage(
       key: state.pageKey,
@@ -208,6 +219,24 @@ final _shellRoutes = [
       key: state.pageKey,
       child: const DeliveryConfigScreen(),
     ),
+  ),
+  GoRoute(
+    path: '/credit-customers',
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey,
+      child: const CreditCustomersScreen(),
+    ),
+    routes: [
+      GoRoute(
+        path: ':customerId',
+        pageBuilder: (context, state) => NoTransitionPage(
+          key: state.pageKey,
+          child: CreditCustomerDetailScreen(
+            customerId: state.pathParameters['customerId']!,
+          ),
+        ),
+      ),
+    ],
   ),
   GoRoute(
     path: '/employees',
@@ -244,7 +273,6 @@ final _shellRoutes = [
       child: const SyncStatusScreen(),
     ),
   ),
-  _placeholderRoute('/analytics', 'Analytics'),
   GoRoute(
     path: '/settings',
     pageBuilder: (context, state) => NoTransitionPage(
@@ -260,13 +288,3 @@ final _shellRoutes = [
     ),
   ),
 ];
-
-GoRoute _placeholderRoute(String path, String title) {
-  return GoRoute(
-    path: path,
-    pageBuilder: (context, state) => NoTransitionPage(
-      key: state.pageKey,
-      child: ComingSoonScreen(title: title),
-    ),
-  );
-}

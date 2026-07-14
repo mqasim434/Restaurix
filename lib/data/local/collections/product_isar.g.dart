@@ -72,38 +72,33 @@ const ProductIsarSchema = CollectionSchema(
       name: r'kitchenCategory',
       type: IsarType.string,
     ),
-    r'modifierGroupIds': PropertySchema(
-      id: 11,
-      name: r'modifierGroupIds',
-      type: IsarType.stringList,
-    ),
     r'name': PropertySchema(
-      id: 12,
+      id: 11,
       name: r'name',
       type: IsarType.string,
     ),
     r'printerId': PropertySchema(
-      id: 13,
+      id: 12,
       name: r'printerId',
       type: IsarType.string,
     ),
     r'syncAction': PropertySchema(
-      id: 14,
+      id: 13,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 15,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 16,
+      id: 15,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 17,
+      id: 16,
       name: r'version',
       type: IsarType.long,
     )
@@ -183,13 +178,6 @@ int _productIsarEstimateSize(
     }
   }
   bytesCount += 3 + object.kitchenCategory.length * 3;
-  bytesCount += 3 + object.modifierGroupIds.length * 3;
-  {
-    for (var i = 0; i < object.modifierGroupIds.length; i++) {
-      final value = object.modifierGroupIds[i];
-      bytesCount += value.length * 3;
-    }
-  }
   bytesCount += 3 + object.name.length * 3;
   {
     final value = object.printerId;
@@ -219,13 +207,12 @@ void _productIsarSerialize(
   writer.writeBool(offsets[8], object.isAvailable);
   writer.writeBool(offsets[9], object.isSynced);
   writer.writeString(offsets[10], object.kitchenCategory);
-  writer.writeStringList(offsets[11], object.modifierGroupIds);
-  writer.writeString(offsets[12], object.name);
-  writer.writeString(offsets[13], object.printerId);
-  writer.writeString(offsets[14], object.syncAction);
-  writer.writeDateTime(offsets[15], object.updatedAt);
-  writer.writeString(offsets[16], object.uuid);
-  writer.writeLong(offsets[17], object.version);
+  writer.writeString(offsets[11], object.name);
+  writer.writeString(offsets[12], object.printerId);
+  writer.writeString(offsets[13], object.syncAction);
+  writer.writeDateTime(offsets[14], object.updatedAt);
+  writer.writeString(offsets[15], object.uuid);
+  writer.writeLong(offsets[16], object.version);
 }
 
 ProductIsar _productIsarDeserialize(
@@ -247,13 +234,12 @@ ProductIsar _productIsarDeserialize(
   object.isSynced = reader.readBool(offsets[9]);
   object.isarId = id;
   object.kitchenCategory = reader.readString(offsets[10]);
-  object.modifierGroupIds = reader.readStringList(offsets[11]) ?? [];
-  object.name = reader.readString(offsets[12]);
-  object.printerId = reader.readStringOrNull(offsets[13]);
-  object.syncAction = reader.readString(offsets[14]);
-  object.updatedAt = reader.readDateTime(offsets[15]);
-  object.uuid = reader.readString(offsets[16]);
-  object.version = reader.readLong(offsets[17]);
+  object.name = reader.readString(offsets[11]);
+  object.printerId = reader.readStringOrNull(offsets[12]);
+  object.syncAction = reader.readString(offsets[13]);
+  object.updatedAt = reader.readDateTime(offsets[14]);
+  object.uuid = reader.readString(offsets[15]);
+  object.version = reader.readLong(offsets[16]);
   return object;
 }
 
@@ -287,18 +273,16 @@ P _productIsarDeserializeProp<P>(
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readString(offset)) as P;
     case 12:
-      return (reader.readString(offset)) as P;
-    case 13:
       return (reader.readStringOrNull(offset)) as P;
+    case 13:
+      return (reader.readString(offset)) as P;
     case 14:
-      return (reader.readString(offset)) as P;
-    case 15:
       return (reader.readDateTime(offset)) as P;
-    case 16:
+    case 15:
       return (reader.readString(offset)) as P;
-    case 17:
+    case 16:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1639,233 +1623,6 @@ extension ProductIsarQueryFilter
     });
   }
 
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'modifierGroupIds',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'modifierGroupIds',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'modifierGroupIds',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'modifierGroupIds',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'modifierGroupIds',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'modifierGroupIds',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementContains(String value,
-          {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'modifierGroupIds',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementMatches(String pattern,
-          {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'modifierGroupIds',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'modifierGroupIds',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'modifierGroupIds',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifierGroupIds',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifierGroupIds',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifierGroupIds',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifierGroupIds',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifierGroupIds',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
-      modifierGroupIdsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifierGroupIds',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
   QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -3042,13 +2799,6 @@ extension ProductIsarQueryWhereDistinct
     });
   }
 
-  QueryBuilder<ProductIsar, ProductIsar, QDistinct>
-      distinctByModifierGroupIds() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'modifierGroupIds');
-    });
-  }
-
   QueryBuilder<ProductIsar, ProductIsar, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3163,13 +2913,6 @@ extension ProductIsarQueryProperty
       kitchenCategoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'kitchenCategory');
-    });
-  }
-
-  QueryBuilder<ProductIsar, List<String>, QQueryOperations>
-      modifierGroupIdsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'modifierGroupIds');
     });
   }
 

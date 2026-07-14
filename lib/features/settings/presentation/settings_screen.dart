@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/debug/demo_data_seeder.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../../data/local/device_id_service.dart';
+import '../../../data/local/isar_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_dialog.dart';
@@ -10,10 +13,10 @@ import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../domain/models/app_currency.dart';
 import '../../../domain/models/app_settings.dart';
 import '../../delivery_config/presentation/delivery_config_screen.dart';
 import '../providers/settings_providers.dart';
-import 'printer_config_form_dialog.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -33,7 +36,7 @@ class SettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Business profile, printers, delivery partners, and payroll automation',
+              'Business profile, delivery partners, and payroll automation',
               style: typography.bodyMedium.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -43,9 +46,9 @@ class SettingsScreen extends ConsumerWidget {
               isScrollable: true,
               tabs: [
                 Tab(text: 'General'),
-                Tab(text: 'Printers'),
                 Tab(text: 'Pickup & Riders'),
                 Tab(text: 'Salary'),
+                Tab(text: 'Developer'),
               ],
             ),
             SizedBox(height: spacing.md),
@@ -61,9 +64,9 @@ class SettingsScreen extends ConsumerWidget {
                 data: (settings) => TabBarView(
                   children: [
                     _GeneralPanel(settings: settings),
-                    _PrintersPanel(settings: settings),
                     const _DeliveryPanel(),
                     _SalaryPanel(settings: settings),
+                    const _DeveloperPanel(),
                   ],
                 ),
               ),
@@ -89,6 +92,7 @@ class _GeneralPanelState extends ConsumerState<_GeneralPanel> {
   late final TextEditingController _addressController;
   late final TextEditingController _headerController;
   late final TextEditingController _footerController;
+  late String _currencyCode;
   var _isSaving = false;
 
   @override
@@ -102,6 +106,7 @@ class _GeneralPanelState extends ConsumerState<_GeneralPanel> {
         TextEditingController(text: widget.settings.receiptHeaderText ?? '');
     _footerController =
         TextEditingController(text: widget.settings.receiptFooterText ?? '');
+    _currencyCode = widget.settings.currencyCode;
   }
 
   @override
@@ -112,6 +117,7 @@ class _GeneralPanelState extends ConsumerState<_GeneralPanel> {
       _addressController.text = widget.settings.businessAddress ?? '';
       _headerController.text = widget.settings.receiptHeaderText ?? '';
       _footerController.text = widget.settings.receiptFooterText ?? '';
+      _currencyCode = widget.settings.currencyCode;
     }
   }
 
@@ -141,6 +147,7 @@ class _GeneralPanelState extends ConsumerState<_GeneralPanel> {
         clearReceiptHeaderText: _headerController.text.trim().isEmpty,
         receiptFooterText: _optionalText(_footerController.text),
         clearReceiptFooterText: _footerController.text.trim().isEmpty,
+        currencyCode: _currencyCode,
       );
       await ref.read(settingsActionsProvider).save(updated);
       if (!mounted) return;
@@ -186,6 +193,18 @@ class _GeneralPanelState extends ConsumerState<_GeneralPanel> {
           controller: _footerController,
           maxLines: 2,
         ),
+        SizedBox(height: spacing.md),
+        AppDropdown<String>(
+          label: 'Currency',
+          hint: 'Used for prices, sales, and receipts',
+          value: _currencyCode,
+          items: AppCurrency.options.map((option) => option.code).toList(),
+          itemLabel: (code) =>
+              AppCurrency.options.firstWhere((option) => option.code == code).label,
+          onChanged: (value) {
+            if (value != null) setState(() => _currencyCode = value);
+          },
+        ),
         SizedBox(height: spacing.lg),
         Align(
           alignment: Alignment.centerRight,
@@ -196,386 +215,6 @@ class _GeneralPanelState extends ConsumerState<_GeneralPanel> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _PrintersPanel extends ConsumerStatefulWidget {
-  const _PrintersPanel({required this.settings});
-
-  final AppSettings settings;
-
-  @override
-  ConsumerState<_PrintersPanel> createState() => _PrintersPanelState();
-}
-
-class _CategoryMappingRow {
-  _CategoryMappingRow({
-    required this.categoryController,
-    required this.printerRef,
-  });
-
-  final TextEditingController categoryController;
-  String? printerRef;
-}
-
-class _PrintersPanelState extends ConsumerState<_PrintersPanel> {
-  String? _receiptPrinterRef;
-  String? _kitchenDefaultRef;
-  final List<_CategoryMappingRow> _categoryRows = [];
-  var _isSaving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _syncFrom(widget.settings);
-  }
-
-  @override
-  void didUpdateWidget(covariant _PrintersPanel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.settings != widget.settings && !_isSaving) {
-      _syncFrom(widget.settings);
-    }
-  }
-
-  void _syncFrom(AppSettings settings) {
-    _receiptPrinterRef = settings.receiptPrinterTarget;
-    _kitchenDefaultRef = settings.kitchenDefaultPrinterTarget;
-    for (final row in _categoryRows) {
-      row.categoryController.dispose();
-    }
-    _categoryRows
-      ..clear()
-      ..addAll(
-        settings.kitchenCategoryPrinters.entries.map(
-          (entry) => _CategoryMappingRow(
-            categoryController: TextEditingController(text: entry.key),
-            printerRef: entry.value.isEmpty ? null : entry.value,
-          ),
-        ),
-      );
-  }
-
-  Map<String, String> _categoryPrintersFromRows() {
-    final map = <String, String>{};
-    for (final row in _categoryRows) {
-      final category = row.categoryController.text.trim();
-      final printerRef = row.printerRef?.trim();
-      if (category.isEmpty || printerRef == null || printerRef.isEmpty) {
-        continue;
-      }
-      map[category] = printerRef;
-    }
-    return map;
-  }
-
-  Future<void> _saveRouting() async {
-    setState(() => _isSaving = true);
-    try {
-      final updated = widget.settings.copyWith(
-        receiptPrinterTarget: _receiptPrinterRef,
-        clearReceiptPrinterTarget: _receiptPrinterRef == null,
-        kitchenDefaultPrinterTarget: _kitchenDefaultRef,
-        clearKitchenDefaultPrinterTarget: _kitchenDefaultRef == null,
-        kitchenCategoryPrinters: _categoryPrintersFromRows(),
-      );
-      await ref.read(settingsActionsProvider).save(updated);
-      if (!mounted) return;
-      AppSnackbar.success(context, 'Printer routing saved.');
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
-  Future<void> _addOrEditPrinter({PrinterConfig? printer}) async {
-    final result = await PrinterConfigFormDialog.show(
-      context,
-      printer: printer,
-      title: printer == null ? 'Add Printer' : 'Edit Printer',
-    );
-    if (result == null || !mounted) return;
-
-    final next = List<PrinterConfig>.from(widget.settings.printers);
-    if (printer == null) {
-      next.add(buildPrinterConfig(result: result));
-    } else {
-      final index = next.indexWhere((entry) => entry.id == printer.id);
-      if (index >= 0) {
-        next[index] = buildPrinterConfig(result: result, existing: printer);
-      }
-    }
-
-    await ref.read(settingsActionsProvider).save(
-          widget.settings.copyWith(printers: next),
-        );
-  }
-
-  Future<void> _deletePrinter(PrinterConfig printer) async {
-    final confirmed = await AppDialog.show<bool>(
-      context: context,
-      title: 'Delete printer?',
-      content: Text(
-        'Remove "${printer.name}" from saved printer configs?',
-        style: context.appTypography.bodyMedium.copyWith(
-          color: context.appColors.onSurfaceVariant,
-        ),
-      ),
-      confirmLabel: 'Delete',
-      isDanger: true,
-    );
-    if (confirmed != true || !mounted) return;
-
-    final nextPrinters =
-        widget.settings.printers.where((entry) => entry.id != printer.id).toList();
-    var nextSettings = widget.settings.copyWith(printers: nextPrinters);
-
-    if (_receiptPrinterRef == printer.id) {
-      _receiptPrinterRef = null;
-      nextSettings = nextSettings.copyWith(clearReceiptPrinterTarget: true);
-    }
-    if (_kitchenDefaultRef == printer.id) {
-      _kitchenDefaultRef = null;
-      nextSettings = nextSettings.copyWith(clearKitchenDefaultPrinterTarget: true);
-    }
-
-    final cleanedCategoryMap = _categoryPrintersFromRows()
-      ..removeWhere((_, value) => value == printer.id);
-    for (final row in _categoryRows) {
-      if (row.printerRef == printer.id) {
-        row.printerRef = null;
-      }
-    }
-    nextSettings = nextSettings.copyWith(
-      kitchenCategoryPrinters: cleanedCategoryMap,
-    );
-
-    await ref.read(settingsActionsProvider).save(nextSettings);
-  }
-
-  void _addCategoryMapping() {
-    setState(() {
-      _categoryRows.add(
-        _CategoryMappingRow(
-          categoryController: TextEditingController(),
-          printerRef: widget.settings.printers.isNotEmpty
-              ? widget.settings.printers.first.id
-              : null,
-        ),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    for (final row in _categoryRows) {
-      row.categoryController.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final spacing = context.appSpacing;
-    final typography = context.appTypography;
-    final colors = context.appColors;
-    final printers = widget.settings.printers;
-
-    return ListView(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Named printer configs',
-                style: typography.titleSmall,
-              ),
-            ),
-            AppButton(
-              label: 'Add printer',
-              icon: AppIcons.add,
-              size: AppButtonSize.small,
-              onPressed: () => _addOrEditPrinter(),
-            ),
-          ],
-        ),
-        SizedBox(height: spacing.sm),
-        if (printers.isEmpty)
-          AppEmptyState(
-            title: 'No printers configured',
-            message:
-                'Add a printer config with a Windows name or network target.',
-            actionLabel: 'Add printer',
-            onAction: () => _addOrEditPrinter(),
-          )
-        else
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: context.appRadius.mdBorder,
-              border: Border.all(color: colors.border),
-            ),
-            child: Column(
-              children: [
-                for (var i = 0; i < printers.length; i++) ...[
-                  if (i > 0) Divider(height: 1, color: colors.divider),
-                  ListTile(
-                    title: Text(printers[i].name),
-                    subtitle: Text(printers[i].target),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          tooltip: 'Edit',
-                          icon: Icon(AppIcons.edit,
-                              color: colors.onSurfaceVariant),
-                          onPressed: () =>
-                              _addOrEditPrinter(printer: printers[i]),
-                        ),
-                        IconButton(
-                          tooltip: 'Delete',
-                          icon: Icon(AppIcons.delete, color: colors.error),
-                          onPressed: () => _deletePrinter(printers[i]),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        SizedBox(height: spacing.lg),
-        Text('Default routing', style: typography.titleSmall),
-        SizedBox(height: spacing.sm),
-        _PrinterReferenceDropdown(
-          label: 'Receipt printer',
-          printers: printers,
-          value: _receiptPrinterRef,
-          onChanged: (value) => setState(() => _receiptPrinterRef = value),
-        ),
-        SizedBox(height: spacing.md),
-        _PrinterReferenceDropdown(
-          label: 'Kitchen default printer',
-          printers: printers,
-          value: _kitchenDefaultRef,
-          onChanged: (value) => setState(() => _kitchenDefaultRef = value),
-        ),
-        SizedBox(height: spacing.lg),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Kitchen category routing',
-                style: typography.titleSmall,
-              ),
-            ),
-            AppButton(
-              label: 'Add mapping',
-              icon: AppIcons.add,
-              size: AppButtonSize.small,
-              onPressed: printers.isEmpty ? null : _addCategoryMapping,
-            ),
-          ],
-        ),
-        SizedBox(height: spacing.xs),
-        Text(
-          'Used when a product has a kitchen category but no product-level printer.',
-          style: typography.bodySmall.copyWith(color: colors.onSurfaceVariant),
-        ),
-        SizedBox(height: spacing.sm),
-        if (_categoryRows.isEmpty)
-          Text(
-            'No category mappings yet.',
-            style: typography.bodyMedium.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          )
-        else
-          ..._categoryRows.map((row) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: spacing.sm),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: AppTextField(
-                      label: 'Kitchen category',
-                      hint: 'Grill, Bar, Cold...',
-                      controller: row.categoryController,
-                    ),
-                  ),
-                  SizedBox(width: spacing.md),
-                  Expanded(
-                    child: _PrinterReferenceDropdown(
-                      label: 'Printer',
-                      printers: printers,
-                      value: row.printerRef,
-                      onChanged: (value) {
-                        setState(() => row.printerRef = value);
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Remove mapping',
-                    icon: Icon(AppIcons.delete, color: colors.error),
-                    onPressed: () {
-                      setState(() {
-                        row.categoryController.dispose();
-                        _categoryRows.remove(row);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            );
-          }),
-        SizedBox(height: spacing.lg),
-        Align(
-          alignment: Alignment.centerRight,
-          child: AppButton(
-            label: _isSaving ? 'Saving...' : 'Save printer routing',
-            icon: AppIcons.check,
-            onPressed: _isSaving ? null : _saveRouting,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PrinterReferenceDropdown extends StatelessWidget {
-  const _PrinterReferenceDropdown({
-    required this.label,
-    required this.printers,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final List<PrinterConfig> printers;
-  final String? value;
-  final ValueChanged<String?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = <String?>[null, ...printers.map((printer) => printer.id)];
-
-    String labelFor(String? reference) {
-      if (reference == null) return '(None)';
-      for (final printer in printers) {
-        if (printer.id == reference) {
-          return '${printer.name} (${printer.target})';
-        }
-      }
-      return 'Custom: $reference';
-    }
-
-    return AppDropdown<String?>(
-      label: label,
-      value: value,
-      items: items,
-      itemLabel: labelFor,
-      onChanged: onChanged,
     );
   }
 }
@@ -693,6 +332,100 @@ class _SalaryPanelState extends ConsumerState<_SalaryPanel> {
             onPressed: _isSaving ? null : _save,
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _DeveloperPanel extends ConsumerStatefulWidget {
+  const _DeveloperPanel();
+
+  @override
+  ConsumerState<_DeveloperPanel> createState() => _DeveloperPanelState();
+}
+
+class _DeveloperPanelState extends ConsumerState<_DeveloperPanel> {
+  var _isSeeding = false;
+  DemoDataSeedResult? _lastResult;
+
+  Future<void> _seedDemoData() async {
+    final confirmed = await AppDialog.show<bool>(
+      context: context,
+      title: 'Generate demo dataset?',
+      content: Text(
+        'This adds categories, products, employees, ~${90 * 20} orders over '
+        '90 days, and attendance records to the local database. Existing data '
+        'is kept — new records are appended.',
+      ),
+      confirmLabel: 'Generate',
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isSeeding = true);
+    try {
+      final isar = ref.read(isarServiceProvider).instance;
+      final deviceId = ref.read(deviceIdProvider);
+      final result = await DemoDataSeeder(
+        isar: isar,
+        deviceId: deviceId,
+      ).seed();
+      if (!mounted) return;
+      setState(() => _lastResult = result);
+      AppSnackbar.success(
+        context,
+        'Demo data ready: ${result.totalRecords} records in '
+        '${result.elapsed.inMilliseconds}ms',
+      );
+    } catch (error) {
+      if (!mounted) return;
+      AppSnackbar.error(context, 'Demo seed failed: $error');
+    } finally {
+      if (mounted) setState(() => _isSeeding = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.appSpacing;
+    final typography = context.appTypography;
+    final colors = context.appColors;
+    final last = _lastResult;
+
+    return ListView(
+      children: [
+        Text(
+          'Regression & performance tools',
+          style: typography.titleSmall,
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          'Use demo data to stress-test dashboard, reports, orders pagination, '
+          'and offline analytics without manual entry. Seeded records are marked '
+          'synced so they do not inflate the pending sync badge.',
+          style: typography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+        ),
+        SizedBox(height: spacing.lg),
+        AppButton(
+          label: _isSeeding ? 'Generating demo data...' : 'Generate demo dataset',
+          icon: AppIcons.add,
+          onPressed: _isSeeding ? null : _seedDemoData,
+        ),
+        if (last != null) ...[
+          SizedBox(height: spacing.lg),
+          Text('Last run', style: typography.titleSmall),
+          SizedBox(height: spacing.sm),
+          Text(
+            '${last.categories} categories · ${last.products} products · '
+            '${last.employees} employees · ${last.orders} orders · '
+            '${last.orderItems} line items · ${last.attendanceRecords} attendance',
+            style: typography.bodyMedium,
+          ),
+          SizedBox(height: spacing.xs),
+          Text(
+            'Completed in ${last.elapsed.inMilliseconds}ms',
+            style: typography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+          ),
+        ],
       ],
     );
   }

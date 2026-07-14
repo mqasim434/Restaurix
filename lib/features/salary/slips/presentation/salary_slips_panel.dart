@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -10,6 +9,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../domain/models/employee.dart';
 import '../../../../domain/models/salary_slip.dart';
 import '../../../employees/providers/employee_providers.dart';
+import '../../../settings/providers/currency_providers.dart';
 import '../salary_slip_preview.dart';
 import '../providers/salary_slip_providers.dart';
 import 'salary_slip_detail_dialog.dart';
@@ -152,7 +152,7 @@ class _PeriodGroupData {
   final List<SalarySlip> slips;
 }
 
-class _PeriodGroup extends StatelessWidget {
+class _PeriodGroup extends ConsumerWidget {
   const _PeriodGroup({
     required this.periodLabel,
     required this.slips,
@@ -164,11 +164,11 @@ class _PeriodGroup extends StatelessWidget {
   final Map<String, Employee> employeeById;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final colors = context.appColors;
-    final currency = NumberFormat.currency(symbol: r'$', decimalDigits: 2);
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -187,7 +187,7 @@ class _PeriodGroup extends StatelessWidget {
               title: Text(name),
               subtitle: Text(
                 '${slip.status.label} · ${slip.totalHours.toStringAsFixed(1)} h · '
-                '${currency.format(slip.netPay)} net',
+                '${formatMoney(slip.netPay)} net',
               ),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: employee == null

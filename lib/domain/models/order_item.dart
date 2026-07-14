@@ -4,18 +4,6 @@ import 'discount.dart';
 import '../../core/constants.dart';
 import 'order_enums.dart';
 
-class OrderItemModifier {
-  const OrderItemModifier({
-    this.modifierId,
-    required this.name,
-    required this.priceDelta,
-  });
-
-  final String? modifierId;
-  final String name;
-  final double priceDelta;
-}
-
 class OrderLineDiscount {
   const OrderLineDiscount({
     required this.scope,
@@ -45,7 +33,6 @@ class OrderItem implements SyncableEntity {
     required this.unitPrice,
     required this.quantity,
     required this.lineTotal,
-    this.modifiers = const [],
     this.appliedDiscounts = const [],
     required this.kitchenStatus,
     this.prepMinutes = AppConstants.defaultProductPrepMinutes,
@@ -71,7 +58,6 @@ class OrderItem implements SyncableEntity {
   final double unitPrice;
   final int quantity;
   final double lineTotal;
-  final List<OrderItemModifier> modifiers;
   final List<OrderLineDiscount> appliedDiscounts;
   final KitchenStatus kitchenStatus;
   final int prepMinutes;

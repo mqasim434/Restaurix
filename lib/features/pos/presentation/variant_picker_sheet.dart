@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../domain/models/product_variant.dart';
-import '../../products/presentation/product_form_dialog.dart';
+import '../../settings/providers/currency_providers.dart';
 
-class VariantPickerSheet extends StatelessWidget {
+class VariantPickerSheet extends ConsumerWidget {
   const VariantPickerSheet({
     super.key,
     required this.productName,
@@ -36,10 +37,11 @@ class VariantPickerSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final spacing = context.appSpacing;
     final typography = context.appTypography;
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(spacing.lg, spacing.sm, spacing.lg, spacing.lg),
@@ -78,7 +80,7 @@ class VariantPickerSheet extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          formatProductPrice(variant.price),
+                          formatMoney(variant.price),
                           style: typography.bodyMedium.copyWith(
                             color: colors.onSurfaceVariant,
                           ),

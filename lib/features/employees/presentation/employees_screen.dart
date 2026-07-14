@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_icons.dart';
+import '../../../core/format/money_format.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_data_table.dart';
@@ -13,6 +14,7 @@ import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../domain/models/employee.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../providers/employee_providers.dart';
 import 'employee_form_dialog.dart';
 
@@ -26,6 +28,7 @@ class EmployeesScreen extends ConsumerWidget {
     final colors = context.appColors;
     final employeesAsync = ref.watch(filteredEmployeesProvider);
     final activeFilter = ref.watch(employeeActiveFilterProvider);
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return Padding(
       padding: EdgeInsets.all(spacing.lg),
@@ -118,7 +121,7 @@ class EmployeesScreen extends ConsumerWidget {
                       label: 'Pay',
                       flex: 2,
                       cellBuilder: (_, employee) => Text(
-                        _formatPay(employee),
+                        _formatPay(employee, formatMoney),
                       ),
                     ),
                     AppDataColumn(
@@ -265,12 +268,11 @@ class EmployeesScreen extends ConsumerWidget {
   }
 }
 
-String _formatPay(Employee employee) {
-  final currency = NumberFormat.simpleCurrency();
+String _formatPay(Employee employee, MoneyFormatter formatMoney) {
   return switch (employee.payType) {
     EmployeePayType.hourly =>
-      '${currency.format(employee.hourlyRate ?? 0)}/hr',
+      '${formatMoney(employee.hourlyRate ?? 0)}/hr',
     EmployeePayType.monthly =>
-      '${currency.format(employee.monthlySalaryBase ?? 0)}/mo',
+      '${formatMoney(employee.monthlySalaryBase ?? 0)}/mo',
   };
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/config/env_config.dart';
+import '../../core/network/windows_tls.dart';
 import '../../core/remote/supabase_table_names.dart';
 
 /// Initializes and exposes the Supabase client.
@@ -25,6 +26,7 @@ class SupabaseService {
     await Supabase.initialize(
       url: EnvConfig.supabaseUrl,
       publishableKey: EnvConfig.supabaseAnonKey,
+      httpClient: WindowsTls.supabaseHttpClient,
     );
     _initialized = true;
   }

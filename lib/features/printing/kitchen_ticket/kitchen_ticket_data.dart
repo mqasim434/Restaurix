@@ -4,13 +4,11 @@ class KitchenTicketLine {
     required this.name,
     this.variantName,
     required this.quantity,
-    this.modifierNames = const [],
   });
 
   final String name;
   final String? variantName;
   final int quantity;
-  final List<String> modifierNames;
 }
 
 /// Items grouped by kitchen category for one physical ticket.
@@ -28,6 +26,7 @@ class KitchenTicketCategoryGroup {
 class KitchenTicketData {
   const KitchenTicketData({
     required this.orderNumber,
+    required this.orderTypeLabel,
     required this.contextLabel,
     required this.placedAt,
     required this.categoryGroups,
@@ -36,6 +35,7 @@ class KitchenTicketData {
   });
 
   final String orderNumber;
+  final String orderTypeLabel;
   final String contextLabel;
   final DateTime placedAt;
   final List<KitchenTicketCategoryGroup> categoryGroups;

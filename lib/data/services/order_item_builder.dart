@@ -1,11 +1,11 @@
 import 'package:uuid/uuid.dart';
 
+import '../../core/constants.dart';
 import '../../core/sync/sync_action.dart';
 import '../../domain/models/cart_item.dart';
 import '../../domain/models/discount.dart';
 import '../../domain/models/order_item.dart';
 import '../../domain/models/order_enums.dart';
-import '../../domain/services/kitchen_prep_resolver.dart';
 import '../../features/pos/services/discount_calculator.dart';
 
 /// Builds persisted order line snapshots from cart + discount state.
@@ -31,21 +31,13 @@ List<OrderItem> buildOrderItems({
         unitPrice: item.unitPrice,
         quantity: item.quantity,
         lineTotal: pricing.linePricing[item.lineId]?.netTotal ?? item.lineTotal,
-        modifiers: [
-          for (final modifier in item.modifiers)
-            OrderItemModifier(
-              modifierId: modifier.id,
-              name: modifier.name,
-              priceDelta: modifier.priceDelta,
-            ),
-        ],
         appliedDiscounts: _lineDiscounts(
           item: item,
           discounts: discounts,
           linePricing: pricing.linePricing[item.lineId],
         ),
         kitchenStatus: KitchenStatus.received,
-        prepMinutes: KitchenPrepResolver.resolveItemPrepMinutes(
+        prepMinutes: _resolvePrepMinutes(
           item: item,
           orderPromisedPrepMinutes: orderPromisedPrepMinutes,
           productPrepMinutesById: productPrepMinutesById,
@@ -157,4 +149,20 @@ double _singleDiscountAmount({
   };
 
   return raw.clamp(0, cap.clamp(0, base)).toDouble();
+}
+
+int _resolvePrepMinutes({
+  required CartItem item,
+  required int? orderPromisedPrepMinutes,
+  required Map<String, int> productPrepMinutesById,
+}) {
+  if (orderPromisedPrepMinutes != null) return orderPromisedPrepMinutes;
+
+  final productId = item.productId;
+  if (productId != null) {
+    final productPrep = productPrepMinutesById[productId];
+    if (productPrep != null) return productPrep;
+  }
+
+  return AppConstants.defaultProductPrepMinutes;
 }

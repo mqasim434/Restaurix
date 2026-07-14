@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../core/format/money_format.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -16,6 +16,7 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../domain/models/category.dart';
 import '../../../domain/models/product.dart';
 import '../../categories/providers/category_providers.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../providers/product_providers.dart';
 import 'product_form_dialog.dart';
 
@@ -79,12 +80,6 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     ? () => _openForm(context)
                     : null,
               ),
-              SizedBox(width: spacing.sm),
-              AppButton(
-                label: 'Modifier Groups',
-                variant: AppButtonVariant.secondary,
-                onPressed: () => context.go('/modifier-groups'),
-              ),
             ],
           ),
           SizedBox(height: spacing.md),
@@ -141,6 +136,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                 return _ProductTable(
                   products: products,
                   categoryNames: categoryNames,
+                  formatMoney: ref.watch(formatMoneyProvider),
                   onEdit: (product) => _openForm(context, product: product),
                   onDelete: (product) => _confirmDelete(context, product),
                   onToggleAvailability: (product) =>
@@ -181,7 +177,6 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
         isAvailable: result.isAvailable,
         kitchenCategory: result.kitchenCategory,
         estimatedPrepMinutes: result.estimatedPrepMinutes,
-        printerId: result.printerId,
       );
     } else {
       mutation = await notifier.updateProduct(
@@ -196,8 +191,6 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           isAvailable: result.isAvailable,
           kitchenCategory: result.kitchenCategory,
           estimatedPrepMinutes: result.estimatedPrepMinutes,
-          printerId: result.printerId,
-          clearPrinterId: result.clearPrinterId,
         ),
       );
     }
@@ -303,6 +296,7 @@ class _ProductTable extends StatelessWidget {
   const _ProductTable({
     required this.products,
     required this.categoryNames,
+    required this.formatMoney,
     required this.onEdit,
     required this.onDelete,
     required this.onToggleAvailability,
@@ -310,6 +304,7 @@ class _ProductTable extends StatelessWidget {
 
   final List<Product> products;
   final Map<String, String> categoryNames;
+  final MoneyFormatter formatMoney;
   final void Function(Product product) onEdit;
   final void Function(Product product) onDelete;
   final void Function(Product product) onToggleAvailability;
@@ -427,7 +422,7 @@ class _ProductTable extends StatelessWidget {
                       ),
                       Expanded(
                         child: Text(
-                          formatProductPrice(product.basePrice),
+                          formatMoney(product.basePrice),
                           style: typography.bodyMedium.copyWith(
                             color: colors.onSurface,
                           ),

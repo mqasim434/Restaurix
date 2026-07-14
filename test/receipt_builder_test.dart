@@ -52,7 +52,6 @@ OrderItem _item() {
     syncAction: SyncAction.create,
     deviceId: 'd1',
     version: 1,
-    modifiers: const [],
   );
 }
 
@@ -64,6 +63,7 @@ void main() {
         items: [_item()],
         businessName: 'Restaurix',
         tableLabelsById: const {},
+        currencyCode: 'USD',
       );
 
       expect(receipt.subtotal, 100);
@@ -79,11 +79,13 @@ void main() {
         items: [_item()],
         businessName: 'Restaurix',
         tableLabelsById: const {},
+        currencyCode: 'USD',
         isReprint: true,
       );
 
       final lines = ReceiptPreview.renderLines(receipt);
       expect(lines.first, '*** REPRINT ***');
+      expect(lines.contains('[LOGO]'), isTrue);
       expect(lines.any((line) => line.startsWith('TOTAL:')), isTrue);
     });
   });

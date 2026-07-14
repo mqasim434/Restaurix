@@ -11,17 +11,6 @@ class ReceiptPrintResult {
   bool get hasWarnings => warnings.isNotEmpty;
 }
 
-/// Customer receipt modifier line — prices from persisted order item data.
-class ReceiptModifierLine {
-  const ReceiptModifierLine({
-    required this.name,
-    required this.priceDelta,
-  });
-
-  final String name;
-  final double priceDelta;
-}
-
 /// Customer receipt line — totals from persisted order item fields only.
 class ReceiptLine {
   const ReceiptLine({
@@ -30,7 +19,6 @@ class ReceiptLine {
     required this.quantity,
     required this.unitPrice,
     required this.lineTotal,
-    this.modifiers = const [],
   });
 
   final String name;
@@ -38,7 +26,6 @@ class ReceiptLine {
   final int quantity;
   final double unitPrice;
   final double lineTotal;
-  final List<ReceiptModifierLine> modifiers;
 }
 
 /// Full customer receipt snapshot built from a persisted order record.
@@ -60,6 +47,7 @@ class CustomerReceiptData {
     required this.paymentTypeLabel,
     required this.paymentStatusLabel,
     this.isReprint = false,
+    required this.currencyCode,
   });
 
   final String businessName;
@@ -78,4 +66,5 @@ class CustomerReceiptData {
   final String paymentTypeLabel;
   final String paymentStatusLabel;
   final bool isReprint;
+  final String currencyCode;
 }

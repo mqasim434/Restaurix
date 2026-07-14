@@ -1,13 +1,14 @@
 import 'package:isar/isar.dart';
 
+import '../../core/constants.dart';
+import '../../data/local/collections/credit_customer_isar.dart';
+import '../../data/local/collections/credit_transaction_isar.dart';
 import '../../data/local/collections/attendance_record_isar.dart';
 import '../../data/local/collections/category_isar.dart';
 import '../../data/local/collections/deal_isar.dart';
 import '../../data/local/collections/deal_item_isar.dart';
 import '../../data/local/collections/employee_isar.dart';
 import '../../data/local/collections/hall_isar.dart';
-import '../../data/local/collections/item_modifier_isar.dart';
-import '../../data/local/collections/modifier_group_isar.dart';
 import '../../data/local/collections/order_isar.dart';
 import '../../data/local/collections/pickup_company_isar.dart';
 import '../../data/local/collections/product_isar.dart';
@@ -72,43 +73,6 @@ abstract final class CategoryRemoteMapper {
   }
 }
 
-abstract final class ModifierGroupRemoteMapper {
-  static Map<String, dynamic> toRemote(ModifierGroupIsar record) {
-    return {
-      ..._standardFields(record),
-      'name': record.name,
-      'selection_type': record.selectionType,
-      'is_required': record.isRequired,
-      'min_selections': record.minSelections,
-      'max_selections': record.maxSelections,
-    };
-  }
-
-  static Future<void> applyRemote(
-    Isar isar,
-    Map<String, dynamic> remote,
-  ) async {
-    final id = remote['id'] as String;
-    await isar.writeTxn(() async {
-      final record = await isar.modifierGroupIsars
-              .filter()
-              .uuidEqualTo(id)
-              .findFirst() ??
-          (ModifierGroupIsar()..uuid = id);
-      record
-        ..name = remote['name'] as String
-        ..selectionType = remote['selection_type'] as String
-        ..isRequired = remote['is_required'] as bool? ?? false
-        ..minSelections = SyncRemoteCodec.parseInt(remote['min_selections'])
-        ..maxSelections = remote['max_selections'] == null
-            ? null
-            : SyncRemoteCodec.parseInt(remote['max_selections']);
-      _applyStandardFields(record, remote);
-      await isar.modifierGroupIsars.put(record);
-    });
-  }
-}
-
 abstract final class ProductRemoteMapper {
   static Map<String, dynamic> toRemote(ProductIsar record) {
     return {
@@ -121,7 +85,7 @@ abstract final class ProductRemoteMapper {
       'is_available': record.isAvailable,
       'kitchen_category': record.kitchenCategory,
       'printer_id': record.printerId,
-      'modifier_group_ids': record.modifierGroupIds,
+      'estimated_prep_minutes': record.estimatedPrepMinutes,
     };
   }
 
@@ -143,10 +107,9 @@ abstract final class ProductRemoteMapper {
         ..isAvailable = remote['is_available'] as bool? ?? true
         ..kitchenCategory = remote['kitchen_category'] as String? ?? ''
         ..printerId = remote['printer_id'] as String?
-        ..modifierGroupIds = [
-          for (final entry in (remote['modifier_group_ids'] as List? ?? const []))
-            entry.toString(),
-        ];
+        ..estimatedPrepMinutes = remote['estimated_prep_minutes'] == null
+            ? AppConstants.defaultProductPrepMinutes
+            : SyncRemoteCodec.parseInt(remote['estimated_prep_minutes']);
       _applyStandardFields(record, remote);
       await isar.productIsars.put(record);
     });
@@ -184,39 +147,6 @@ abstract final class ProductVariantRemoteMapper {
         ..isDefault = remote['is_default'] as bool? ?? false;
       _applyStandardFields(record, remote);
       await isar.productVariantIsars.put(record);
-    });
-  }
-}
-
-abstract final class ItemModifierRemoteMapper {
-  static Map<String, dynamic> toRemote(ItemModifierIsar record) {
-    return {
-      ..._standardFields(record),
-      'group_id': record.groupId,
-      'name': record.name,
-      'price_delta': record.priceDelta,
-      'sort_order': record.sortOrder,
-    };
-  }
-
-  static Future<void> applyRemote(
-    Isar isar,
-    Map<String, dynamic> remote,
-  ) async {
-    final id = remote['id'] as String;
-    await isar.writeTxn(() async {
-      final record = await isar.itemModifierIsars
-              .filter()
-              .uuidEqualTo(id)
-              .findFirst() ??
-          (ItemModifierIsar()..uuid = id);
-      record
-        ..groupId = remote['group_id'] as String
-        ..name = remote['name'] as String
-        ..priceDelta = SyncRemoteCodec.parseDouble(remote['price_delta'])
-        ..sortOrder = SyncRemoteCodec.parseInt(remote['sort_order']);
-      _applyStandardFields(record, remote);
-      await isar.itemModifierIsars.put(record);
     });
   }
 }
@@ -270,7 +200,6 @@ abstract final class DealItemRemoteMapper {
       'product_id': record.productId,
       'variant_id': record.variantId,
       'quantity': record.quantity,
-      'allow_modifiers': record.allowModifiers,
     };
   }
 
@@ -287,8 +216,7 @@ abstract final class DealItemRemoteMapper {
         ..dealId = remote['deal_id'] as String
         ..productId = remote['product_id'] as String
         ..variantId = remote['variant_id'] as String?
-        ..quantity = SyncRemoteCodec.parseInt(remote['quantity'])
-        ..allowModifiers = remote['allow_modifiers'] as bool? ?? false;
+        ..quantity = SyncRemoteCodec.parseInt(remote['quantity']);
       _applyStandardFields(record, remote);
       await isar.dealItemIsars.put(record);
     });
@@ -486,6 +414,7 @@ abstract final class OrderRemoteMapper {
       'created_by_user_id': record.createdByUserId,
       'notes': record.notes,
       'cancel_reason': record.cancelReason,
+      'credit_customer_id': record.creditCustomerId,
     };
   }
 
@@ -520,7 +449,8 @@ abstract final class OrderRemoteMapper {
         ..isHeld = remote['is_held'] as bool? ?? false
         ..createdByUserId = remote['created_by_user_id'] as String? ?? ''
         ..notes = remote['notes'] as String?
-        ..cancelReason = remote['cancel_reason'] as String?;
+        ..cancelReason = remote['cancel_reason'] as String?
+        ..creditCustomerId = remote['credit_customer_id'] as String?;
       _applyStandardFields(record, remote);
       await isar.orderIsars.put(record);
     });
@@ -668,6 +598,93 @@ abstract final class SalarySlipRemoteMapper {
         ..status = remote['status'] as String;
       _applyStandardFields(record, remote);
       await isar.salarySlipIsars.put(record);
+    });
+  }
+}
+
+abstract final class CreditCustomerRemoteMapper {
+  static Map<String, dynamic> toRemote(CreditCustomerIsar record) {
+    return {
+      ..._standardFields(record),
+      'full_name': record.fullName,
+      'phone': record.phone,
+      'address_line1': record.addressLine1,
+      'address_line2': record.addressLine2,
+      'city': record.city,
+      'postcode': record.postcode,
+      'notes': record.notes,
+      'balance': record.balance,
+      'credit_limit': record.creditLimit,
+      'is_active': record.isActive,
+    };
+  }
+
+  static Future<void> applyRemote(
+    Isar isar,
+    Map<String, dynamic> remote,
+  ) async {
+    final id = remote['id'] as String;
+    await isar.writeTxn(() async {
+      final record =
+          await isar.creditCustomerIsars.filter().uuidEqualTo(id).findFirst() ??
+              (CreditCustomerIsar()..uuid = id);
+      record
+        ..fullName = remote['full_name'] as String
+        ..phone = remote['phone'] as String?
+        ..addressLine1 = remote['address_line1'] as String?
+        ..addressLine2 = remote['address_line2'] as String?
+        ..city = remote['city'] as String?
+        ..postcode = remote['postcode'] as String?
+        ..notes = remote['notes'] as String?
+        ..balance = SyncRemoteCodec.parseDouble(remote['balance'])
+        ..creditLimit =
+            SyncRemoteCodec.parseNullableDouble(remote['credit_limit'])
+        ..isActive = remote['is_active'] as bool? ?? true;
+      _applyStandardFields(record, remote);
+      await isar.creditCustomerIsars.put(record);
+    });
+  }
+}
+
+abstract final class CreditTransactionRemoteMapper {
+  static Map<String, dynamic> toRemote(CreditTransactionIsar record) {
+    return {
+      ..._standardFields(record),
+      'credit_customer_id': record.creditCustomerId,
+      'order_id': record.orderId,
+      'transaction_type': record.transactionType,
+      'amount': record.amount,
+      'balance_delta': record.balanceDelta,
+      'balance_after': record.balanceAfter,
+      'payment_type': record.paymentType,
+      'notes': record.notes,
+      'created_by_user_id': record.createdByUserId,
+    };
+  }
+
+  static Future<void> applyRemote(
+    Isar isar,
+    Map<String, dynamic> remote,
+  ) async {
+    final id = remote['id'] as String;
+    await isar.writeTxn(() async {
+      final record = await isar.creditTransactionIsars
+              .filter()
+              .uuidEqualTo(id)
+              .findFirst() ??
+          (CreditTransactionIsar()..uuid = id);
+      record
+        ..creditCustomerId = remote['credit_customer_id'] as String
+        ..orderId = remote['order_id'] as String?
+        ..transactionType = remote['transaction_type'] as String
+        ..amount = SyncRemoteCodec.parseDouble(remote['amount'])
+        ..balanceDelta = SyncRemoteCodec.parseDouble(remote['balance_delta'])
+        ..balanceAfter = SyncRemoteCodec.parseDouble(remote['balance_after'])
+        ..paymentType = remote['payment_type'] as String?
+        ..notes = remote['notes'] as String?
+        ..createdByUserId = remote['created_by_user_id'] as String? ?? '';
+      _applyStandardFields(record, remote);
+      await isar.creditTransactionIsars.put(record);
     });
   }
 }

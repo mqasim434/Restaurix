@@ -149,7 +149,6 @@ class DealActions {
     required String productId,
     String? variantId,
     int quantity = 1,
-    bool allowModifiers = false,
   }) {
     return repository.createItem(
       dealId: dealId,
@@ -157,7 +156,6 @@ class DealActions {
       deviceId: deviceId,
       variantId: variantId,
       quantity: quantity,
-      allowModifiers: allowModifiers,
     );
   }
 

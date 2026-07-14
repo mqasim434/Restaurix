@@ -8,13 +8,6 @@ import '../../../domain/models/order_enums.dart';
 part 'order_isar.g.dart';
 
 @embedded
-class OrderItemModifierEmbedded {
-  String? modifierId;
-  late String name;
-  double priceDelta = 0;
-}
-
-@embedded
 class OrderLineDiscountEmbedded {
   late String scope;
   late String type;
@@ -45,6 +38,9 @@ class OrderIsar {
   String? riderName;
   String? pickupCompanyId;
   String? pickupCompanyName;
+
+  @Index()
+  String? creditCustomerId;
 
   double subtotal = 0;
   double itemDiscountTotal = 0;
@@ -194,7 +190,6 @@ class OrderItemIsar {
   int quantity = 1;
   double lineTotal = 0;
 
-  List<OrderItemModifierEmbedded> modifiers = [];
   List<OrderLineDiscountEmbedded> appliedDiscounts = [];
 
   late String kitchenStatus;

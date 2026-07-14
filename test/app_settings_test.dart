@@ -3,62 +3,35 @@ import 'package:restaurix/domain/models/app_settings.dart';
 
 void main() {
   group('AppSettings', () {
-    test('resolvePrinterTarget maps config id to target', () {
-      const settings = AppSettings(
-        businessName: 'Test Cafe',
-        printers: [
-          PrinterConfig(
-            id: 'kitchen-main',
-            name: 'Kitchen',
-            target: '192.168.1.10',
-          ),
-        ],
-        receiptPrinterTarget: 'kitchen-main',
-      );
+    test('copyWith updates currency code', () {
+      const settings = AppSettings(businessName: 'Test Cafe');
 
-      expect(settings.resolvedReceiptPrinterTarget(), '192.168.1.10');
-      expect(settings.resolvePrinterTarget('kitchen-main'), '192.168.1.10');
-      expect(settings.resolvePrinterTarget('10.0.0.5'), '10.0.0.5');
+      final updated = settings.copyWith(currencyCode: 'PKR');
+
+      expect(updated.currencyCode, 'PKR');
     });
 
-    test('resolveKitchenCategoryPrinter uses category map', () {
+    test('copyWith clears optional receipt fields', () {
       const settings = AppSettings(
         businessName: 'Test Cafe',
-        printers: [
-          PrinterConfig(
-            id: 'bar-printer',
-            name: 'Bar',
-            target: 'Bar-Printer',
-          ),
-        ],
-        kitchenCategoryPrinters: {'Bar': 'bar-printer'},
+        businessAddress: '123 Main',
+        receiptHeaderText: 'Welcome',
+        receiptFooterText: 'Thanks',
       );
 
-      expect(settings.resolveKitchenCategoryPrinter('Bar'), 'Bar-Printer');
-      expect(settings.resolveKitchenCategoryPrinter('Grill'), isNull);
+      final cleared = settings.copyWith(
+        clearBusinessAddress: true,
+        clearReceiptHeaderText: true,
+        clearReceiptFooterText: true,
+      );
+
+      expect(cleared.businessAddress, isNull);
+      expect(cleared.receiptHeaderText, isNull);
+      expect(cleared.receiptFooterText, isNull);
     });
   });
 
   group('settings encoding helpers', () {
-    test('encode and decode printer configs', () {
-      const printers = [
-        PrinterConfig(id: 'p1', name: 'Receipt', target: 'Receipt-58'),
-      ];
-
-      final decoded = decodePrinterConfigs(encodePrinterConfigs(printers));
-      expect(decoded, hasLength(1));
-      expect(decoded.first.id, 'p1');
-      expect(decoded.first.name, 'Receipt');
-      expect(decoded.first.target, 'Receipt-58');
-    });
-
-    test('encode and decode category printer map', () {
-      const map = {'Grill': 'kitchen-main', 'Bar': 'bar-printer'};
-
-      final decoded = decodeCategoryPrinterMap(encodeCategoryPrinterMap(map));
-      expect(decoded, map);
-    });
-
     test('parseSalaryGenerationDay clamps to valid range', () {
       expect(parseSalaryGenerationDay(null), 1);
       expect(parseSalaryGenerationDay('15'), 15);

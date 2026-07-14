@@ -22,8 +22,6 @@ class DealItemIsar {
 
   int quantity = 1;
 
-  bool allowModifiers = false;
-
   late DateTime createdAt;
   late DateTime updatedAt;
 
@@ -49,7 +47,6 @@ class DealItemIsar {
     required String deviceId,
     String? variantId,
     int quantity = 1,
-    bool allowModifiers = false,
   }) {
     final now = DateTime.now();
     return DealItemIsar()
@@ -58,7 +55,6 @@ class DealItemIsar {
       ..productId = productId
       ..variantId = variantId
       ..quantity = quantity
-      ..allowModifiers = allowModifiers
       ..createdAt = now
       ..updatedAt = now
       ..isSynced = false

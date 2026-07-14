@@ -24,14 +24,6 @@ void main() {
             name: 'Burger',
             unitPrice: 500,
             quantity: 2,
-            modifiers: [
-              CartModifier(
-                id: 'mod-1',
-                groupId: 'grp-1',
-                name: 'Extra cheese',
-                priceDelta: 50,
-              ),
-            ],
           ),
         ],
         discounts: [
@@ -49,7 +41,7 @@ void main() {
 
       expect(restored.cartItems.length, 1);
       expect(restored.cartItems.first.name, 'Burger');
-      expect(restored.cartItems.first.modifiers.first.name, 'Extra cheese');
+      expect(restored.cartItems.first.quantity, 2);
       expect(restored.checkout.orderType, OrderType.dineIn);
       expect(restored.checkout.tableLabel, 'T5');
       expect(restored.checkout.notes, 'No ice');

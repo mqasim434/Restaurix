@@ -53,7 +53,6 @@ DealItem _item(String productId) {
     dealId: 'deal-1',
     productId: productId,
     quantity: 1,
-    allowModifiers: false,
     createdAt: now,
     updatedAt: now,
     isSynced: false,

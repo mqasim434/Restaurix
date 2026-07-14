@@ -1,12 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/format/money_format.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../domain/models/dashboard.dart';
 import '../../../../domain/models/sales_analytics.dart';
+import '../../../settings/providers/currency_providers.dart';
 
-class DashboardChartsSection extends StatelessWidget {
+class DashboardChartsSection extends ConsumerWidget {
   const DashboardChartsSection({
     super.key,
     required this.charts,
@@ -15,8 +17,9 @@ class DashboardChartsSection extends StatelessWidget {
   final DashboardChartsData charts;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.appSpacing;
+    final formatCompact = ref.watch(compactMoneyFormatProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -34,7 +37,10 @@ class DashboardChartsSection extends StatelessWidget {
               child: _ChartCard(
                 title: 'Sales trend',
                 subtitle: 'Net revenue — last 30 days',
-                child: _SalesTrendChart(points: charts.salesTrend),
+                child: _SalesTrendChart(
+                  points: charts.salesTrend,
+                  formatCompact: formatCompact,
+                ),
               ),
             ),
             SizedBox(
@@ -109,9 +115,13 @@ class _ChartCard extends StatelessWidget {
 }
 
 class _SalesTrendChart extends StatelessWidget {
-  const _SalesTrendChart({required this.points});
+  const _SalesTrendChart({
+    required this.points,
+    required this.formatCompact,
+  });
 
   final List<DashboardTrendPoint> points;
+  final MoneyFormatter formatCompact;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +154,7 @@ class _SalesTrendChart extends StatelessWidget {
               showTitles: true,
               reservedSize: 44,
               getTitlesWidget: (value, _) => Text(
-                _compactCurrency(value),
+                formatCompact(value),
                 style: context.appTypography.labelSmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -472,13 +482,6 @@ List<Color> _chartPalette(BuildContext context) {
     colors.warning,
     colors.primaryContainer,
   ];
-}
-
-String _compactCurrency(double value) {
-  if (value >= 1000) {
-    return '\$${(value / 1000).toStringAsFixed(1)}k';
-  }
-  return NumberFormat.compactSimpleCurrency().format(value);
 }
 
 String _shortLabel(String value) {

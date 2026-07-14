@@ -15,13 +15,11 @@ class DealItemFormResult {
     required this.productId,
     this.variantId,
     required this.quantity,
-    required this.allowModifiers,
   });
 
   final String productId;
   final String? variantId;
   final int quantity;
-  final bool allowModifiers;
 }
 
 class DealItemFormDialog extends ConsumerStatefulWidget {
@@ -60,7 +58,6 @@ class _DealItemFormDialogState extends ConsumerState<DealItemFormDialog> {
   String? _productId;
   String? _variantId;
   late final TextEditingController _quantityController;
-  late bool _allowModifiers;
 
   @override
   void initState() {
@@ -71,7 +68,6 @@ class _DealItemFormDialogState extends ConsumerState<DealItemFormDialog> {
     _quantityController = TextEditingController(
       text: (widget.item?.quantity ?? 1).toString(),
     );
-    _allowModifiers = widget.item?.allowModifiers ?? false;
   }
 
   @override
@@ -185,22 +181,6 @@ class _DealItemFormDialogState extends ConsumerState<DealItemFormDialog> {
                 hint: '1',
                 keyboardType: TextInputType.number,
               ),
-              SizedBox(height: spacing.sm),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  'Allow modifiers at POS',
-                  style: typography.bodyMedium.copyWith(color: colors.onSurface),
-                ),
-                subtitle: Text(
-                  'Customer can customize this item within the deal',
-                  style: typography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-                value: _allowModifiers,
-                onChanged: (value) => setState(() => _allowModifiers = value),
-              ),
             ],
           ),
         ),
@@ -230,7 +210,6 @@ class _DealItemFormDialogState extends ConsumerState<DealItemFormDialog> {
         productId: _productId!,
         variantId: _variantId,
         quantity: quantity,
-        allowModifiers: _allowModifiers,
       ),
     );
   }

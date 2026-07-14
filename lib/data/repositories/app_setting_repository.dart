@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 
 import '../../core/settings/app_setting_keys.dart';
+import '../../domain/models/app_currency.dart';
 import '../../domain/models/app_settings.dart';
 import '../local/collections/app_setting_isar.dart';
 
@@ -27,22 +28,7 @@ class AppSettingRepository {
       await _writeKey(AppSettingKeys.businessAddress, settings.businessAddress);
       await _writeKey(AppSettingKeys.receiptHeaderText, settings.receiptHeaderText);
       await _writeKey(AppSettingKeys.receiptFooterText, settings.receiptFooterText);
-      await _writeKey(
-        AppSettingKeys.receiptPrinterId,
-        settings.receiptPrinterTarget,
-      );
-      await _writeKey(
-        AppSettingKeys.kitchenDefaultPrinterId,
-        settings.kitchenDefaultPrinterTarget,
-      );
-      await _writeKey(
-        AppSettingKeys.printerConfigs,
-        encodePrinterConfigs(settings.printers),
-      );
-      await _writeKey(
-        AppSettingKeys.kitchenCategoryPrinterMap,
-        encodeCategoryPrinterMap(settings.kitchenCategoryPrinters),
-      );
+      await _writeKey(AppSettingKeys.currencyCode, settings.currencyCode);
       await _writeKey(
         AppSettingKeys.salaryGenerationDay,
         settings.salaryGenerationDay.toString(),
@@ -54,16 +40,6 @@ class AppSettingRepository {
     final record =
         await _isar.appSettingIsars.filter().keyEqualTo(key).findFirst();
     return record?.value;
-  }
-
-  Future<String?> getKitchenDefaultPrinterId() async {
-    final settings = await loadSettings();
-    return settings.kitchenDefaultPrinterTarget;
-  }
-
-  Future<String?> getReceiptPrinterId() async {
-    final settings = await loadSettings();
-    return settings.receiptPrinterTarget;
   }
 
   Future<String> getBusinessName() async {
@@ -104,11 +80,7 @@ class AppSettingRepository {
       businessAddress: values[AppSettingKeys.businessAddress],
       receiptHeaderText: values[AppSettingKeys.receiptHeaderText],
       receiptFooterText: values[AppSettingKeys.receiptFooterText],
-      receiptPrinterTarget: values[AppSettingKeys.receiptPrinterId],
-      kitchenDefaultPrinterTarget: values[AppSettingKeys.kitchenDefaultPrinterId],
-      printers: decodePrinterConfigs(values[AppSettingKeys.printerConfigs]),
-      kitchenCategoryPrinters:
-          decodeCategoryPrinterMap(values[AppSettingKeys.kitchenCategoryPrinterMap]),
+      currencyCode: AppCurrency.normalizeCode(values[AppSettingKeys.currencyCode]),
       salaryGenerationDay:
           parseSalaryGenerationDay(values[AppSettingKeys.salaryGenerationDay]),
     );

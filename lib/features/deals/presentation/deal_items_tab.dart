@@ -111,7 +111,6 @@ class DealItemsTab extends ConsumerWidget {
       productId: result.productId,
       variantId: result.variantId,
       quantity: result.quantity,
-      allowModifiers: result.allowModifiers,
     );
   }
 
@@ -135,7 +134,6 @@ class DealItemsTab extends ConsumerWidget {
         variantId: result.variantId,
         clearVariantId: result.variantId == null,
         quantity: result.quantity,
-        allowModifiers: result.allowModifiers,
       ),
     );
   }
@@ -214,7 +212,6 @@ class _DealItemRow extends ConsumerWidget {
                 Text(
                   [
                     if (variantName != null) variantName,
-                    if (item.allowModifiers) 'Modifiers allowed',
                     if (unavailable) 'Product unavailable',
                   ].join(' · '),
                   style: typography.bodySmall.copyWith(

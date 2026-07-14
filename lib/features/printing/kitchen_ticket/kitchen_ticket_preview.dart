@@ -13,6 +13,7 @@ abstract final class KitchenTicketPreview {
 
     lines.add('KITCHEN TICKET');
     lines.add(ticket.orderNumber);
+    lines.add(ticket.orderTypeLabel);
     lines.add(ticket.contextLabel);
     lines.add(DateFormat.yMMMd().add_jm().format(ticket.placedAt));
 
@@ -27,9 +28,6 @@ abstract final class KitchenTicketPreview {
             ? line.name
             : '${line.name} (${line.variantName})';
         lines.add('${line.quantity}x $label');
-        if (line.modifierNames.isNotEmpty) {
-          lines.add('   ${line.modifierNames.join(', ')}');
-        }
       }
     }
 

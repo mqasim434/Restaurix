@@ -9,6 +9,7 @@ Order _order({
   OrderType type = OrderType.dineIn,
   OrderStatus status = OrderStatus.received,
   OrderPaymentStatus payment = OrderPaymentStatus.unpaid,
+  bool isPrepaid = false,
 }) {
   return Order(
     id: 'o1',
@@ -20,7 +21,7 @@ Order _order({
     total: 100,
     paymentStatus: payment,
     status: status,
-    isPrepaid: false,
+    isPrepaid: isPrepaid,
     createdByUserId: 'u1',
     createdAt: DateTime(2024, 6, 21),
     updatedAt: DateTime(2024, 6, 21),
@@ -35,28 +36,35 @@ void main() {
   group('OrderLifecycle', () {
     test('admin can advance dine-in through full chain', () {
       var order = _order(status: OrderStatus.received);
-      expect(OrderLifecycle.nextStatus(order), OrderStatus.preparing);
+      expect(OrderLifecycle.nextStatus(order), OrderStatus.served);
 
       order = order.copyWith(status: OrderStatus.served);
       expect(OrderLifecycle.nextStatus(order), OrderStatus.paid);
+
+      order = order.copyWith(
+        status: OrderStatus.paid,
+        paymentStatus: OrderPaymentStatus.paid,
+      );
+      expect(OrderLifecycle.nextStatus(order), OrderStatus.completed);
     });
 
-    test('prepaid takeaway skips served and paid status steps', () {
+    test('prepaid takeaway skips payment step', () {
       final order = _order(
         type: OrderType.takeaway,
-        status: OrderStatus.ready,
+        status: OrderStatus.received,
         payment: OrderPaymentStatus.paid,
+        isPrepaid: true,
       );
 
       expect(OrderLifecycle.nextStatus(order), OrderStatus.completed);
     });
 
-    test('salesman can only advance to ready', () {
-      final preparing = _order(status: OrderStatus.preparing);
-      expect(OrderLifecycle.canAdvance(preparing, UserRole.salesman), isTrue);
+    test('salesman can mark dine-in served only', () {
+      final received = _order(status: OrderStatus.received);
+      expect(OrderLifecycle.canAdvance(received, UserRole.salesman), isTrue);
 
-      final ready = _order(status: OrderStatus.ready);
-      expect(OrderLifecycle.canAdvance(ready, UserRole.salesman), isFalse);
+      final served = _order(status: OrderStatus.served);
+      expect(OrderLifecycle.canAdvance(served, UserRole.salesman), isFalse);
     });
 
     test('paid orders cannot be edited', () {
@@ -75,14 +83,14 @@ void main() {
     });
 
     test('hold and resume toggle operational flag without blocking status', () {
-      final order = _order(status: OrderStatus.preparing);
+      final order = _order(status: OrderStatus.received);
       expect(OrderLifecycle.canHold(order, UserRole.admin), isTrue);
       expect(OrderLifecycle.canResume(order, UserRole.admin), isFalse);
 
       final held = order.copyWith(isHeld: true);
       expect(OrderLifecycle.canHold(held, UserRole.admin), isFalse);
       expect(OrderLifecycle.canResume(held, UserRole.admin), isTrue);
-      expect(OrderLifecycle.nextStatus(held), OrderStatus.ready);
+      expect(OrderLifecycle.nextStatus(held), OrderStatus.served);
     });
 
     test('closed orders cannot be held or resumed', () {

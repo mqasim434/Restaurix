@@ -61,7 +61,9 @@ class _MarkPaidDialogState extends State<MarkPaidDialog> {
           Wrap(
             spacing: spacing.sm,
             runSpacing: spacing.sm,
-            children: PaymentType.values.map((type) {
+            children: PaymentType.values
+                .where((type) => !type.isCreditAccount)
+                .map((type) {
               return ChoiceChip(
                 label: Text(type.label),
                 selected: _paymentType == type,

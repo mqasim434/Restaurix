@@ -1,9 +1,14 @@
 import 'package:intl/intl.dart';
 
+import '../../../core/printing/esc_pos_money_format.dart';
+import '../../../domain/models/app_currency.dart';
 import 'receipt_data.dart';
 
-String formatReceiptMoney(double amount) {
-  return NumberFormat.simpleCurrency().format(amount);
+String formatReceiptMoney(double amount, String currencyCode) {
+  return EscPosMoneyFormat.format(
+    amount,
+    AppCurrency.normalizeCode(currencyCode),
+  );
 }
 
 /// Plain-text preview of a customer receipt — used in tests.
@@ -15,7 +20,7 @@ abstract final class ReceiptPreview {
       lines.add('*** REPRINT ***');
     }
 
-    lines.add(receipt.businessName);
+    lines.add('[LOGO]');
     if (receipt.businessAddress != null &&
         receipt.businessAddress!.trim().isNotEmpty) {
       lines.add(receipt.businessAddress!.trim());
@@ -30,36 +35,31 @@ abstract final class ReceiptPreview {
       DateFormat.yMMMd().add_jm().format(receipt.placedAt),
     );
     lines.add('${receipt.orderTypeLabel} · ${receipt.contextLabel}');
+    lines.add('');
 
     for (final line in receipt.lines) {
-      final label = line.variantName == null || line.variantName!.isEmpty
-          ? line.name
-          : '${line.name} (${line.variantName})';
+      final variantSuffix =
+          line.variantName == null ? '' : ' (${line.variantName})';
+      lines.add('${line.quantity}x ${line.name}$variantSuffix');
       lines.add(
-        '${line.quantity}x $label  '
-        '${formatReceiptMoney(line.unitPrice)} = '
-        '${formatReceiptMoney(line.lineTotal)}',
+        '   ${formatReceiptMoney(line.unitPrice, receipt.currencyCode)} = '
+        '${formatReceiptMoney(line.lineTotal, receipt.currencyCode)}',
       );
-      for (final modifier in line.modifiers) {
-        final delta = modifier.priceDelta == 0
-            ? ''
-            : ' (${formatReceiptMoney(modifier.priceDelta)})';
-        lines.add('   + ${modifier.name}$delta');
-      }
     }
 
-    lines.add('Subtotal: ${formatReceiptMoney(receipt.subtotal)}');
+    lines.add('');
+    lines.add('Subtotal: ${formatReceiptMoney(receipt.subtotal, receipt.currencyCode)}');
     if (receipt.itemDiscountTotal > 0) {
       lines.add(
-        'Line discounts: -${formatReceiptMoney(receipt.itemDiscountTotal)}',
+        'Line discounts: ${EscPosMoneyFormat.formatDiscount(receipt.itemDiscountTotal, receipt.currencyCode)}',
       );
     }
     if (receipt.orderDiscountTotal > 0) {
       lines.add(
-        'Order discount: -${formatReceiptMoney(receipt.orderDiscountTotal)}',
+        'Order discount: ${EscPosMoneyFormat.formatDiscount(receipt.orderDiscountTotal, receipt.currencyCode)}',
       );
     }
-    lines.add('TOTAL: ${formatReceiptMoney(receipt.total)}');
+    lines.add('TOTAL: ${formatReceiptMoney(receipt.total, receipt.currencyCode)}');
     lines.add('Payment: ${receipt.paymentTypeLabel}');
     lines.add('Status: ${receipt.paymentStatusLabel}');
     if (receipt.receiptFooterText != null &&

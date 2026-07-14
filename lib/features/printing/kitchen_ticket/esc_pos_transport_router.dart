@@ -5,13 +5,7 @@ import 'esc_pos_windows_transport.dart';
 
 /// Routes print jobs to network or Windows spooler transports.
 ///
-/// Package setup (Module 20):
-/// - **esc_pos_utils_plus** — ESC/POS command generation (pure Dart)
-/// - **Network printers** — raw TCP to IP:9100 via dart:io [Socket]
-/// - **Windows USB/shared printers** — [windows_printer] raw spooler mode
-///
-/// Configure `printerId` on products or the default kitchen printer setting
-/// as either `192.168.1.50`, `192.168.1.50:9100`, or a Windows printer name.
+/// An empty [target] sends to the Windows default printer.
 class EscPosTransportRouter implements EscPosTransport {
   EscPosTransportRouter({
     EscPosNetworkTransport? network,
@@ -32,6 +26,10 @@ class EscPosTransportRouter implements EscPosTransport {
     required String target,
     required Uint8List bytes,
   }) async {
+    if (target.trim().isEmpty) {
+      await _windows.send(target: target, bytes: bytes);
+      return;
+    }
     if (_network.supports(target)) {
       await _network.send(target: target, bytes: bytes);
       return;

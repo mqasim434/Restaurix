@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/date_range_utils.dart';
@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_data_table.dart';
 import '../../../../core/widgets/app_dropdown.dart';
 import '../../../../domain/models/discount.dart';
 import '../../../../domain/models/reports.dart';
+import '../../../settings/providers/currency_providers.dart';
 import 'simple_bar_chart.dart';
 
 class ReportPanelScaffold extends StatelessWidget {
@@ -50,7 +51,7 @@ class ReportPanelScaffold extends StatelessWidget {
   }
 }
 
-class SalesTrendPanel extends StatelessWidget {
+class SalesTrendPanel extends ConsumerWidget {
   const SalesTrendPanel({
     super.key,
     required this.buckets,
@@ -63,7 +64,9 @@ class SalesTrendPanel extends StatelessWidget {
   final ValueChanged<TrendGranularity> onGranularityChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formatMoney = ref.watch(formatMoneyProvider);
+
     return ReportPanelScaffold(
       title: 'Sales trend',
       subtitle: 'Net revenue over time (cancelled orders excluded).',
@@ -98,7 +101,7 @@ class SalesTrendPanel extends StatelessWidget {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.netRevenue),
+                  formatMoney(row.netRevenue),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -112,13 +115,15 @@ class SalesTrendPanel extends StatelessWidget {
   }
 }
 
-class DealsSalesPanel extends StatelessWidget {
+class DealsSalesPanel extends ConsumerWidget {
   const DealsSalesPanel({super.key, required this.rows});
 
   final List<DealSalesRow> rows;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formatMoney = ref.watch(formatMoneyProvider);
+
     return ReportPanelScaffold(
       title: 'Deals sales',
       subtitle: 'Deal lines sold in the selected range.',
@@ -140,7 +145,7 @@ class DealsSalesPanel extends StatelessWidget {
             flex: 2,
             alignment: Alignment.centerRight,
             cellBuilder: (_, row) => Text(
-              _formatCurrency(row.revenue),
+              formatMoney(row.revenue),
               textAlign: TextAlign.end,
             ),
           ),
@@ -152,14 +157,15 @@ class DealsSalesPanel extends StatelessWidget {
   }
 }
 
-class DiscountReportPanel extends StatelessWidget {
+class DiscountReportPanel extends ConsumerWidget {
   const DiscountReportPanel({super.key, required this.report});
 
   final DiscountReport report;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.appSpacing;
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return ReportPanelScaffold(
       title: 'Discount report',
@@ -168,7 +174,7 @@ class DiscountReportPanel extends StatelessWidget {
         children: [
           _StatCard(
             title: 'Total discount given',
-            value: _formatCurrency(report.totalDiscount),
+            value: formatMoney(report.totalDiscount),
           ),
           SizedBox(height: spacing.md),
           Text('By scope', style: context.appTypography.titleMedium),
@@ -190,7 +196,7 @@ class DiscountReportPanel extends StatelessWidget {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.amount),
+                  formatMoney(row.amount),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -220,7 +226,7 @@ class DiscountReportPanel extends StatelessWidget {
                 label: 'Amount',
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.amount),
+                  formatMoney(row.amount),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -234,14 +240,15 @@ class DiscountReportPanel extends StatelessWidget {
   }
 }
 
-class CancelledOrdersPanel extends StatelessWidget {
+class CancelledOrdersPanel extends ConsumerWidget {
   const CancelledOrdersPanel({super.key, required this.report});
 
   final CancelledOrdersReport report;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.appSpacing;
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return ReportPanelScaffold(
       title: 'Cancelled orders',
@@ -258,7 +265,7 @@ class CancelledOrdersPanel extends StatelessWidget {
               ),
               _StatCard(
                 title: 'Value if not cancelled',
-                value: _formatCurrency(report.forfeitedValue),
+                value: formatMoney(report.forfeitedValue),
                 subtitle: 'Sum of cancelled order totals',
               ),
             ],
@@ -371,7 +378,7 @@ class PeakHoursPanel extends StatelessWidget {
   }
 }
 
-class AovTrendPanel extends StatelessWidget {
+class AovTrendPanel extends ConsumerWidget {
   const AovTrendPanel({
     super.key,
     required this.buckets,
@@ -384,7 +391,9 @@ class AovTrendPanel extends StatelessWidget {
   final ValueChanged<TrendGranularity> onGranularityChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formatMoney = ref.watch(formatMoneyProvider);
+
     return ReportPanelScaffold(
       title: 'Average order value',
       subtitle: 'Mean net order total per period.',
@@ -419,7 +428,7 @@ class AovTrendPanel extends StatelessWidget {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.averageOrderValue),
+                  formatMoney(row.averageOrderValue),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -433,7 +442,7 @@ class AovTrendPanel extends StatelessWidget {
   }
 }
 
-class ProductRankingPanel extends StatelessWidget {
+class ProductRankingPanel extends ConsumerWidget {
   const ProductRankingPanel({
     super.key,
     required this.title,
@@ -450,7 +459,9 @@ class ProductRankingPanel extends StatelessWidget {
   final ValueChanged<int> onTopNChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formatMoney = ref.watch(formatMoneyProvider);
+
     return ReportPanelScaffold(
       title: title,
       subtitle: subtitle,
@@ -484,7 +495,7 @@ class ProductRankingPanel extends StatelessWidget {
             flex: 2,
             alignment: Alignment.centerRight,
             cellBuilder: (_, row) => Text(
-              _formatCurrency(row.revenue),
+              formatMoney(row.revenue),
               textAlign: TextAlign.end,
             ),
           ),
@@ -575,8 +586,4 @@ String _scopeLabel(DiscountScope scope) {
     DiscountScope.category => 'Category',
     DiscountScope.wholeOrder => 'Whole order',
   };
-}
-
-String _formatCurrency(double amount) {
-  return NumberFormat.simpleCurrency().format(amount);
 }

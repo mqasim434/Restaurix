@@ -33,9 +33,6 @@ class ProductIsar {
 
   int estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes;
 
-  /// Assigned modifier group UUIDs — see [modifierGroupAssignmentDoc].
-  List<String> modifierGroupIds = [];
-
   late DateTime createdAt;
   late DateTime updatedAt;
 

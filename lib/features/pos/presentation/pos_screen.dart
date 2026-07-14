@@ -7,11 +7,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../categories/providers/category_providers.dart';
-import '../../deals/presentation/deal_form_dialog.dart';
 import '../../deals/providers/deal_providers.dart';
-import '../../modifiers/providers/modifier_providers.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../../tables/providers/table_providers.dart';
-import '../../products/presentation/product_form_dialog.dart';
 import '../providers/pos_catalog_providers.dart';
 import '../services/pos_add_flow.dart';
 import 'pos_cart_panel.dart';
@@ -22,7 +20,6 @@ class PosScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.appSpacing;
-    ref.watch(modifierGroupListProvider);
     ref.watch(dealListProvider);
     ref.watch(hallListProvider);
     final categoriesAsync = ref.watch(categoryListProvider);
@@ -59,6 +56,7 @@ class _PosMenuPanel extends ConsumerWidget {
     final tabs = ref.watch(posCategoryTabsProvider);
     final selectedTab = ref.watch(posSelectedTabProvider);
     final gridItems = ref.watch(posGridItemsProvider);
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -130,6 +128,7 @@ class _PosMenuPanel extends ConsumerWidget {
                       final item = gridItems[index];
                       return _PosMenuTile(
                         item: item,
+                        formatMoney: formatMoney,
                         onTap: () => _onItemTap(context, ref, item),
                       );
                     },
@@ -157,10 +156,12 @@ class _PosMenuPanel extends ConsumerWidget {
 class _PosMenuTile extends StatelessWidget {
   const _PosMenuTile({
     required this.item,
+    required this.formatMoney,
     required this.onTap,
   });
 
   final PosGridItem item;
+  final String Function(double amount) formatMoney;
   final VoidCallback onTap;
 
   @override
@@ -194,9 +195,7 @@ class _PosMenuTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                item is PosDealItem
-                    ? formatDealPrice(item.displayPrice)
-                    : formatProductPrice(item.displayPrice),
+                formatMoney(item.displayPrice),
                 style: typography.labelLarge.copyWith(color: colors.primary),
               ),
             ],

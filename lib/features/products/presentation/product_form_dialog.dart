@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -10,7 +9,6 @@ import '../../../core/widgets/app_dropdown.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../domain/models/category.dart';
 import '../../../domain/models/product.dart';
-import 'product_modifier_groups_tab.dart';
 import 'product_variants_tab.dart';
 
 class ProductFormResult {
@@ -22,10 +20,8 @@ class ProductFormResult {
     this.imageUrl,
     required this.isAvailable,
     required this.kitchenCategory,
-    this.printerId,
     this.estimatedPrepMinutes = 10,
     this.clearImage = false,
-    this.clearPrinterId = false,
   });
 
   final String name;
@@ -35,10 +31,8 @@ class ProductFormResult {
   final String? imageUrl;
   final bool isAvailable;
   final String kitchenCategory;
-  final String? printerId;
   final int estimatedPrepMinutes;
   final bool clearImage;
-  final bool clearPrinterId;
 }
 
 class ProductFormDialog extends StatefulWidget {
@@ -76,7 +70,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
   late final TextEditingController _priceController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _kitchenCategoryController;
-  late final TextEditingController _printerIdController;
   late final TextEditingController _prepMinutesController;
 
   String? _categoryId;
@@ -89,7 +82,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _nameController = TextEditingController(text: widget.product?.name ?? '');
     _priceController = TextEditingController(
       text: widget.product != null
@@ -101,8 +94,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     _kitchenCategoryController = TextEditingController(
       text: widget.product?.kitchenCategory ?? '',
     );
-    _printerIdController =
-        TextEditingController(text: widget.product?.printerId ?? '');
     _prepMinutesController = TextEditingController(
       text: '${widget.product?.estimatedPrepMinutes ?? 10}',
     );
@@ -119,7 +110,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     _priceController.dispose();
     _descriptionController.dispose();
     _kitchenCategoryController.dispose();
-    _printerIdController.dispose();
     _prepMinutesController.dispose();
     super.dispose();
   }
@@ -146,7 +136,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
               tabs: const [
                 Tab(text: 'Details'),
                 Tab(text: 'Variants'),
-                Tab(text: 'Modifier Groups'),
               ],
             ),
             SizedBox(height: spacing.md),
@@ -156,7 +145,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
                 children: [
                   _buildDetailsTab(context),
                   _buildVariantsTab(context),
-                  _buildModifierGroupsTab(context),
                 ],
               ),
             ),
@@ -236,12 +224,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
             label: 'Estimated prep time (minutes)',
             hint: '10',
             keyboardType: TextInputType.number,
-          ),
-          SizedBox(height: spacing.md),
-          AppTextField(
-            controller: _printerIdController,
-            label: 'Printer ID',
-            hint: 'Optional — override in Settings → Printers',
           ),
           SizedBox(height: spacing.md),
           Text(
@@ -324,30 +306,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     );
   }
 
-  Widget _buildModifierGroupsTab(BuildContext context) {
-    final typography = context.appTypography;
-    final colors = context.appColors;
-    final spacing = context.appSpacing;
-
-    if (!_isEditing || widget.product == null) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(spacing.lg),
-          child: Text(
-            'Save the product first, then edit it to attach modifier groups.',
-            style: typography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-
-    return ProductModifierGroupsTab(
-      productId: widget.product!.id,
-      assignedGroupIds: widget.product!.modifierGroupIds,
-    );
-  }
-
   Future<void> _pickImage() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -373,8 +331,6 @@ class _ProductFormDialogState extends State<ProductFormDialog>
     final prepMinutes = int.tryParse(_prepMinutesController.text.trim());
     if (prepMinutes == null || prepMinutes < 1) return;
 
-    final printerText = _printerIdController.text.trim();
-
     Navigator.of(context).pop(
       ProductFormResult(
         name: name,
@@ -387,9 +343,7 @@ class _ProductFormDialogState extends State<ProductFormDialog>
         isAvailable: _isAvailable,
         kitchenCategory: _kitchenCategoryController.text.trim(),
         estimatedPrepMinutes: prepMinutes,
-        printerId: printerText.isEmpty ? null : printerText,
         clearImage: _clearedImage,
-        clearPrinterId: printerText.isEmpty && _isEditing,
       ),
     );
   }
@@ -437,8 +391,4 @@ class _ProductThumbnail extends StatelessWidget {
       child: Icon(Icons.image_outlined, color: colors.onSurfaceVariant),
     );
   }
-}
-
-String formatProductPrice(double price) {
-  return NumberFormat.simpleCurrency().format(price);
 }

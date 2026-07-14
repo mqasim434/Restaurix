@@ -2,7 +2,6 @@ import 'package:isar/isar.dart';
 
 import '../../../data/local/collections/product_isar.dart';
 import '../../../data/local/collections/restaurant_table_isar.dart';
-import '../../../data/repositories/app_setting_repository.dart';
 import '../../../data/repositories/order_repository.dart';
 import '../../../domain/models/order_item.dart';
 import '../../../domain/models/order_enums.dart';
@@ -16,16 +15,13 @@ class KitchenTicketService {
   KitchenTicketService({
     required Isar isar,
     required OrderRepository orderRepository,
-    required AppSettingRepository settingsRepository,
     EscPosTransportRouter? transport,
   })  : _isar = isar,
         _orders = orderRepository,
-        _settings = settingsRepository,
         _transport = transport ?? EscPosTransportRouter();
 
   final Isar _isar;
   final OrderRepository _orders;
-  final AppSettingRepository _settings;
   final EscPosTransportRouter _transport;
 
   Future<KitchenTicketPrintResult> printOrder({
@@ -47,25 +43,12 @@ class KitchenTicketService {
 
     final items = await _orders.findItemsByOrderId(orderId);
     final productMeta = await _loadProductMeta(items);
-    final settings = await _settings.loadSettings();
     final tableLabels = await _loadTableLabels([order.tableId]);
-    final resolveTarget = settings.resolvePrinterTarget;
-
-    final warnings = KitchenTicketGrouper.collectMissingPrinterWarnings(
-      items: items,
-      productMetaById: productMeta,
-      defaultPrinterId: settings.kitchenDefaultPrinterTarget,
-      categoryPrinterMap: settings.kitchenCategoryPrinters,
-      resolveTarget: resolveTarget,
-    );
 
     final jobs = KitchenTicketGrouper.buildPrintJobs(
       order: order,
       items: items,
       productMetaById: productMeta,
-      defaultPrinterId: settings.kitchenDefaultPrinterTarget,
-      categoryPrinterMap: settings.kitchenCategoryPrinters,
-      resolveTarget: resolveTarget,
       isReprint: isReprint,
       contextLabel: KitchenTicketGrouper.contextLabel(
         order: order,
@@ -74,11 +57,11 @@ class KitchenTicketService {
     );
 
     if (jobs.isEmpty) {
-      return KitchenTicketPrintResult(warnings: warnings);
+      return const KitchenTicketPrintResult();
     }
 
     var printed = 0;
-    final printWarnings = [...warnings];
+    final printWarnings = <String>[];
 
     for (final job in jobs) {
       try {
@@ -86,9 +69,7 @@ class KitchenTicketService {
         await _transport.send(target: job.printerTarget, bytes: bytes);
         printed += 1;
       } catch (error) {
-        printWarnings.add(
-          'Failed to print to "${job.printerTarget}": $error',
-        );
+        printWarnings.add('Failed to print kitchen ticket: $error');
       }
     }
 
@@ -117,7 +98,6 @@ class KitchenTicketService {
       if (!productIds.contains(record.uuid)) continue;
       result[record.uuid] = ProductKitchenMeta(
         kitchenCategory: record.kitchenCategory,
-        printerId: record.printerId,
       );
     }
     return result;

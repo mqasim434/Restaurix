@@ -8,6 +8,7 @@ import '../local/collections/order_isar.dart';
 import '../local/collections/restaurant_table_isar.dart';
 import '../local/mappers/order_mapper.dart';
 import '../local/mappers/restaurant_table_mapper.dart';
+import '../services/order_number_service.dart';
 
 class TableTransferException implements Exception {
   TableTransferException(this.message);
@@ -204,15 +205,18 @@ class TableRepository {
       throw TableTransferException('Table is already occupied');
     }
 
-    final orderNumber = await _nextOrderNumber();
-    final orderRecord = OrderIsar.createDineIn(
-      tableId: tableId,
-      orderNumber: orderNumber,
-      createdByUserId: createdByUserId,
-      deviceId: deviceId,
-    );
+    late OrderIsar orderRecord;
 
     await _isar.writeTxn(() async {
+      final orderNumber =
+          await allocateNextOrderNumberInTxn(_isar);
+      orderRecord = OrderIsar.createDineIn(
+        tableId: tableId,
+        orderNumber: orderNumber,
+        createdByUserId: createdByUserId,
+        deviceId: deviceId,
+      );
+
       await _isar.orderIsars.put(orderRecord);
 
       tableRecord
@@ -319,10 +323,5 @@ class TableRepository {
         .findAll();
     if (records.isEmpty) return 0;
     return records.first.sortOrder + 1;
-  }
-
-  Future<String> _nextOrderNumber() async {
-    final count = await _isar.orderIsars.filter().deletedAtIsNull().count();
-    return 'T-${(count + 1).toString().padLeft(4, '0')}';
   }
 }

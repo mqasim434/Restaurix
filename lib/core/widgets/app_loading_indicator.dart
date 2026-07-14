@@ -7,10 +7,14 @@ class AppLoadingIndicator extends StatelessWidget {
     super.key,
     this.message,
     this.size = AppLoadingSize.medium,
+    this.indicatorColor,
+    this.messageColor,
   });
 
   final String? message;
   final AppLoadingSize size;
+  final Color? indicatorColor;
+  final Color? messageColor;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +37,7 @@ class AppLoadingIndicator extends StatelessWidget {
             height: indicatorSize,
             child: CircularProgressIndicator(
               strokeWidth: spacing.xs,
-              color: colors.primary,
+              color: indicatorColor ?? colors.primary,
             ),
           ),
           if (message != null) ...[
@@ -41,7 +45,7 @@ class AppLoadingIndicator extends StatelessWidget {
             Text(
               message!,
               style: typography.bodyMedium.copyWith(
-                color: colors.onSurfaceVariant,
+                color: messageColor ?? colors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,

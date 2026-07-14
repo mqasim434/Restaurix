@@ -8,10 +8,13 @@ import 'package:restaurix/app/app.dart';
 import 'package:restaurix/core/sync/sync_queue_models.dart';
 import 'package:restaurix/data/local/device_id_service.dart';
 import 'package:restaurix/data/local/isar_service.dart';
+import 'package:restaurix/domain/models/app_settings.dart';
 import 'package:restaurix/domain/models/dashboard.dart';
 import 'package:restaurix/features/auth/providers/auth_providers.dart';
 import 'package:restaurix/features/dashboard/providers/dashboard_providers.dart';
+import 'package:restaurix/features/settings/providers/settings_providers.dart';
 import 'package:restaurix/features/sync/providers/sync_queue_providers.dart';
+import 'package:restaurix/features/tablet_orders/providers/tablet_order_providers.dart';
 
 void main() {
   late Directory tempDir;
@@ -40,7 +43,7 @@ void main() {
     }
   });
 
-  testWidgets('shows app shell with dashboard placeholder', (tester) async {
+  testWidgets('shows app shell with tablet orders monitor', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -53,13 +56,20 @@ void main() {
           syncQueueSnapshotProvider.overrideWith(
             (ref) => Stream.value(SyncQueueSnapshot.empty),
           ),
+          appSettingsProvider.overrideWith(
+            (ref) => Stream.value(AppSettings.defaults),
+          ),
+          tabletOrderListProvider.overrideWith(
+            (ref) => Stream.value(const []),
+          ),
         ],
         child: const RestaurixApp(),
       ),
     );
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Dashboard'), findsWidgets);
+    expect(find.text('Live Orders'), findsWidgets);
     expect(find.text('Admin'), findsOneWidget);
   });
 }

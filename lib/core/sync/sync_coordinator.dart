@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 
 import '../config/env_config.dart';
+import '../config/desktop_features.dart';
 import '../../data/remote/supabase_service.dart';
 
 /// Tracks whether the device has a usable network route for sync attempts.
@@ -70,6 +71,10 @@ class SyncCoordinator {
     }
 
     _wasOffline = !(await _connectivity.isOnline());
+    if (!_wasOffline) {
+      await _triggerSync();
+    }
+
     _connectivitySub = _connectivity.watchOnline().listen((online) async {
       if (online && _wasOffline) {
         await _triggerSync();
@@ -77,7 +82,11 @@ class SyncCoordinator {
       _wasOffline = !online;
     });
 
-    _intervalTimer = Timer.periodic(_interval, (_) async {
+    final interval = DesktopFeatures.hidePosAndDashboard
+        ? const Duration(seconds: 30)
+        : _interval;
+
+    _intervalTimer = Timer.periodic(interval, (_) async {
       if (await _connectivity.isOnline()) {
         await _triggerSync();
       }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import '../../../core/auth/auth_session_cache.dart';
+import '../../../core/sync/realtime_auth_binder.dart';
 import '../../../core/config/env_config.dart';
 import '../../../data/local/device_id_service.dart';
 import '../../../data/local/isar_service.dart';
@@ -67,9 +68,13 @@ final authControllerProvider =
 });
 
 /// Signed-in profile for the rest of the app.
+///
+/// Only valid while [AuthStatus.authenticated]. Callers on gated routes
+/// should rely on the router sending unauthenticated users to `/login` first.
 final currentUserProvider = Provider<AppUser>((ref) {
   final auth = ref.watch(authControllerProvider);
-  if (auth.status == AuthStatus.authenticated && auth.user != null) {
+
+  if (auth.user != null) {
     return auth.user!;
   }
 
@@ -90,6 +95,12 @@ class AuthController extends StateNotifier<AuthState> {
       state = const AuthState.authenticated(AppUser.localDevAdmin);
       return;
     }
+
+    // No Supabase session → login immediately instead of briefly opening the shell.
+    if (supa.Supabase.instance.client.auth.currentSession == null) {
+      state = const AuthState.unauthenticated();
+    }
+
     _listenToAuthChanges();
     bootstrap();
   }
@@ -111,12 +122,14 @@ class AuthController extends StateNotifier<AuthState> {
 
     final cached = await _repository.loadCachedUser();
     if (cached != null) {
+      await RealtimeAuthBinder.applySession();
       state = AuthState.authenticated(cached);
     }
 
     try {
       final remote = await _repository.restoreRemoteSession();
       if (remote != null) {
+        await RealtimeAuthBinder.applySession();
         state = AuthState.authenticated(remote);
         return;
       }
@@ -141,6 +154,7 @@ class AuthController extends StateNotifier<AuthState> {
     state = const AuthState.loading();
     try {
       final user = await _repository.signIn(email: email, password: password);
+      await RealtimeAuthBinder.applySession();
       state = AuthState.authenticated(user);
     } on AuthException catch (error) {
       state = AuthState.unauthenticated(errorMessage: error.message);
@@ -170,6 +184,7 @@ class AuthController extends StateNotifier<AuthState> {
         if (event.event == supa.AuthChangeEvent.tokenRefreshed ||
             event.event == supa.AuthChangeEvent.signedIn) {
           try {
+            await RealtimeAuthBinder.applySession();
             final user = await _repository.restoreRemoteSession();
             if (user != null) {
               await _repository.cacheUser(user);

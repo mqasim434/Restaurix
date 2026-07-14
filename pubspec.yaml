@@ -27,6 +27,10 @@ dependencies:
   windows_printer: ^0.2.1
   fl_chart: 0.69.2
   connectivity_plus: ^7.2.0
+  http: ^1.6.0
+  image: ^4.8.0
+  win32: ^5.15.0
+  ffi: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -40,3 +44,10 @@ flutter:
   uses-material-design: true
   assets:
     - .env.example
+    - assets/certs/gts-root-r1.pem
+    - assets/certs/gts-root-r4.pem
+    - assets/images/bin_omran_logo.png
+    - assets/images/Bin Omran Logo.png
+    - assets/images/restaurix_icon.png
+    - assets/images/restauix icon.png
+    - assets/sounds/

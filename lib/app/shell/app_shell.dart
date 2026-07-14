@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/desktop_features.dart';
 import '../../core/config/env_config.dart';
 import '../../data/remote/supabase_service.dart';
-import '../../core/constants.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/app_logo.dart';
 import '../../domain/models/user_role.dart';
 import '../../features/sync/providers/sync_engine_providers.dart';
 import '../../features/sync/providers/sync_queue_providers.dart';
 import '../../features/auth/providers/auth_providers.dart';
+import '../../features/notifications/providers/notification_providers.dart';
 import '../navigation/navigation_provider.dart';
 
 class AppShell extends ConsumerWidget {
@@ -55,8 +57,10 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final spacing = context.appSpacing;
-    final typography = context.appTypography;
     final navItems = ref.watch(navigationItemsProvider);
+    final mobileAlertCount = ref.watch(
+      unreadMobileOrderNotificationCountProvider,
+    );
     final location = GoRouterState.of(context).uri.path;
 
     return AnimatedContainer(
@@ -70,26 +74,20 @@ class AppSidebar extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            height: spacing.xxl + spacing.sm,
+            height: spacing.xxl + spacing.xl,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: spacing.md),
-              child: Row(
-                children: [
-                  Icon(Icons.restaurant_menu_rounded, color: colors.primary),
-                  if (isExpanded) ...[
-                    SizedBox(width: spacing.sm),
-                    Expanded(
-                      child: Text(
-                        AppConstants.appName,
-                        style: typography.titleMedium.copyWith(
-                          color: colors.onSurface,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing.md,
+                vertical: spacing.sm,
               ),
+              child: isExpanded
+                  ? const Align(
+                      alignment: Alignment.centerLeft,
+                      child: AppLogo(height: 74),
+                    )
+                  : const Center(
+                      child: AppLogo(height: 64, width: 64, fit: BoxFit.cover),
+                    ),
             ),
           ),
           Divider(height: 1, color: colors.divider),
@@ -105,6 +103,10 @@ class AppSidebar extends ConsumerWidget {
                   item: item,
                   isExpanded: isExpanded,
                   isSelected: isSelected,
+                  badgeCount: _badgeCountForNavItem(
+                    item.path,
+                    mobileAlertCount,
+                  ),
                   onTap: () => context.go(item.path),
                 );
               },
@@ -118,10 +120,19 @@ class AppSidebar extends ConsumerWidget {
   }
 
   bool _isSelected(String location, String path) {
-    if (path == '/dashboard') {
+    if (path == '/dashboard' || path == DesktopFeatures.tabletOrdersRoute) {
       return location == path || location == '/';
     }
     return location == path || location.startsWith('$path/');
+  }
+
+  int _badgeCountForNavItem(String path, int mobileAlertCount) {
+    if (DesktopFeatures.hidePosAndDashboard &&
+        path == DesktopFeatures.tabletOrdersRoute) {
+      return mobileAlertCount;
+    }
+    if (path == '/orders') return mobileAlertCount;
+    return 0;
   }
 }
 
@@ -131,12 +142,14 @@ class _SidebarTile extends StatelessWidget {
     required this.isExpanded,
     required this.isSelected,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   final NavItem item;
   final bool isExpanded;
   final bool isSelected;
   final VoidCallback onTap;
+  final int badgeCount;
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +157,12 @@ class _SidebarTile extends StatelessWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
 
-    final background = isSelected ? colors.primaryContainer : colors.transparent;
-    final foreground =
-        isSelected ? colors.onPrimaryContainer : colors.onSurfaceVariant;
+    final background = isSelected
+        ? colors.primaryContainer
+        : colors.transparent;
+    final foreground = isSelected
+        ? colors.onPrimaryContainer
+        : colors.onSurfaceVariant;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -167,7 +183,11 @@ class _SidebarTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(item.icon, color: foreground, size: spacing.lg),
+                _SidebarIconWithBadge(
+                  icon: item.icon,
+                  foreground: foreground,
+                  badgeCount: badgeCount,
+                ),
                 if (isExpanded) ...[
                   SizedBox(width: spacing.sm),
                   Expanded(
@@ -183,6 +203,53 @@ class _SidebarTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SidebarIconWithBadge extends StatelessWidget {
+  const _SidebarIconWithBadge({
+    required this.icon,
+    required this.foreground,
+    required this.badgeCount,
+  });
+
+  final IconData icon;
+  final Color foreground;
+  final int badgeCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.appSpacing;
+    final colors = context.appColors;
+    final typography = context.appTypography;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Icon(icon, color: foreground, size: spacing.lg),
+        if (badgeCount > 0)
+          Positioned(
+            right: -6,
+            top: -6,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing.xs,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: colors.secondary,
+                borderRadius: context.appRadius.fullBorder,
+              ),
+              child: Text(
+                badgeCount > 9 ? '9+' : '$badgeCount',
+                style: typography.labelSmall.copyWith(
+                  color: colors.onSecondary,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -223,7 +290,8 @@ class AppTopBar extends ConsumerWidget {
     final pendingSyncCount = ref.watch(pendingSyncCountProvider);
     final syncState = ref.watch(syncUiStateProvider);
     final isAdmin = user.role == UserRole.admin;
-    final syncEnabled = isAdmin &&
+    final syncEnabled =
+        isAdmin &&
         EnvConfig.isSupabaseConfigured &&
         syncState.runState != SyncRunState.disabled;
 
@@ -379,6 +447,6 @@ class AppTopBar extends ConsumerWidget {
       }
     }
     if (path == '/sync') return 'Sync Status';
-    return 'Restaurix';
+    return 'Bin Omran';
   }
 }

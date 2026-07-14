@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../features/auth/providers/auth_providers.dart';
 import '../../../domain/models/user_role.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../providers/dashboard_providers.dart';
 import 'widgets/dashboard_charts.dart';
 
@@ -20,7 +19,7 @@ class DashboardScreen extends ConsumerWidget {
     final typography = context.appTypography;
     final colors = context.appColors;
     final snapshotAsync = ref.watch(dashboardSnapshotProvider);
-    final currency = NumberFormat.currency(symbol: r'$', decimalDigits: 0);
+    final currency = ref.watch(dashboardMoneyFormatProvider);
     final role = ref.watch(currentUserProvider).role;
     final isSalesman = role == UserRole.salesman;
 
@@ -42,7 +41,7 @@ class DashboardScreen extends ConsumerWidget {
                 Text(
                   isSalesman
                       ? 'Operational overview for today\'s service'
-                      : 'Live overview of sales, kitchen flow, and staff presence',
+                      : 'Live overview of sales, orders, and staff presence',
                   style: typography.bodyMedium.copyWith(
                     color: colors.onSurfaceVariant,
                   ),

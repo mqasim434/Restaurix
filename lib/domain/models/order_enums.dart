@@ -13,6 +13,7 @@ enum PaymentType {
   cash,
   card,
   online,
+  credit,
 }
 
 enum OrderPaymentStatus {
@@ -75,7 +76,10 @@ extension PaymentTypeX on PaymentType {
         PaymentType.cash => 'Cash',
         PaymentType.card => 'Card',
         PaymentType.online => 'Online',
+        PaymentType.credit => 'On Credit',
       };
+
+  bool get isCreditAccount => this == PaymentType.credit;
 }
 
 extension OrderPaymentStatusX on OrderPaymentStatus {

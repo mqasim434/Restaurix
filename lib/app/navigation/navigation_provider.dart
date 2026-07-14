@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/config/desktop_features.dart';
 import '../../domain/models/user_role.dart';
 import '../../features/auth/providers/auth_providers.dart';
 
@@ -22,10 +23,25 @@ class NavItem {
 final navigationItemsProvider = Provider<List<NavItem>>((ref) {
   final role = ref.watch(currentUserProvider).role;
 
-  return switch (role) {
+  final items = switch (role) {
     UserRole.admin => _adminNavItems,
     UserRole.salesman => _salesmanNavItems,
   };
+
+  if (!DesktopFeatures.showPosAndDashboard) {
+    return [
+      const NavItem(
+        label: 'Live Orders',
+        path: DesktopFeatures.tabletOrdersRoute,
+        icon: Icons.view_column_outlined,
+      ),
+      ...items.where(
+        (item) => item.path != '/dashboard' && item.path != '/sales',
+      ),
+    ];
+  }
+
+  return items;
 });
 
 const _salesmanNavItems = [
@@ -33,26 +49,21 @@ const _salesmanNavItems = [
   NavItem(label: 'New Order', path: '/sales', icon: Icons.point_of_sale_outlined),
   NavItem(label: 'Orders', path: '/orders', icon: Icons.receipt_long_outlined),
   NavItem(label: 'Tables', path: '/tables', icon: Icons.table_restaurant_outlined),
-  NavItem(
-    label: 'Kitchen Status',
-    path: '/kitchen',
-    icon: Icons.restaurant_menu_outlined,
-  ),
 ];
 
 const _adminNavItems = [
   NavItem(label: 'Dashboard', path: '/dashboard', icon: Icons.dashboard_outlined),
   NavItem(label: 'Sales (POS)', path: '/sales', icon: Icons.point_of_sale_outlined),
   NavItem(label: 'Orders', path: '/orders', icon: Icons.receipt_long_outlined),
-  NavItem(
-    label: 'Kitchen',
-    path: '/kitchen',
-    icon: Icons.restaurant_menu_outlined,
-  ),
   NavItem(label: 'Products', path: '/products', icon: Icons.inventory_2_outlined),
   NavItem(label: 'Categories', path: '/categories', icon: Icons.category_outlined),
   NavItem(label: 'Deals', path: '/deals', icon: Icons.local_offer_outlined),
   NavItem(label: 'Tables', path: '/tables', icon: Icons.table_restaurant_outlined),
+  NavItem(
+    label: 'Credit Customers',
+    path: '/credit-customers',
+    icon: Icons.account_balance_wallet_outlined,
+  ),
   NavItem(label: 'Employees', path: '/employees', icon: Icons.people_outline_rounded),
   NavItem(
     label: 'Attendance',
@@ -65,7 +76,6 @@ const _adminNavItems = [
     icon: Icons.payments_outlined,
   ),
   NavItem(label: 'Reports', path: '/reports', icon: Icons.bar_chart_rounded),
-  NavItem(label: 'Analytics', path: '/analytics', icon: Icons.insights_outlined),
   NavItem(label: 'Settings', path: '/settings', icon: Icons.settings_outlined),
   NavItem(label: 'Users', path: '/users', icon: Icons.manage_accounts_outlined),
 ];

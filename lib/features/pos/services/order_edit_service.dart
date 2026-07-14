@@ -43,15 +43,6 @@ OrderEditSnapshot buildOrderEditSnapshot({
         name: item.name,
         unitPrice: item.unitPrice,
         variantName: item.variantName,
-        modifiers: [
-          for (final modifier in item.modifiers)
-            CartModifier(
-              id: modifier.modifierId ?? const Uuid().v4(),
-              groupId: '',
-              name: modifier.name,
-              priceDelta: modifier.priceDelta,
-            ),
-        ],
         quantity: item.quantity,
       ),
     );

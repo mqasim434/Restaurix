@@ -17,6 +17,10 @@ void main() {
 
     test('salesman can access permitted routes and nested POS paths', () {
       expect(
+        RoleRouteAccess.isAllowed('/tablet-orders', UserRole.salesman),
+        isTrue,
+      );
+      expect(
         RoleRouteAccess.isAllowed('/dashboard', UserRole.salesman),
         isTrue,
       );
@@ -26,10 +30,6 @@ void main() {
       );
       expect(
         RoleRouteAccess.isAllowed('/orders/abc-123', UserRole.salesman),
-        isTrue,
-      );
-      expect(
-        RoleRouteAccess.isAllowed('/kitchen', UserRole.salesman),
         isTrue,
       );
     });

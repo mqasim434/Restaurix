@@ -14,6 +14,7 @@ import '../../../domain/models/deal.dart';
 import '../../../domain/models/product.dart';
 import '../../categories/providers/category_providers.dart';
 import '../../products/providers/product_providers.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../providers/deal_providers.dart';
 import 'deal_form_dialog.dart';
 
@@ -334,6 +335,7 @@ class _DealRow extends ConsumerWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final items = ref.watch(dealItemsProvider(deal.id)).valueOrNull ?? [];
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     final effective = deal.isEffectivelyAvailable(
       items: items,
@@ -390,7 +392,7 @@ class _DealRow extends ConsumerWidget {
           ),
           Expanded(
             child: Text(
-              formatDealPrice(deal.price),
+              formatMoney(deal.price),
               style: typography.bodyMedium.copyWith(color: colors.onSurface),
             ),
           ),

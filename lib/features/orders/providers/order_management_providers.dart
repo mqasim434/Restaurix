@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/date_range_utils.dart';
 import '../../../features/auth/providers/auth_providers.dart';
 import '../../../data/local/device_id_service.dart';
 import '../../../data/local/isar_service.dart';
@@ -16,6 +17,81 @@ final orderRepositoryProvider = Provider<OrderRepository>((ref) {
 
 final orderListProvider = StreamProvider<List<Order>>((ref) {
   return ref.watch(orderRepositoryProvider).watchAll();
+});
+
+/// Date filter for the Orders list (defaults to today).
+class OrdersListFilter {
+  OrdersListFilter({
+    this.preset = SalesDateRangePreset.today,
+    DateTime? selectedDay,
+    this.customStart,
+    this.customEnd,
+  }) : selectedDay = startOfLocalDay(selectedDay ?? DateTime.now());
+
+  final SalesDateRangePreset preset;
+
+  /// Day shown when [preset] is [SalesDateRangePreset.today] (supports prev/next).
+  final DateTime selectedDay;
+  final DateTime? customStart;
+  final DateTime? customEnd;
+
+  SalesDateRange resolve({DateTime? now}) {
+    final anchor = now ?? DateTime.now();
+    return switch (preset) {
+      SalesDateRangePreset.today => SalesDateRange(
+          preset: SalesDateRangePreset.today,
+          startInclusive: startOfLocalDay(selectedDay),
+          endExclusive: endOfLocalDayExclusive(selectedDay),
+        ),
+      SalesDateRangePreset.thisWeek ||
+      SalesDateRangePreset.thisMonth =>
+        resolveSalesDateRange(preset: preset, now: anchor),
+      SalesDateRangePreset.custom => resolveSalesDateRange(
+          preset: SalesDateRangePreset.custom,
+          customStart: customStart,
+          customEnd: customEnd,
+          now: anchor,
+        ),
+    };
+  }
+
+  bool get isBrowsingToday {
+    if (preset != SalesDateRangePreset.today) return false;
+    return startOfLocalDay(selectedDay) == startOfLocalDay(DateTime.now());
+  }
+
+  bool get canGoNextDay {
+    if (preset != SalesDateRangePreset.today) return false;
+    return startOfLocalDay(selectedDay).isBefore(startOfLocalDay(DateTime.now()));
+  }
+
+  OrdersListFilter copyWith({
+    SalesDateRangePreset? preset,
+    DateTime? selectedDay,
+    DateTime? customStart,
+    DateTime? customEnd,
+    bool clearCustom = false,
+  }) {
+    return OrdersListFilter(
+      preset: preset ?? this.preset,
+      selectedDay: selectedDay ?? this.selectedDay,
+      customStart: clearCustom ? null : (customStart ?? this.customStart),
+      customEnd: clearCustom ? null : (customEnd ?? this.customEnd),
+    );
+  }
+}
+
+final ordersListFilterProvider = StateProvider<OrdersListFilter>((ref) {
+  return OrdersListFilter();
+});
+
+final filteredOrderListProvider = Provider<AsyncValue<List<Order>>>((ref) {
+  final filter = ref.watch(ordersListFilterProvider);
+  final range = filter.resolve();
+  return ref.watch(orderListProvider).whenData(
+        (orders) =>
+            orders.where((order) => range.contains(order.createdAt)).toList(),
+      );
 });
 
 final orderDetailProvider =

@@ -2,166 +2,153 @@ import 'dart:typed_data';
 
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 
+import '../../../core/printing/esc_pos_commands.dart';
+import '../../../core/printing/esc_pos_logo.dart';
+import '../../../core/printing/esc_pos_money_format.dart';
+import '../../../core/printing/esc_pos_text_sanitizer.dart';
 import 'receipt_data.dart';
-import 'receipt_preview.dart';
 
-/// Builds ESC/POS byte payloads for customer receipts.
+/// Builds ESC/POS byte payloads for customer receipts (80 mm).
 abstract final class ReceiptTemplate {
+  static String _t(String value) => EscPosTextSanitizer.sanitize(value);
+
   static Future<Uint8List> buildBytes(CustomerReceiptData receipt) async {
+    String money(double amount) =>
+        EscPosMoneyFormat.format(amount, receipt.currencyCode);
+
     final profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm80, profile);
-    var bytes = <int>[];
+    var bytes = <int>[]
+      ..addAll(EscPosCommands.init(generator));
 
     if (receipt.isReprint) {
-      bytes += generator.text(
+      bytes += EscPosCommands.centered(
+        generator,
         '*** REPRINT ***',
-        styles: const PosStyles(
-          align: PosAlign.center,
-          bold: true,
-          height: PosTextSize.size2,
-          width: PosTextSize.size2,
-        ),
-        linesAfter: 1,
+        bold: true,
       );
     }
 
-    bytes += generator.text(
-      receipt.businessName,
-      styles: const PosStyles(
-        align: PosAlign.center,
+    final logo = await EscPosLogo.loadForThermal();
+    if (logo != null) {
+      bytes += EscPosLogo.bytes(generator, logo);
+      bytes += generator.feed(1);
+    } else {
+      bytes += EscPosCommands.centered(
+        generator,
+        _t(receipt.businessName),
         bold: true,
-        height: PosTextSize.size2,
-        width: PosTextSize.size2,
-      ),
-    );
+        large: true,
+        header: true,
+      );
+    }
+
     if (receipt.businessAddress != null &&
         receipt.businessAddress!.trim().isNotEmpty) {
-      bytes += generator.text(
-        receipt.businessAddress!.trim(),
-        styles: const PosStyles(align: PosAlign.center),
+      bytes += EscPosCommands.centered(
+        generator,
+        _t(receipt.businessAddress!.trim()),
       );
     }
+
     if (receipt.receiptHeaderText != null &&
         receipt.receiptHeaderText!.trim().isNotEmpty) {
-      bytes += generator.text(
-        receipt.receiptHeaderText!.trim(),
-        styles: const PosStyles(align: PosAlign.center),
-        linesAfter: 1,
+      bytes += EscPosCommands.centered(
+        generator,
+        _t(receipt.receiptHeaderText!.trim()),
       );
     }
-    bytes += generator.text(
-      'RECEIPT',
-      styles: const PosStyles(align: PosAlign.center, bold: true),
-      linesAfter: 1,
+
+    bytes += EscPosCommands.divider(generator);
+    bytes += EscPosCommands.centered(generator, 'RECEIPT', bold: true);
+    bytes += EscPosCommands.divider(generator);
+
+    bytes += EscPosCommands.fieldRow(
+      generator,
+      'Order',
+      _t(receipt.orderNumber),
     );
-    bytes += generator.text(
-      receipt.orderNumber,
-      styles: const PosStyles(bold: true),
+    bytes += EscPosCommands.fieldRow(
+      generator,
+      'Date',
+      _timestamp(receipt.placedAt),
     );
-    bytes += generator.text(_timestamp(receipt.placedAt));
-    bytes += generator.text(
-      '${receipt.orderTypeLabel} · ${receipt.contextLabel}',
-      linesAfter: 1,
+    bytes += EscPosCommands.leftLine(
+      generator,
+      '${_t(receipt.orderTypeLabel)}  ${_t(receipt.contextLabel)}',
     );
-    bytes += generator.hr();
+    bytes += EscPosCommands.divider(generator);
 
     for (final line in receipt.lines) {
       final label = line.variantName == null || line.variantName!.isEmpty
-          ? line.name
-          : '${line.name} (${line.variantName})';
+          ? _t(line.name)
+          : _t('${line.name} (${line.variantName})');
 
-      bytes += generator.row([
-        PosColumn(
-          text: '${line.quantity}x',
-          width: 2,
-          styles: const PosStyles(bold: true),
-        ),
-        PosColumn(text: label, width: 6),
-        PosColumn(
-          text: formatReceiptMoney(line.lineTotal),
-          width: 4,
-          styles: const PosStyles(align: PosAlign.right),
-        ),
-      ]);
-
-      bytes += generator.text(
-        '  @ ${formatReceiptMoney(line.unitPrice)} each',
-        styles: const PosStyles(fontType: PosFontType.fontB),
+      bytes += EscPosCommands.priceRow(
+        generator,
+        '${line.quantity}x $label',
+        money(line.lineTotal),
       );
-
-      for (final modifier in line.modifiers) {
-        final suffix = modifier.priceDelta == 0
-            ? ''
-            : ' ${formatReceiptMoney(modifier.priceDelta)}';
-        bytes += generator.text('  + ${modifier.name}$suffix');
-      }
+      bytes += EscPosCommands.detailLine(
+        generator,
+        '   ${money(line.unitPrice)} each',
+      );
     }
 
-    bytes += generator.hr();
-    bytes += generator.row([
-      PosColumn(text: 'Subtotal', width: 8),
-      PosColumn(
-        text: formatReceiptMoney(receipt.subtotal),
-        width: 4,
-        styles: const PosStyles(align: PosAlign.right),
-      ),
-    ]);
+    bytes += EscPosCommands.divider(generator);
+    bytes += EscPosCommands.priceRow(
+      generator,
+      'Subtotal',
+      money(receipt.subtotal),
+      bold: false,
+    );
 
     if (receipt.itemDiscountTotal > 0) {
-      bytes += generator.row([
-        PosColumn(text: 'Line discounts', width: 8),
-        PosColumn(
-          text: '-${formatReceiptMoney(receipt.itemDiscountTotal)}',
-          width: 4,
-          styles: const PosStyles(align: PosAlign.right),
+      bytes += EscPosCommands.priceRow(
+        generator,
+        'Discounts',
+        EscPosMoneyFormat.formatDiscount(
+          receipt.itemDiscountTotal,
+          receipt.currencyCode,
         ),
-      ]);
+        bold: false,
+      );
     }
 
     if (receipt.orderDiscountTotal > 0) {
-      bytes += generator.row([
-        PosColumn(text: 'Order discount', width: 8),
-        PosColumn(
-          text: '-${formatReceiptMoney(receipt.orderDiscountTotal)}',
-          width: 4,
-          styles: const PosStyles(align: PosAlign.right),
+      bytes += EscPosCommands.priceRow(
+        generator,
+        'Order disc.',
+        EscPosMoneyFormat.formatDiscount(
+          receipt.orderDiscountTotal,
+          receipt.currencyCode,
         ),
-      ]);
+        bold: false,
+      );
     }
 
-    bytes += generator.row([
-      PosColumn(
-        text: 'TOTAL',
-        width: 8,
-        styles: const PosStyles(
-          bold: true,
-          height: PosTextSize.size2,
-          width: PosTextSize.size2,
-        ),
-      ),
-      PosColumn(
-        text: formatReceiptMoney(receipt.total),
-        width: 4,
-        styles: const PosStyles(
-          align: PosAlign.right,
-          bold: true,
-          height: PosTextSize.size2,
-          width: PosTextSize.size2,
-        ),
-      ),
-    ]);
-
-    bytes += generator.feed(1);
-    bytes += generator.text('Payment: ${receipt.paymentTypeLabel}');
-    bytes += generator.text('Status: ${receipt.paymentStatusLabel}');
-    bytes += generator.feed(2);
-    bytes += generator.text(
-      receipt.receiptFooterText?.trim().isNotEmpty == true
-          ? receipt.receiptFooterText!.trim()
-          : 'Thank you!',
-      styles: const PosStyles(align: PosAlign.center),
+    bytes += EscPosCommands.priceRow(
+      generator,
+      'TOTAL',
+      money(receipt.total),
     );
-    bytes += generator.feed(2);
+    bytes += EscPosCommands.divider(generator);
+    bytes += EscPosCommands.fieldRow(
+      generator,
+      'Payment',
+      _t(receipt.paymentTypeLabel),
+    );
+    bytes += EscPosCommands.fieldRow(
+      generator,
+      'Status',
+      _t(receipt.paymentStatusLabel),
+    );
+
+    final footer = receipt.receiptFooterText?.trim().isNotEmpty == true
+        ? _t(receipt.receiptFooterText!.trim())
+        : 'Thank you!';
+    bytes += EscPosCommands.centered(generator, footer);
+
     bytes += generator.cut();
 
     return Uint8List.fromList(bytes);
@@ -169,10 +156,10 @@ abstract final class ReceiptTemplate {
 
   static String _timestamp(DateTime value) {
     final local = value.toLocal();
-    return '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')} '
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '$day/$month/${local.year} $hour:$minute';
   }
 }

@@ -5,6 +5,7 @@ import '../../../data/repositories/app_setting_repository.dart';
 import '../../../data/repositories/order_repository.dart';
 import '../../../domain/models/order_enums.dart';
 import '../kitchen_ticket/esc_pos_transport_router.dart';
+import '../system_printer.dart';
 import 'receipt_builder.dart';
 import 'receipt_data.dart';
 import 'receipt_template.dart';
@@ -28,11 +29,12 @@ class ReceiptService {
   Future<ReceiptPrintResult> printOrder({
     required String orderId,
     required bool isReprint,
+    bool forPlacement = false,
   }) async {
     final order = await _orders.findById(orderId);
     if (order == null) {
       return const ReceiptPrintResult(
-        warnings: ['Order not found — receipt not printed'],
+        warnings: ['Order not found - receipt not printed'],
       );
     }
 
@@ -42,22 +44,15 @@ class ReceiptService {
       );
     }
 
-    if (!isReprint && !ReceiptPrintPolicy.shouldAutoPrint(order)) {
+    if (!isReprint &&
+        !forPlacement &&
+        !ReceiptPrintPolicy.shouldAutoPrint(order)) {
       return const ReceiptPrintResult(
         warnings: ['Receipt prints when the order is marked paid'],
       );
     }
 
     final appSettings = await _settings.loadSettings();
-    final printerTarget = appSettings.resolvedReceiptPrinterTarget();
-    if (printerTarget == null || printerTarget.trim().isEmpty) {
-      return const ReceiptPrintResult(
-        warnings: [
-          'No receipt printer configured. Set one in Settings → Printers.',
-        ],
-      );
-    }
-
     final items = await _orders.findItemsByOrderId(orderId);
     final tableLabels = await _loadTableLabels([order.tableId]);
 
@@ -68,13 +63,17 @@ class ReceiptService {
       businessAddress: appSettings.businessAddress,
       receiptHeaderText: appSettings.receiptHeaderText,
       receiptFooterText: appSettings.receiptFooterText,
+      currencyCode: appSettings.currencyCode,
       tableLabelsById: tableLabels,
       isReprint: isReprint,
     );
 
     try {
       final bytes = await ReceiptTemplate.buildBytes(receipt);
-      await _transport.send(target: printerTarget.trim(), bytes: bytes);
+      await _transport.send(
+        target: SystemPrinter.defaultTarget,
+        bytes: bytes,
+      );
       return const ReceiptPrintResult(printed: true);
     } catch (error) {
       return ReceiptPrintResult(

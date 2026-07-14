@@ -8,7 +8,6 @@ class DealItem implements SyncableEntity {
     required this.productId,
     this.variantId,
     required this.quantity,
-    required this.allowModifiers,
     required this.createdAt,
     required this.updatedAt,
     required this.isSynced,
@@ -24,7 +23,6 @@ class DealItem implements SyncableEntity {
   final String productId;
   final String? variantId;
   final int quantity;
-  final bool allowModifiers;
 
   @override
   final DateTime createdAt;
@@ -46,7 +44,6 @@ class DealItem implements SyncableEntity {
     String? variantId,
     bool clearVariantId = false,
     int? quantity,
-    bool? allowModifiers,
     DateTime? updatedAt,
     bool? isSynced,
     DateTime? deletedAt,
@@ -60,7 +57,6 @@ class DealItem implements SyncableEntity {
       productId: productId ?? this.productId,
       variantId: clearVariantId ? null : (variantId ?? this.variantId),
       quantity: quantity ?? this.quantity,
-      allowModifiers: allowModifiers ?? this.allowModifiers,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,

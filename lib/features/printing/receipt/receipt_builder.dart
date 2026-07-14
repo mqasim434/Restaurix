@@ -1,3 +1,4 @@
+import '../../../domain/models/app_currency.dart';
 import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
 import '../../../domain/models/order_item.dart';
@@ -13,6 +14,7 @@ abstract final class ReceiptBuilder {
     String? businessAddress,
     String? receiptHeaderText,
     String? receiptFooterText,
+    String currencyCode = AppCurrency.defaultCode,
     required Map<String, String> tableLabelsById,
     bool isReprint = false,
   }) {
@@ -32,9 +34,10 @@ abstract final class ReceiptBuilder {
       itemDiscountTotal: order.itemDiscountTotal,
       orderDiscountTotal: order.orderDiscountTotal,
       total: order.total,
-      paymentTypeLabel: order.paymentType?.label ?? '—',
+      paymentTypeLabel: order.paymentType?.label ?? 'Not set',
       paymentStatusLabel: order.paymentStatus.label,
       isReprint: isReprint,
+      currencyCode: AppCurrency.normalizeCode(currencyCode),
     );
   }
 
@@ -58,13 +61,6 @@ abstract final class ReceiptBuilder {
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       lineTotal: item.lineTotal,
-      modifiers: [
-        for (final modifier in item.modifiers)
-          ReceiptModifierLine(
-            name: modifier.name,
-            priceDelta: modifier.priceDelta,
-          ),
-      ],
     );
   }
 }
@@ -74,5 +70,10 @@ abstract final class ReceiptPrintPolicy {
   static bool shouldAutoPrint(Order order) {
     if (order.status == OrderStatus.cancelled) return false;
     return order.paymentStatus.isSettled;
+  }
+
+  /// Customer copy prints on every new order placement.
+  static bool shouldPrintOnPlacement(Order order) {
+    return order.status != OrderStatus.cancelled;
   }
 }

@@ -148,7 +148,6 @@ class DealRepository {
     required String deviceId,
     String? variantId,
     int quantity = 1,
-    bool allowModifiers = false,
   }) async {
     final record = DealItemIsar.create(
       dealId: dealId,
@@ -156,7 +155,6 @@ class DealRepository {
       deviceId: deviceId,
       variantId: variantId,
       quantity: quantity,
-      allowModifiers: allowModifiers,
     );
 
     await _isar.writeTxn(() async {

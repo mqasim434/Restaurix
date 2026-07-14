@@ -10,7 +10,7 @@ import '../../../core/widgets/app_snackbar.dart';
 import '../../../data/repositories/order_repository.dart';
 import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
-import '../presentation/pos_cart_panel.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../providers/cart_providers.dart';
 import '../providers/checkout_providers.dart';
 import '../providers/discount_providers.dart';
@@ -19,7 +19,6 @@ import '../providers/order_edit_provider.dart';
 import '../../printing/providers/kitchen_ticket_providers.dart';
 import '../../printing/providers/receipt_providers.dart';
 import '../../printing/kitchen_ticket/kitchen_ticket_feedback.dart';
-import '../../printing/receipt/receipt_builder.dart';
 import '../../printing/receipt/receipt_feedback.dart';
 
 class PosCheckoutScreen extends ConsumerStatefulWidget {
@@ -63,6 +62,7 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
     final items = ref.watch(cartProvider);
     final draft = ref.watch(checkoutProvider);
     final pricing = ref.watch(cartPricingProvider);
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     if (items.isEmpty) {
       return Center(
@@ -136,21 +136,11 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
                           _SummaryRow(
                             label:
                                 '${item.quantity}x ${item.name}${item.variantName != null ? ' (${item.variantName})' : ''}',
-                            value: formatPosPrice(
+                            value: formatMoney(
                               pricing.linePricing[item.lineId]?.netTotal ??
                                   item.lineTotal,
                             ),
                           ),
-                          if (item.modifiers.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(bottom: spacing.xs),
-                              child: Text(
-                                item.modifiers.map((m) => m.name).join(', '),
-                                style: typography.bodySmall.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
                         ],
                       ],
                     ),
@@ -259,22 +249,22 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
                 children: [
                   _SummaryRow(
                     label: 'Subtotal',
-                    value: formatPosPrice(pricing.subtotal),
+                    value: formatMoney(pricing.subtotal),
                   ),
                   if (pricing.lineDiscountTotal > 0)
                     _SummaryRow(
                       label: 'Line discounts',
-                      value: '-${formatPosPrice(pricing.lineDiscountTotal)}',
+                      value: '-${formatMoney(pricing.lineDiscountTotal)}',
                     ),
                   if (pricing.orderDiscountTotal > 0)
                     _SummaryRow(
                       label: 'Order discount',
-                      value: '-${formatPosPrice(pricing.orderDiscountTotal)}',
+                      value: '-${formatMoney(pricing.orderDiscountTotal)}',
                     ),
                   Divider(height: spacing.lg, color: colors.divider),
                   _SummaryRow(
                     label: 'Total',
-                    value: formatPosPrice(pricing.total),
+                    value: formatMoney(pricing.total),
                     emphasized: true,
                   ),
                   SizedBox(height: spacing.md),
@@ -362,10 +352,7 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
 
       if (editingOrderId == null) {
         final orderId = order.id;
-        unawaited(_printKitchenTicket(orderId));
-        if (ReceiptPrintPolicy.shouldAutoPrint(order)) {
-          unawaited(_printReceipt(orderId));
-        }
+        unawaited(_printOrderSlips(orderId));
       }
 
       if (!context.mounted) return;
@@ -383,7 +370,12 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
     }
   }
 
-  Future<void> _printKitchenTicket(String orderId) async {
+  Future<void> _printOrderSlips(String orderId) async {
+    await _printKitchenCopy(orderId);
+    await _printCustomerReceipt(orderId);
+  }
+
+  Future<void> _printKitchenCopy(String orderId) async {
     try {
       final result = await ref
           .read(kitchenTicketPrintControllerProvider)
@@ -399,11 +391,11 @@ class _PosCheckoutScreenState extends ConsumerState<PosCheckoutScreen> {
     }
   }
 
-  Future<void> _printReceipt(String orderId) async {
+  Future<void> _printCustomerReceipt(String orderId) async {
     try {
       final result = await ref
           .read(receiptPrintControllerProvider)
-          .printOrder(orderId: orderId, isReprint: false);
+          .printOrder(orderId: orderId, isReprint: false, forPlacement: true);
       if (!mounted) return;
       showReceiptPrintFeedback(context, result);
     } catch (error) {

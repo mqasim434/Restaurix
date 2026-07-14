@@ -1,4 +1,3 @@
-import '../../../domain/services/kitchen_status_timestamps.dart';
 import '../../../core/sync/sync_action.dart';
 import '../../../domain/models/discount.dart';
 import '../../../domain/models/order.dart';
@@ -34,6 +33,7 @@ Order orderFromIsar(OrderIsar record) {
     orderDiscountValue: record.orderDiscountValue,
     orderDiscountReason: record.orderDiscountReason,
     promisedPrepMinutes: record.promisedPrepMinutes,
+    creditCustomerId: record.creditCustomerId,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -74,6 +74,7 @@ void applyOrderFieldsToIsar({
     ..orderDiscountValue = order.orderDiscountValue
     ..orderDiscountReason = order.orderDiscountReason
     ..promisedPrepMinutes = order.promisedPrepMinutes
+    ..creditCustomerId = order.creditCustomerId
     ..createdAt = order.createdAt
     ..updatedAt = order.updatedAt;
 }
@@ -103,14 +104,6 @@ OrderItem orderItemFromIsar(OrderItemIsar record) {
     unitPrice: record.unitPrice,
     quantity: record.quantity,
     lineTotal: record.lineTotal,
-    modifiers: [
-      for (final modifier in record.modifiers)
-        OrderItemModifier(
-          modifierId: modifier.modifierId,
-          name: modifier.name,
-          priceDelta: modifier.priceDelta,
-        ),
-    ],
     appliedDiscounts: [
       for (final discount in record.appliedDiscounts)
         OrderLineDiscount(
@@ -127,12 +120,11 @@ OrderItem orderItemFromIsar(OrderItemIsar record) {
     kitchenStatusChangedAt:
         record.kitchenStatusChangedAt ?? record.createdAt,
     kitchenReceivedAt: record.kitchenReceivedAt ?? record.createdAt,
-    kitchenReadyAt: KitchenStatusTimestamps.resolveReadyAt(
-      status: record.kitchenStatusEnum,
-      kitchenStatusChangedAt:
-          record.kitchenStatusChangedAt ?? record.createdAt,
-      kitchenReadyAt: record.kitchenReadyAt,
-    ),
+    kitchenReadyAt: record.kitchenReadyAt ??
+        (record.kitchenStatusEnum == KitchenStatus.ready ||
+                record.kitchenStatusEnum == KitchenStatus.served
+            ? (record.kitchenStatusChangedAt ?? record.createdAt)
+            : null),
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -158,13 +150,6 @@ OrderItemIsar orderItemToIsar({
     ..unitPrice = item.unitPrice
     ..quantity = item.quantity
     ..lineTotal = item.lineTotal
-    ..modifiers = [
-      for (final modifier in item.modifiers)
-        (OrderItemModifierEmbedded()
-          ..modifierId = modifier.modifierId
-          ..name = modifier.name
-          ..priceDelta = modifier.priceDelta),
-    ]
     ..appliedDiscounts = [
       for (final discount in item.appliedDiscounts)
         (OrderLineDiscountEmbedded()

@@ -13,7 +13,6 @@ class Product implements SyncableEntity {
     required this.isAvailable,
     required this.kitchenCategory,
     this.printerId,
-    this.modifierGroupIds = const [],
     this.estimatedPrepMinutes = AppConstants.defaultProductPrepMinutes,
     required this.createdAt,
     required this.updatedAt,
@@ -35,7 +34,6 @@ class Product implements SyncableEntity {
   final bool isAvailable;
   final String kitchenCategory;
   final String? printerId;
-  final List<String> modifierGroupIds;
   final int estimatedPrepMinutes;
 
   @override
@@ -71,7 +69,6 @@ class Product implements SyncableEntity {
     String? kitchenCategory,
     String? printerId,
     bool clearPrinterId = false,
-    List<String>? modifierGroupIds,
     int? estimatedPrepMinutes,
     DateTime? updatedAt,
     bool? isSynced,
@@ -90,7 +87,6 @@ class Product implements SyncableEntity {
       isAvailable: isAvailable ?? this.isAvailable,
       kitchenCategory: kitchenCategory ?? this.kitchenCategory,
       printerId: clearPrinterId ? null : (printerId ?? this.printerId),
-      modifierGroupIds: modifierGroupIds ?? this.modifierGroupIds,
       estimatedPrepMinutes:
           estimatedPrepMinutes ?? this.estimatedPrepMinutes,
       createdAt: createdAt,

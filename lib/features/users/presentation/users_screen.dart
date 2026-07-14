@@ -153,8 +153,8 @@ class _CreateUserDialogState extends ConsumerState<_CreateUserDialog> {
     return AppDialog(
       title: 'Create login user',
       confirmLabel: _submitting ? 'Creating...' : 'Create',
+      closeOnConfirm: false,
       onConfirm: _submitting ? null : _submit,
-      onCancel: _submitting ? null : () => Navigator.of(context).pop(),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

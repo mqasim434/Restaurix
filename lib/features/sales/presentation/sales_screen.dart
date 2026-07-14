@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../../core/format/money_format.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/date_range_utils.dart';
 import '../../../core/widgets/app_button.dart';
@@ -11,6 +11,7 @@ import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../domain/models/order_enums.dart';
 import '../../../domain/models/sales_analytics.dart';
 import '../../reports/providers/reports_providers.dart';
+import '../../settings/providers/currency_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SalesScreen extends ConsumerStatefulWidget {
@@ -100,14 +101,16 @@ class _SalesScreenState extends ConsumerState<SalesScreen>
                   );
                 }
 
+                final formatMoney = ref.watch(formatMoneyProvider);
+
                 return TabBarView(
                   controller: _tabController,
                   children: [
-                    _OverallTab(summary: snapshot.overall),
-                    _ProductSalesTab(rows: snapshot.products),
-                    _CategorySalesTab(rows: snapshot.categories),
-                    _PaymentMethodTab(rows: snapshot.paymentMethods),
-                    _EmployeeSalesTab(rows: snapshot.employees),
+                    _OverallTab(summary: snapshot.overall, formatMoney: formatMoney),
+                    _ProductSalesTab(rows: snapshot.products, formatMoney: formatMoney),
+                    _CategorySalesTab(rows: snapshot.categories, formatMoney: formatMoney),
+                    _PaymentMethodTab(rows: snapshot.paymentMethods, formatMoney: formatMoney),
+                    _EmployeeSalesTab(rows: snapshot.employees, formatMoney: formatMoney),
                   ],
                 );
               },
@@ -230,9 +233,10 @@ class _RangeChip extends StatelessWidget {
 }
 
 class _OverallTab extends StatelessWidget {
-  const _OverallTab({required this.summary});
+  const _OverallTab({required this.summary, required this.formatMoney});
 
   final OverallSalesSummary summary;
+  final MoneyFormatter formatMoney;
 
   @override
   Widget build(BuildContext context) {
@@ -246,17 +250,17 @@ class _OverallTab extends StatelessWidget {
           children: [
             _StatCard(
               title: 'Net revenue',
-              value: _formatCurrency(summary.netRevenue),
+              value: formatMoney(summary.netRevenue),
               subtitle: 'After discounts',
             ),
             _StatCard(
               title: 'Gross sales',
-              value: _formatCurrency(summary.grossRevenue),
+              value: formatMoney(summary.grossRevenue),
               subtitle: 'Before discounts',
             ),
             _StatCard(
               title: 'Discounts given',
-              value: _formatCurrency(summary.totalDiscounts),
+              value: formatMoney(summary.totalDiscounts),
             ),
             _StatCard(
               title: 'Orders',
@@ -264,7 +268,7 @@ class _OverallTab extends StatelessWidget {
             ),
             _StatCard(
               title: 'Average order',
-              value: _formatCurrency(summary.averageOrderValue),
+              value: formatMoney(summary.averageOrderValue),
             ),
             _StatCard(
               title: 'Cancelled',
@@ -305,7 +309,7 @@ class _OverallTab extends StatelessWidget {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.netRevenue),
+                  formatMoney(row.netRevenue),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -314,7 +318,7 @@ class _OverallTab extends StatelessWidget {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.grossRevenue),
+                  formatMoney(row.grossRevenue),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -377,9 +381,10 @@ class _StatCard extends StatelessWidget {
 enum _ProductSortColumn { quantity, revenue }
 
 class _ProductSalesTab extends StatefulWidget {
-  const _ProductSalesTab({required this.rows});
+  const _ProductSalesTab({required this.rows, required this.formatMoney});
 
   final List<ProductSalesRow> rows;
+  final MoneyFormatter formatMoney;
 
   @override
   State<_ProductSalesTab> createState() => _ProductSalesTabState();
@@ -459,7 +464,7 @@ class _ProductSalesTabState extends State<_ProductSalesTab> {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.revenue),
+                  widget.formatMoney(row.revenue),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -474,9 +479,10 @@ class _ProductSalesTabState extends State<_ProductSalesTab> {
 }
 
 class _CategorySalesTab extends StatelessWidget {
-  const _CategorySalesTab({required this.rows});
+  const _CategorySalesTab({required this.rows, required this.formatMoney});
 
   final List<CategorySalesRow> rows;
+  final MoneyFormatter formatMoney;
 
   @override
   Widget build(BuildContext context) {
@@ -498,7 +504,7 @@ class _CategorySalesTab extends StatelessWidget {
           flex: 2,
           alignment: Alignment.centerRight,
           cellBuilder: (_, row) => Text(
-            _formatCurrency(row.revenue),
+            formatMoney(row.revenue),
             textAlign: TextAlign.end,
           ),
         ),
@@ -510,9 +516,10 @@ class _CategorySalesTab extends StatelessWidget {
 }
 
 class _PaymentMethodTab extends StatelessWidget {
-  const _PaymentMethodTab({required this.rows});
+  const _PaymentMethodTab({required this.rows, required this.formatMoney});
 
   final List<PaymentMethodSalesRow> rows;
+  final MoneyFormatter formatMoney;
 
   @override
   Widget build(BuildContext context) {
@@ -534,7 +541,7 @@ class _PaymentMethodTab extends StatelessWidget {
           flex: 2,
           alignment: Alignment.centerRight,
           cellBuilder: (_, row) => Text(
-            _formatCurrency(row.netRevenue),
+            formatMoney(row.netRevenue),
             textAlign: TextAlign.end,
           ),
         ),
@@ -546,9 +553,10 @@ class _PaymentMethodTab extends StatelessWidget {
 }
 
 class _EmployeeSalesTab extends StatelessWidget {
-  const _EmployeeSalesTab({required this.rows});
+  const _EmployeeSalesTab({required this.rows, required this.formatMoney});
 
   final List<EmployeeSalesRow> rows;
+  final MoneyFormatter formatMoney;
 
   @override
   Widget build(BuildContext context) {
@@ -583,7 +591,7 @@ class _EmployeeSalesTab extends StatelessWidget {
                 flex: 2,
                 alignment: Alignment.centerRight,
                 cellBuilder: (_, row) => Text(
-                  _formatCurrency(row.netRevenue),
+                  formatMoney(row.netRevenue),
                   textAlign: TextAlign.end,
                 ),
               ),
@@ -595,8 +603,4 @@ class _EmployeeSalesTab extends StatelessWidget {
       ],
     );
   }
-}
-
-String _formatCurrency(double amount) {
-  return NumberFormat.simpleCurrency().format(amount);
 }

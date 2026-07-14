@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/date_range_utils.dart';
@@ -12,6 +11,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../domain/models/employee.dart';
 import '../../../../domain/models/salary_calculation.dart';
 import '../../../reports/presentation/widgets/date_range_selector_bar.dart';
+import '../../../settings/providers/currency_providers.dart';
 import '../../slips/providers/salary_slip_providers.dart';
 import '../providers/salary_calculation_providers.dart';
 
@@ -133,7 +133,7 @@ class _SalaryPreviewContent extends ConsumerWidget {
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final colors = context.appColors;
-    final currency = NumberFormat.currency(symbol: r'$', decimalDigits: 2);
+    final currency = ref.watch(moneyNumberFormatProvider);
 
     if (result.employees.isEmpty) {
       return const AppEmptyState(

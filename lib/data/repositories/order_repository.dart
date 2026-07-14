@@ -10,14 +10,18 @@ import '../../domain/models/order_item.dart';
 import '../../domain/models/pos_checkout_draft.dart';
 import '../../domain/models/table_status.dart';
 import '../../domain/models/user_role.dart';
+import '../../domain/services/credit_ledger_service.dart';
 import '../../domain/services/order_lifecycle.dart';
 import '../../domain/services/order_placement.dart';
+import '../../domain/services/tablet_order_detection.dart';
 import '../../features/pos/services/discount_calculator.dart';
 import '../local/collections/order_isar.dart';
 import '../local/collections/product_isar.dart';
 import '../local/collections/restaurant_table_isar.dart';
 import '../local/mappers/order_mapper.dart';
+import '../../data/repositories/credit_transaction_repository.dart';
 import '../services/order_item_builder.dart';
+import '../services/order_number_service.dart';
 
 class OrderPlacementException implements Exception {
   OrderPlacementException(this.message);
@@ -39,6 +43,7 @@ class PlaceOrderInput {
     required this.createdByUserId,
     required this.deviceId,
     this.notes,
+    this.creditCustomerId,
   });
 
   final PosCheckoutDraft checkout;
@@ -50,6 +55,7 @@ class PlaceOrderInput {
   final String createdByUserId;
   final String deviceId;
   final String? notes;
+  final String? creditCustomerId;
 }
 
 class UpdateOrderInput {
@@ -81,6 +87,11 @@ class OrderRepository {
 
   final Isar _isar;
 
+  CreditLedgerService get _creditLedger => CreditLedgerService(
+        isar: _isar,
+        transactionRepository: CreditTransactionRepository(_isar),
+      );
+
   Stream<List<Order>> watchAll() {
     return _isar.orderIsars
         .filter()
@@ -88,6 +99,32 @@ class OrderRepository {
         .sortByCreatedAtDesc()
         .watch(fireImmediately: true)
         .map((records) => records.map(orderFromIsar).toList());
+  }
+
+  Stream<List<Order>> watchTabletOrders(String localDeviceId) {
+    return watchAll().map(
+      (orders) => orders
+          .where((order) => isTabletOrder(order, localDeviceId))
+          .toList(),
+    );
+  }
+
+  Future<List<Order>> findRecentTabletOrders(
+    String localDeviceId, {
+    Duration within = const Duration(hours: 24),
+  }) async {
+    final cutoff = DateTime.now().subtract(within);
+    final records = await _isar.orderIsars
+        .filter()
+        .deletedAtIsNull()
+        .createdAtGreaterThan(cutoff)
+        .sortByCreatedAtDesc()
+        .findAll();
+
+    return records
+        .map(orderFromIsar)
+        .where((order) => isTabletOrder(order, localDeviceId))
+        .toList();
   }
 
   Future<Order?> findById(String id) async {
@@ -108,61 +145,70 @@ class OrderRepository {
 
   Future<Order> placeOrder(PlaceOrderInput input) async {
     _validatePlacement(input.checkout, input.cartItems);
+    _validateCreditPlacement(input);
 
     final now = DateTime.now();
     final orderId = const Uuid().v4();
-    final orderNumber = generateOrderNumber(deviceId: input.deviceId, now: now);
-    final paymentStatus = resolvePaymentStatus(isPrepaid: input.isPrepaid);
+    final paymentStatus = input.paymentType == PaymentType.credit
+        ? OrderPaymentStatus.unpaid
+        : resolvePaymentStatus(isPrepaid: input.isPrepaid);
     final discountSnapshot = wholeOrderDiscountSnapshot(input.discounts);
-
-    final order = Order(
-      id: orderId,
-      orderNumber: orderNumber,
-      orderType: input.checkout.orderType!,
-      tableId: input.checkout.tableId,
-      deliveryMode: input.checkout.deliveryMode,
-      riderId: input.checkout.riderId,
-      riderName: input.checkout.riderName,
-      pickupCompanyId: input.checkout.pickupCompanyId,
-      pickupCompanyName: input.checkout.pickupCompanyName,
-      subtotal: input.pricing.subtotal,
-      itemDiscountTotal: input.pricing.lineDiscountTotal,
-      orderDiscountTotal: input.pricing.orderDiscountTotal,
-      total: input.pricing.total,
-      paymentType: input.paymentType,
-      paymentStatus: paymentStatus,
-      status: OrderStatus.received,
-      isPrepaid: input.isPrepaid,
-      isHeld: false,
-      createdByUserId: input.createdByUserId,
-      notes: input.notes,
-      orderDiscountType: discountSnapshot?.type,
-      orderDiscountValue: discountSnapshot?.value,
-      orderDiscountReason: discountSnapshot?.reason,
-      promisedPrepMinutes: input.checkout.promisedPrepMinutes,
-      createdAt: now,
-      updatedAt: now,
-      isSynced: false,
-      syncAction: SyncAction.create,
-      deviceId: input.deviceId,
-      version: 1,
-    );
 
     final productPrepMinutes =
         await _loadProductPrepMinutesById(input.cartItems);
 
-    final orderItems = buildOrderItems(
-      orderId: orderId,
-      cartItems: input.cartItems,
-      discounts: input.discounts,
-      pricing: input.pricing,
-      deviceId: input.deviceId,
-      now: now,
-      orderPromisedPrepMinutes: input.checkout.promisedPrepMinutes,
-      productPrepMinutesById: productPrepMinutes,
-    );
+    late Order order;
+    late List<OrderItem> orderItems;
 
     await _isar.writeTxn(() async {
+      final orderNumber =
+          await allocateNextOrderNumberInTxn(_isar, now: now);
+
+      order = Order(
+        id: orderId,
+        orderNumber: orderNumber,
+        orderType: input.checkout.orderType!,
+        tableId: input.checkout.tableId,
+        deliveryMode: input.checkout.deliveryMode,
+        riderId: input.checkout.riderId,
+        riderName: input.checkout.riderName,
+        pickupCompanyId: input.checkout.pickupCompanyId,
+        pickupCompanyName: input.checkout.pickupCompanyName,
+        subtotal: input.pricing.subtotal,
+        itemDiscountTotal: input.pricing.lineDiscountTotal,
+        orderDiscountTotal: input.pricing.orderDiscountTotal,
+        total: input.pricing.total,
+        paymentType: input.paymentType,
+        paymentStatus: paymentStatus,
+        status: OrderStatus.received,
+        isPrepaid: input.isPrepaid,
+        isHeld: false,
+        createdByUserId: input.createdByUserId,
+        notes: input.notes,
+        orderDiscountType: discountSnapshot?.type,
+        orderDiscountValue: discountSnapshot?.value,
+        orderDiscountReason: discountSnapshot?.reason,
+        promisedPrepMinutes: input.checkout.promisedPrepMinutes,
+        creditCustomerId: input.creditCustomerId,
+        createdAt: now,
+        updatedAt: now,
+        isSynced: false,
+        syncAction: SyncAction.create,
+        deviceId: input.deviceId,
+        version: 1,
+      );
+
+      orderItems = buildOrderItems(
+        orderId: orderId,
+        cartItems: input.cartItems,
+        discounts: input.discounts,
+        pricing: input.pricing,
+        deviceId: input.deviceId,
+        now: now,
+        orderPromisedPrepMinutes: input.checkout.promisedPrepMinutes,
+        productPrepMinutesById: productPrepMinutes,
+      );
+
       await _putOrderRecord(order, input.deviceId, isCreate: true);
       await _putOrderItems(orderItems, input.deviceId, isCreate: true);
 
@@ -174,6 +220,13 @@ class OrderRepository {
         );
       }
     });
+
+    if (order.paymentType == PaymentType.credit) {
+      await _creditLedger.chargeForOrder(
+        order: order,
+        deviceId: input.deviceId,
+      );
+    }
 
     return order;
   }
@@ -390,6 +443,12 @@ class OrderRepository {
       );
     });
 
+    await _creditLedger.reverseOrderCharge(
+      order: updated,
+      deviceId: deviceId,
+      createdByUserId: order.createdByUserId,
+    );
+
     return updated;
   }
 
@@ -456,6 +515,13 @@ class OrderRepository {
           'Select a rider or pickup company for delivery',
         );
       }
+    }
+  }
+
+  void _validateCreditPlacement(PlaceOrderInput input) {
+    if (input.paymentType != PaymentType.credit) return;
+    if (input.creditCustomerId == null || input.creditCustomerId!.trim().isEmpty) {
+      throw OrderPlacementException('Select a credit customer for on-account orders');
     }
   }
 

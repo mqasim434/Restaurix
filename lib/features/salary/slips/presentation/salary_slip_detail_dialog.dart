@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../domain/models/employee.dart';
 import '../../../../domain/models/salary_slip.dart';
+import '../../../settings/providers/currency_providers.dart';
 import '../../../settings/providers/settings_providers.dart';
 import '../providers/salary_slip_providers.dart';
 import '../salary_slip_preview.dart';
@@ -67,6 +68,7 @@ class _SalarySlipDetailDialogState extends ConsumerState<SalarySlipDetailDialog>
     final spacing = context.appSpacing;
     final typography = context.appTypography;
     final settings = ref.read(appSettingRepositoryProvider);
+    final currencyCode = ref.watch(currencyCodeProvider);
 
     return AlertDialog(
       title: Text('Salary slip — ${widget.employee.fullName}'),
@@ -75,13 +77,16 @@ class _SalarySlipDetailDialogState extends ConsumerState<SalarySlipDetailDialog>
         child: FutureBuilder<String>(
           future: settings.getBusinessName(),
           builder: (context, snapshot) {
-            final businessName = snapshot.data ?? 'Restaurix';
+            final businessName = snapshot.data ?? 'Bin Omran';
             final document = buildSalarySlipDocument(
               businessName: businessName,
               employee: widget.employee,
               slip: _slip,
             );
-            final lines = SalarySlipPreview.renderLines(document);
+            final lines = SalarySlipPreview.renderLines(
+              document,
+              currencyCode: currencyCode,
+            );
 
             return SingleChildScrollView(
               child: Column(
@@ -132,6 +137,7 @@ class _SalarySlipDetailDialogState extends ConsumerState<SalarySlipDetailDialog>
                 employee: widget.employee,
                 slip: _slip,
               ),
+              currencyCode: currencyCode,
             );
             await Clipboard.setData(ClipboardData(text: text));
             if (!context.mounted) return;

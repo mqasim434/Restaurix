@@ -37,148 +37,153 @@ const OrderIsarSchema = CollectionSchema(
       name: r'createdByUserId',
       type: IsarType.string,
     ),
-    r'deletedAt': PropertySchema(
+    r'creditCustomerId': PropertySchema(
       id: 4,
+      name: r'creditCustomerId',
+      type: IsarType.string,
+    ),
+    r'deletedAt': PropertySchema(
+      id: 5,
       name: r'deletedAt',
       type: IsarType.dateTime,
     ),
     r'deliveryMode': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'deliveryMode',
       type: IsarType.string,
     ),
     r'deviceId': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'deviceId',
       type: IsarType.string,
     ),
     r'isHeld': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'isHeld',
       type: IsarType.bool,
     ),
     r'isPrepaid': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'isPrepaid',
       type: IsarType.bool,
     ),
     r'isSynced': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'itemDiscountTotal': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'itemDiscountTotal',
       type: IsarType.double,
     ),
     r'notes': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'notes',
       type: IsarType.string,
     ),
     r'orderDiscountReason': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'orderDiscountReason',
       type: IsarType.string,
     ),
     r'orderDiscountTotal': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'orderDiscountTotal',
       type: IsarType.double,
     ),
     r'orderDiscountType': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'orderDiscountType',
       type: IsarType.string,
     ),
     r'orderDiscountValue': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'orderDiscountValue',
       type: IsarType.double,
     ),
     r'orderNumber': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'orderNumber',
       type: IsarType.string,
     ),
     r'orderType': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'orderType',
       type: IsarType.string,
     ),
     r'paymentStatus': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'paymentStatus',
       type: IsarType.string,
     ),
     r'paymentType': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'paymentType',
       type: IsarType.string,
     ),
     r'pickupCompanyId': PropertySchema(
-      id: 20,
+      id: 21,
       name: r'pickupCompanyId',
       type: IsarType.string,
     ),
     r'pickupCompanyName': PropertySchema(
-      id: 21,
+      id: 22,
       name: r'pickupCompanyName',
       type: IsarType.string,
     ),
     r'promisedPrepMinutes': PropertySchema(
-      id: 22,
+      id: 23,
       name: r'promisedPrepMinutes',
       type: IsarType.long,
     ),
     r'riderId': PropertySchema(
-      id: 23,
+      id: 24,
       name: r'riderId',
       type: IsarType.string,
     ),
     r'riderName': PropertySchema(
-      id: 24,
+      id: 25,
       name: r'riderName',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 25,
+      id: 26,
       name: r'status',
       type: IsarType.string,
     ),
     r'subtotal': PropertySchema(
-      id: 26,
+      id: 27,
       name: r'subtotal',
       type: IsarType.double,
     ),
     r'syncAction': PropertySchema(
-      id: 27,
+      id: 28,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'tableId': PropertySchema(
-      id: 28,
+      id: 29,
       name: r'tableId',
       type: IsarType.string,
     ),
     r'total': PropertySchema(
-      id: 29,
+      id: 30,
       name: r'total',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 30,
+      id: 31,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 31,
+      id: 32,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 32,
+      id: 33,
       name: r'version',
       type: IsarType.long,
     )
@@ -223,6 +228,19 @@ const OrderIsarSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'tableId',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'creditCustomerId': IndexSchema(
+      id: -1568665014478721829,
+      name: r'creditCustomerId',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'creditCustomerId',
           type: IndexType.hash,
           caseSensitive: true,
         )
@@ -295,6 +313,12 @@ int _orderIsarEstimateSize(
     }
   }
   bytesCount += 3 + object.createdByUserId.length * 3;
+  {
+    final value = object.creditCustomerId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   {
     final value = object.deliveryMode;
     if (value != null) {
@@ -375,35 +399,36 @@ void _orderIsarSerialize(
   writer.writeString(offsets[1], object.cancelRefundNote);
   writer.writeDateTime(offsets[2], object.createdAt);
   writer.writeString(offsets[3], object.createdByUserId);
-  writer.writeDateTime(offsets[4], object.deletedAt);
-  writer.writeString(offsets[5], object.deliveryMode);
-  writer.writeString(offsets[6], object.deviceId);
-  writer.writeBool(offsets[7], object.isHeld);
-  writer.writeBool(offsets[8], object.isPrepaid);
-  writer.writeBool(offsets[9], object.isSynced);
-  writer.writeDouble(offsets[10], object.itemDiscountTotal);
-  writer.writeString(offsets[11], object.notes);
-  writer.writeString(offsets[12], object.orderDiscountReason);
-  writer.writeDouble(offsets[13], object.orderDiscountTotal);
-  writer.writeString(offsets[14], object.orderDiscountType);
-  writer.writeDouble(offsets[15], object.orderDiscountValue);
-  writer.writeString(offsets[16], object.orderNumber);
-  writer.writeString(offsets[17], object.orderType);
-  writer.writeString(offsets[18], object.paymentStatus);
-  writer.writeString(offsets[19], object.paymentType);
-  writer.writeString(offsets[20], object.pickupCompanyId);
-  writer.writeString(offsets[21], object.pickupCompanyName);
-  writer.writeLong(offsets[22], object.promisedPrepMinutes);
-  writer.writeString(offsets[23], object.riderId);
-  writer.writeString(offsets[24], object.riderName);
-  writer.writeString(offsets[25], object.status);
-  writer.writeDouble(offsets[26], object.subtotal);
-  writer.writeString(offsets[27], object.syncAction);
-  writer.writeString(offsets[28], object.tableId);
-  writer.writeDouble(offsets[29], object.total);
-  writer.writeDateTime(offsets[30], object.updatedAt);
-  writer.writeString(offsets[31], object.uuid);
-  writer.writeLong(offsets[32], object.version);
+  writer.writeString(offsets[4], object.creditCustomerId);
+  writer.writeDateTime(offsets[5], object.deletedAt);
+  writer.writeString(offsets[6], object.deliveryMode);
+  writer.writeString(offsets[7], object.deviceId);
+  writer.writeBool(offsets[8], object.isHeld);
+  writer.writeBool(offsets[9], object.isPrepaid);
+  writer.writeBool(offsets[10], object.isSynced);
+  writer.writeDouble(offsets[11], object.itemDiscountTotal);
+  writer.writeString(offsets[12], object.notes);
+  writer.writeString(offsets[13], object.orderDiscountReason);
+  writer.writeDouble(offsets[14], object.orderDiscountTotal);
+  writer.writeString(offsets[15], object.orderDiscountType);
+  writer.writeDouble(offsets[16], object.orderDiscountValue);
+  writer.writeString(offsets[17], object.orderNumber);
+  writer.writeString(offsets[18], object.orderType);
+  writer.writeString(offsets[19], object.paymentStatus);
+  writer.writeString(offsets[20], object.paymentType);
+  writer.writeString(offsets[21], object.pickupCompanyId);
+  writer.writeString(offsets[22], object.pickupCompanyName);
+  writer.writeLong(offsets[23], object.promisedPrepMinutes);
+  writer.writeString(offsets[24], object.riderId);
+  writer.writeString(offsets[25], object.riderName);
+  writer.writeString(offsets[26], object.status);
+  writer.writeDouble(offsets[27], object.subtotal);
+  writer.writeString(offsets[28], object.syncAction);
+  writer.writeString(offsets[29], object.tableId);
+  writer.writeDouble(offsets[30], object.total);
+  writer.writeDateTime(offsets[31], object.updatedAt);
+  writer.writeString(offsets[32], object.uuid);
+  writer.writeLong(offsets[33], object.version);
 }
 
 OrderIsar _orderIsarDeserialize(
@@ -417,36 +442,37 @@ OrderIsar _orderIsarDeserialize(
   object.cancelRefundNote = reader.readStringOrNull(offsets[1]);
   object.createdAt = reader.readDateTime(offsets[2]);
   object.createdByUserId = reader.readString(offsets[3]);
-  object.deletedAt = reader.readDateTimeOrNull(offsets[4]);
-  object.deliveryMode = reader.readStringOrNull(offsets[5]);
-  object.deviceId = reader.readString(offsets[6]);
-  object.isHeld = reader.readBool(offsets[7]);
-  object.isPrepaid = reader.readBool(offsets[8]);
-  object.isSynced = reader.readBool(offsets[9]);
+  object.creditCustomerId = reader.readStringOrNull(offsets[4]);
+  object.deletedAt = reader.readDateTimeOrNull(offsets[5]);
+  object.deliveryMode = reader.readStringOrNull(offsets[6]);
+  object.deviceId = reader.readString(offsets[7]);
+  object.isHeld = reader.readBool(offsets[8]);
+  object.isPrepaid = reader.readBool(offsets[9]);
+  object.isSynced = reader.readBool(offsets[10]);
   object.isarId = id;
-  object.itemDiscountTotal = reader.readDouble(offsets[10]);
-  object.notes = reader.readStringOrNull(offsets[11]);
-  object.orderDiscountReason = reader.readStringOrNull(offsets[12]);
-  object.orderDiscountTotal = reader.readDouble(offsets[13]);
-  object.orderDiscountType = reader.readStringOrNull(offsets[14]);
-  object.orderDiscountValue = reader.readDoubleOrNull(offsets[15]);
-  object.orderNumber = reader.readString(offsets[16]);
-  object.orderType = reader.readString(offsets[17]);
-  object.paymentStatus = reader.readString(offsets[18]);
-  object.paymentType = reader.readStringOrNull(offsets[19]);
-  object.pickupCompanyId = reader.readStringOrNull(offsets[20]);
-  object.pickupCompanyName = reader.readStringOrNull(offsets[21]);
-  object.promisedPrepMinutes = reader.readLongOrNull(offsets[22]);
-  object.riderId = reader.readStringOrNull(offsets[23]);
-  object.riderName = reader.readStringOrNull(offsets[24]);
-  object.status = reader.readString(offsets[25]);
-  object.subtotal = reader.readDouble(offsets[26]);
-  object.syncAction = reader.readString(offsets[27]);
-  object.tableId = reader.readStringOrNull(offsets[28]);
-  object.total = reader.readDouble(offsets[29]);
-  object.updatedAt = reader.readDateTime(offsets[30]);
-  object.uuid = reader.readString(offsets[31]);
-  object.version = reader.readLong(offsets[32]);
+  object.itemDiscountTotal = reader.readDouble(offsets[11]);
+  object.notes = reader.readStringOrNull(offsets[12]);
+  object.orderDiscountReason = reader.readStringOrNull(offsets[13]);
+  object.orderDiscountTotal = reader.readDouble(offsets[14]);
+  object.orderDiscountType = reader.readStringOrNull(offsets[15]);
+  object.orderDiscountValue = reader.readDoubleOrNull(offsets[16]);
+  object.orderNumber = reader.readString(offsets[17]);
+  object.orderType = reader.readString(offsets[18]);
+  object.paymentStatus = reader.readString(offsets[19]);
+  object.paymentType = reader.readStringOrNull(offsets[20]);
+  object.pickupCompanyId = reader.readStringOrNull(offsets[21]);
+  object.pickupCompanyName = reader.readStringOrNull(offsets[22]);
+  object.promisedPrepMinutes = reader.readLongOrNull(offsets[23]);
+  object.riderId = reader.readStringOrNull(offsets[24]);
+  object.riderName = reader.readStringOrNull(offsets[25]);
+  object.status = reader.readString(offsets[26]);
+  object.subtotal = reader.readDouble(offsets[27]);
+  object.syncAction = reader.readString(offsets[28]);
+  object.tableId = reader.readStringOrNull(offsets[29]);
+  object.total = reader.readDouble(offsets[30]);
+  object.updatedAt = reader.readDateTime(offsets[31]);
+  object.uuid = reader.readString(offsets[32]);
+  object.version = reader.readLong(offsets[33]);
   return object;
 }
 
@@ -466,62 +492,64 @@ P _orderIsarDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 5:
       return (reader.readStringOrNull(offset)) as P;
+    case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readBool(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
       return (reader.readBool(offset)) as P;
     case 9:
       return (reader.readBool(offset)) as P;
     case 10:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 11:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
-      return (reader.readDouble(offset)) as P;
-    case 14:
       return (reader.readStringOrNull(offset)) as P;
+    case 14:
+      return (reader.readDouble(offset)) as P;
     case 15:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 16:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 17:
       return (reader.readString(offset)) as P;
     case 18:
       return (reader.readString(offset)) as P;
     case 19:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 20:
       return (reader.readStringOrNull(offset)) as P;
     case 21:
       return (reader.readStringOrNull(offset)) as P;
     case 22:
-      return (reader.readLongOrNull(offset)) as P;
-    case 23:
       return (reader.readStringOrNull(offset)) as P;
+    case 23:
+      return (reader.readLongOrNull(offset)) as P;
     case 24:
       return (reader.readStringOrNull(offset)) as P;
     case 25:
-      return (reader.readString(offset)) as P;
-    case 26:
-      return (reader.readDouble(offset)) as P;
-    case 27:
-      return (reader.readString(offset)) as P;
-    case 28:
       return (reader.readStringOrNull(offset)) as P;
-    case 29:
-      return (reader.readDouble(offset)) as P;
-    case 30:
-      return (reader.readDateTime(offset)) as P;
-    case 31:
+    case 26:
       return (reader.readString(offset)) as P;
+    case 27:
+      return (reader.readDouble(offset)) as P;
+    case 28:
+      return (reader.readString(offset)) as P;
+    case 29:
+      return (reader.readStringOrNull(offset)) as P;
+    case 30:
+      return (reader.readDouble(offset)) as P;
+    case 31:
+      return (reader.readDateTime(offset)) as P;
     case 32:
+      return (reader.readString(offset)) as P;
+    case 33:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -839,6 +867,73 @@ extension OrderIsarQueryWhere
               indexName: r'tableId',
               lower: [],
               upper: [tableId],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause>
+      creditCustomerIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'creditCustomerId',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause>
+      creditCustomerIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'creditCustomerId',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> creditCustomerIdEqualTo(
+      String? creditCustomerId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'creditCustomerId',
+        value: [creditCustomerId],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause>
+      creditCustomerIdNotEqualTo(String? creditCustomerId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'creditCustomerId',
+              lower: [],
+              upper: [creditCustomerId],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'creditCustomerId',
+              lower: [creditCustomerId],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'creditCustomerId',
+              lower: [creditCustomerId],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'creditCustomerId',
+              lower: [],
+              upper: [creditCustomerId],
               includeUpper: false,
             ));
       }
@@ -1520,6 +1615,160 @@ extension OrderIsarQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'createdByUserId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'creditCustomerId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'creditCustomerId',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'creditCustomerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'creditCustomerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'creditCustomerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'creditCustomerId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'creditCustomerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'creditCustomerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'creditCustomerId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'creditCustomerId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'creditCustomerId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      creditCustomerIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'creditCustomerId',
         value: '',
       ));
     });
@@ -4694,6 +4943,19 @@ extension OrderIsarQuerySortBy on QueryBuilder<OrderIsar, OrderIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByCreditCustomerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'creditCustomerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy>
+      sortByCreditCustomerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'creditCustomerId', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -5101,6 +5363,19 @@ extension OrderIsarQuerySortThenBy
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByCreditCustomerId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'creditCustomerId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy>
+      thenByCreditCustomerIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'creditCustomerId', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'deletedAt', Sort.asc);
@@ -5500,6 +5775,14 @@ extension OrderIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctByCreditCustomerId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'creditCustomerId',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctByDeletedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'deletedAt');
@@ -5728,6 +6011,13 @@ extension OrderIsarQueryProperty
   QueryBuilder<OrderIsar, String, QQueryOperations> createdByUserIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdByUserId');
+    });
+  }
+
+  QueryBuilder<OrderIsar, String?, QQueryOperations>
+      creditCustomerIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'creditCustomerId');
     });
   }
 
@@ -5980,64 +6270,58 @@ const OrderItemIsarSchema = CollectionSchema(
       name: r'lineTotal',
       type: IsarType.double,
     ),
-    r'modifiers': PropertySchema(
-      id: 11,
-      name: r'modifiers',
-      type: IsarType.objectList,
-      target: r'OrderItemModifierEmbedded',
-    ),
     r'name': PropertySchema(
-      id: 12,
+      id: 11,
       name: r'name',
       type: IsarType.string,
     ),
     r'orderId': PropertySchema(
-      id: 13,
+      id: 12,
       name: r'orderId',
       type: IsarType.string,
     ),
     r'prepMinutes': PropertySchema(
-      id: 14,
+      id: 13,
       name: r'prepMinutes',
       type: IsarType.long,
     ),
     r'productId': PropertySchema(
-      id: 15,
+      id: 14,
       name: r'productId',
       type: IsarType.string,
     ),
     r'quantity': PropertySchema(
-      id: 16,
+      id: 15,
       name: r'quantity',
       type: IsarType.long,
     ),
     r'syncAction': PropertySchema(
-      id: 17,
+      id: 16,
       name: r'syncAction',
       type: IsarType.string,
     ),
     r'unitPrice': PropertySchema(
-      id: 18,
+      id: 17,
       name: r'unitPrice',
       type: IsarType.double,
     ),
     r'updatedAt': PropertySchema(
-      id: 19,
+      id: 18,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 20,
+      id: 19,
       name: r'uuid',
       type: IsarType.string,
     ),
     r'variantName': PropertySchema(
-      id: 21,
+      id: 20,
       name: r'variantName',
       type: IsarType.string,
     ),
     r'version': PropertySchema(
-      id: 22,
+      id: 21,
       name: r'version',
       type: IsarType.long,
     )
@@ -6077,7 +6361,6 @@ const OrderItemIsarSchema = CollectionSchema(
   },
   links: {},
   embeddedSchemas: {
-    r'OrderItemModifierEmbedded': OrderItemModifierEmbeddedSchema,
     r'OrderLineDiscountEmbedded': OrderLineDiscountEmbeddedSchema
   },
   getId: _orderItemIsarGetId,
@@ -6109,15 +6392,6 @@ int _orderItemIsarEstimateSize(
   }
   bytesCount += 3 + object.deviceId.length * 3;
   bytesCount += 3 + object.kitchenStatus.length * 3;
-  bytesCount += 3 + object.modifiers.length * 3;
-  {
-    final offsets = allOffsets[OrderItemModifierEmbedded]!;
-    for (var i = 0; i < object.modifiers.length; i++) {
-      final value = object.modifiers[i];
-      bytesCount += OrderItemModifierEmbeddedSchema.estimateSize(
-          value, offsets, allOffsets);
-    }
-  }
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.orderId.length * 3;
   {
@@ -6159,23 +6433,17 @@ void _orderItemIsarSerialize(
   writer.writeString(offsets[8], object.kitchenStatus);
   writer.writeDateTime(offsets[9], object.kitchenStatusChangedAt);
   writer.writeDouble(offsets[10], object.lineTotal);
-  writer.writeObjectList<OrderItemModifierEmbedded>(
-    offsets[11],
-    allOffsets,
-    OrderItemModifierEmbeddedSchema.serialize,
-    object.modifiers,
-  );
-  writer.writeString(offsets[12], object.name);
-  writer.writeString(offsets[13], object.orderId);
-  writer.writeLong(offsets[14], object.prepMinutes);
-  writer.writeString(offsets[15], object.productId);
-  writer.writeLong(offsets[16], object.quantity);
-  writer.writeString(offsets[17], object.syncAction);
-  writer.writeDouble(offsets[18], object.unitPrice);
-  writer.writeDateTime(offsets[19], object.updatedAt);
-  writer.writeString(offsets[20], object.uuid);
-  writer.writeString(offsets[21], object.variantName);
-  writer.writeLong(offsets[22], object.version);
+  writer.writeString(offsets[11], object.name);
+  writer.writeString(offsets[12], object.orderId);
+  writer.writeLong(offsets[13], object.prepMinutes);
+  writer.writeString(offsets[14], object.productId);
+  writer.writeLong(offsets[15], object.quantity);
+  writer.writeString(offsets[16], object.syncAction);
+  writer.writeDouble(offsets[17], object.unitPrice);
+  writer.writeDateTime(offsets[18], object.updatedAt);
+  writer.writeString(offsets[19], object.uuid);
+  writer.writeString(offsets[20], object.variantName);
+  writer.writeLong(offsets[21], object.version);
 }
 
 OrderItemIsar _orderItemIsarDeserialize(
@@ -6203,24 +6471,17 @@ OrderItemIsar _orderItemIsarDeserialize(
   object.kitchenStatus = reader.readString(offsets[8]);
   object.kitchenStatusChangedAt = reader.readDateTimeOrNull(offsets[9]);
   object.lineTotal = reader.readDouble(offsets[10]);
-  object.modifiers = reader.readObjectList<OrderItemModifierEmbedded>(
-        offsets[11],
-        OrderItemModifierEmbeddedSchema.deserialize,
-        allOffsets,
-        OrderItemModifierEmbedded(),
-      ) ??
-      [];
-  object.name = reader.readString(offsets[12]);
-  object.orderId = reader.readString(offsets[13]);
-  object.prepMinutes = reader.readLong(offsets[14]);
-  object.productId = reader.readStringOrNull(offsets[15]);
-  object.quantity = reader.readLong(offsets[16]);
-  object.syncAction = reader.readString(offsets[17]);
-  object.unitPrice = reader.readDouble(offsets[18]);
-  object.updatedAt = reader.readDateTime(offsets[19]);
-  object.uuid = reader.readString(offsets[20]);
-  object.variantName = reader.readStringOrNull(offsets[21]);
-  object.version = reader.readLong(offsets[22]);
+  object.name = reader.readString(offsets[11]);
+  object.orderId = reader.readString(offsets[12]);
+  object.prepMinutes = reader.readLong(offsets[13]);
+  object.productId = reader.readStringOrNull(offsets[14]);
+  object.quantity = reader.readLong(offsets[15]);
+  object.syncAction = reader.readString(offsets[16]);
+  object.unitPrice = reader.readDouble(offsets[17]);
+  object.updatedAt = reader.readDateTime(offsets[18]);
+  object.uuid = reader.readString(offsets[19]);
+  object.variantName = reader.readStringOrNull(offsets[20]);
+  object.version = reader.readLong(offsets[21]);
   return object;
 }
 
@@ -6260,34 +6521,26 @@ P _orderItemIsarDeserializeProp<P>(
     case 10:
       return (reader.readDouble(offset)) as P;
     case 11:
-      return (reader.readObjectList<OrderItemModifierEmbedded>(
-            offset,
-            OrderItemModifierEmbeddedSchema.deserialize,
-            allOffsets,
-            OrderItemModifierEmbedded(),
-          ) ??
-          []) as P;
+      return (reader.readString(offset)) as P;
     case 12:
       return (reader.readString(offset)) as P;
     case 13:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 14:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 15:
-      return (reader.readStringOrNull(offset)) as P;
-    case 16:
       return (reader.readLong(offset)) as P;
+    case 16:
+      return (reader.readString(offset)) as P;
     case 17:
-      return (reader.readString(offset)) as P;
-    case 18:
       return (reader.readDouble(offset)) as P;
-    case 19:
+    case 18:
       return (reader.readDateTime(offset)) as P;
-    case 20:
+    case 19:
       return (reader.readString(offset)) as P;
-    case 21:
+    case 20:
       return (reader.readStringOrNull(offset)) as P;
-    case 22:
+    case 21:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -7533,95 +7786,6 @@ extension OrderItemIsarQueryFilter
     });
   }
 
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifiers',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifiers',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifiers',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifiers',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifiers',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'modifiers',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
   QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -8771,13 +8935,6 @@ extension OrderItemIsarQueryObject
       return query.object(q, r'appliedDiscounts');
     });
   }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      modifiersElement(FilterQuery<OrderItemModifierEmbedded> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.object(q, r'modifiers');
-    });
-  }
 }
 
 extension OrderItemIsarQueryLinks
@@ -9567,13 +9724,6 @@ extension OrderItemIsarQueryProperty
     });
   }
 
-  QueryBuilder<OrderItemIsar, List<OrderItemModifierEmbedded>, QQueryOperations>
-      modifiersProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'modifiers');
-    });
-  }
-
   QueryBuilder<OrderItemIsar, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
@@ -9644,459 +9794,6 @@ extension OrderItemIsarQueryProperty
 // **************************************************************************
 // IsarEmbeddedGenerator
 // **************************************************************************
-
-// coverage:ignore-file
-// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
-
-const OrderItemModifierEmbeddedSchema = Schema(
-  name: r'OrderItemModifierEmbedded',
-  id: 7322967833530000989,
-  properties: {
-    r'modifierId': PropertySchema(
-      id: 0,
-      name: r'modifierId',
-      type: IsarType.string,
-    ),
-    r'name': PropertySchema(
-      id: 1,
-      name: r'name',
-      type: IsarType.string,
-    ),
-    r'priceDelta': PropertySchema(
-      id: 2,
-      name: r'priceDelta',
-      type: IsarType.double,
-    )
-  },
-  estimateSize: _orderItemModifierEmbeddedEstimateSize,
-  serialize: _orderItemModifierEmbeddedSerialize,
-  deserialize: _orderItemModifierEmbeddedDeserialize,
-  deserializeProp: _orderItemModifierEmbeddedDeserializeProp,
-);
-
-int _orderItemModifierEmbeddedEstimateSize(
-  OrderItemModifierEmbedded object,
-  List<int> offsets,
-  Map<Type, List<int>> allOffsets,
-) {
-  var bytesCount = offsets.last;
-  {
-    final value = object.modifierId;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
-  bytesCount += 3 + object.name.length * 3;
-  return bytesCount;
-}
-
-void _orderItemModifierEmbeddedSerialize(
-  OrderItemModifierEmbedded object,
-  IsarWriter writer,
-  List<int> offsets,
-  Map<Type, List<int>> allOffsets,
-) {
-  writer.writeString(offsets[0], object.modifierId);
-  writer.writeString(offsets[1], object.name);
-  writer.writeDouble(offsets[2], object.priceDelta);
-}
-
-OrderItemModifierEmbedded _orderItemModifierEmbeddedDeserialize(
-  Id id,
-  IsarReader reader,
-  List<int> offsets,
-  Map<Type, List<int>> allOffsets,
-) {
-  final object = OrderItemModifierEmbedded();
-  object.modifierId = reader.readStringOrNull(offsets[0]);
-  object.name = reader.readString(offsets[1]);
-  object.priceDelta = reader.readDouble(offsets[2]);
-  return object;
-}
-
-P _orderItemModifierEmbeddedDeserializeProp<P>(
-  IsarReader reader,
-  int propertyId,
-  int offset,
-  Map<Type, List<int>> allOffsets,
-) {
-  switch (propertyId) {
-    case 0:
-      return (reader.readStringOrNull(offset)) as P;
-    case 1:
-      return (reader.readString(offset)) as P;
-    case 2:
-      return (reader.readDouble(offset)) as P;
-    default:
-      throw IsarError('Unknown property with id $propertyId');
-  }
-}
-
-extension OrderItemModifierEmbeddedQueryFilter on QueryBuilder<
-    OrderItemModifierEmbedded, OrderItemModifierEmbedded, QFilterCondition> {
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'modifierId',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'modifierId',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdEqualTo(
-    String? value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'modifierId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'modifierId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'modifierId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdBetween(
-    String? lower,
-    String? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'modifierId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'modifierId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'modifierId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-          QAfterFilterCondition>
-      modifierIdContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'modifierId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-          QAfterFilterCondition>
-      modifierIdMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'modifierId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'modifierId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> modifierIdIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'modifierId',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'name',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-          QAfterFilterCondition>
-      nameContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-          QAfterFilterCondition>
-      nameMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'name',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> nameIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'name',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> priceDeltaEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'priceDelta',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> priceDeltaGreaterThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'priceDelta',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> priceDeltaLessThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'priceDelta',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemModifierEmbedded, OrderItemModifierEmbedded,
-      QAfterFilterCondition> priceDeltaBetween(
-    double lower,
-    double upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'priceDelta',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
-    });
-  }
-}
-
-extension OrderItemModifierEmbeddedQueryObject on QueryBuilder<
-    OrderItemModifierEmbedded, OrderItemModifierEmbedded, QFilterCondition> {}
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types

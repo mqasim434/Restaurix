@@ -105,15 +105,6 @@ class PosDraftSnapshot {
         'variantName': item.variantName,
         'variantPriceOverride': item.variantPriceOverride,
         'quantity': item.quantity,
-        'modifiers': [
-          for (final modifier in item.modifiers)
-            {
-              'id': modifier.id,
-              'groupId': modifier.groupId,
-              'name': modifier.name,
-              'priceDelta': modifier.priceDelta,
-            },
-        ],
       };
 
   static CartItem _cartItemFromJson(Map<String, dynamic> json) {
@@ -128,15 +119,6 @@ class PosDraftSnapshot {
       variantName: json['variantName'] as String?,
       variantPriceOverride: (json['variantPriceOverride'] as num?)?.toDouble(),
       quantity: json['quantity'] as int,
-      modifiers: [
-        for (final modifier in json['modifiers'] as List<dynamic>)
-          CartModifier(
-            id: modifier['id'] as String,
-            groupId: modifier['groupId'] as String,
-            name: modifier['name'] as String,
-            priceDelta: (modifier['priceDelta'] as num).toDouble(),
-          ),
-      ],
     );
   }
 

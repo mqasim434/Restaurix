@@ -13,7 +13,6 @@ Product productFromIsar(ProductIsar record) {
     isAvailable: record.isAvailable,
     kitchenCategory: record.kitchenCategory,
     printerId: record.printerId,
-    modifierGroupIds: List.unmodifiable(record.modifierGroupIds),
     estimatedPrepMinutes: record.estimatedPrepMinutes,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
@@ -40,7 +39,6 @@ ProductIsar applyProductToIsar({
     ..isAvailable = product.isAvailable
     ..kitchenCategory = product.kitchenCategory
     ..printerId = product.printerId
-    ..modifierGroupIds = List.of(product.modifierGroupIds)
     ..estimatedPrepMinutes = product.estimatedPrepMinutes
     ..markUpdated(deviceId: deviceId, action: action);
   return record;

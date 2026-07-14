@@ -26,10 +26,12 @@ class ReceiptPrintController {
   Future<ReceiptPrintResult> printOrder({
     required String orderId,
     required bool isReprint,
+    bool forPlacement = false,
   }) {
     return _ref.read(receiptServiceProvider).printOrder(
           orderId: orderId,
           isReprint: isReprint,
+          forPlacement: forPlacement,
         );
   }
 }

@@ -5,10 +5,10 @@ import '../../data/local/collections/attendance_record_isar.dart';
 import '../../data/local/collections/category_isar.dart';
 import '../../data/local/collections/deal_isar.dart';
 import '../../data/local/collections/deal_item_isar.dart';
+import '../../data/local/collections/credit_customer_isar.dart';
+import '../../data/local/collections/credit_transaction_isar.dart';
 import '../../data/local/collections/employee_isar.dart';
 import '../../data/local/collections/hall_isar.dart';
-import '../../data/local/collections/item_modifier_isar.dart';
-import '../../data/local/collections/modifier_group_isar.dart';
 import '../../data/local/collections/order_isar.dart';
 import '../../data/local/collections/pickup_company_isar.dart';
 import '../../data/local/collections/product_isar.dart';
@@ -25,10 +25,8 @@ import 'sync_remote_mappers.dart';
 List<SyncEntityHandler> buildSyncEntityHandlers() {
   return [
     CategorySyncHandler(),
-    ModifierGroupSyncHandler(),
     ProductSyncHandler(),
     ProductVariantSyncHandler(),
-    ItemModifierSyncHandler(),
     DealSyncHandler(),
     DealItemSyncHandler(),
     HallSyncHandler(),
@@ -36,6 +34,8 @@ List<SyncEntityHandler> buildSyncEntityHandlers() {
     RiderSyncHandler(),
     PickupCompanySyncHandler(),
     EmployeeSyncHandler(),
+    CreditCustomerSyncHandler(),
+    CreditTransactionSyncHandler(),
     OrderSyncHandler(),
     OrderItemSyncHandler(),
     AttendanceRecordSyncHandler(),
@@ -112,43 +112,6 @@ class CategorySyncHandler extends _CollectionHandler<CategoryIsar> {
       CategoryRemoteMapper.applyRemote(isar, remote);
 }
 
-class ModifierGroupSyncHandler extends _CollectionHandler<ModifierGroupIsar> {
-  @override
-  SyncEntityType get entityType => SyncEntityType.modifierGroup;
-
-  @override
-  String get tableName => SupabaseTableNames.modifierGroups;
-
-  @override
-  int get priority => 20;
-
-  @override
-  Future<List<ModifierGroupIsar>> findUnsynced(Isar isar) =>
-      isar.modifierGroupIsars.filter().isSyncedEqualTo(false).findAll();
-
-  @override
-  Future<ModifierGroupIsar?> findLocalById(Isar isar, String id) =>
-      isar.modifierGroupIsars.filter().uuidEqualTo(id).findFirst();
-
-  @override
-  Future<void> putLocal(Isar isar, ModifierGroupIsar record) =>
-      isar.modifierGroupIsars.put(record);
-
-  @override
-  String recordId(ModifierGroupIsar record) => record.uuid;
-
-  @override
-  Map<String, dynamic> toRemote(ModifierGroupIsar record) =>
-      ModifierGroupRemoteMapper.toRemote(record);
-
-  @override
-  Future<void> writeRemoteToLocal(
-    Isar isar,
-    Map<String, dynamic> remote,
-  ) =>
-      ModifierGroupRemoteMapper.applyRemote(isar, remote);
-}
-
 class ProductSyncHandler extends _CollectionHandler<ProductIsar> {
   @override
   SyncEntityType get entityType => SyncEntityType.product;
@@ -221,43 +184,6 @@ class ProductVariantSyncHandler extends _CollectionHandler<ProductVariantIsar> {
     Map<String, dynamic> remote,
   ) =>
       ProductVariantRemoteMapper.applyRemote(isar, remote);
-}
-
-class ItemModifierSyncHandler extends _CollectionHandler<ItemModifierIsar> {
-  @override
-  SyncEntityType get entityType => SyncEntityType.modifier;
-
-  @override
-  String get tableName => SupabaseTableNames.modifiers;
-
-  @override
-  int get priority => 50;
-
-  @override
-  Future<List<ItemModifierIsar>> findUnsynced(Isar isar) =>
-      isar.itemModifierIsars.filter().isSyncedEqualTo(false).findAll();
-
-  @override
-  Future<ItemModifierIsar?> findLocalById(Isar isar, String id) =>
-      isar.itemModifierIsars.filter().uuidEqualTo(id).findFirst();
-
-  @override
-  Future<void> putLocal(Isar isar, ItemModifierIsar record) =>
-      isar.itemModifierIsars.put(record);
-
-  @override
-  String recordId(ItemModifierIsar record) => record.uuid;
-
-  @override
-  Map<String, dynamic> toRemote(ItemModifierIsar record) =>
-      ItemModifierRemoteMapper.toRemote(record);
-
-  @override
-  Future<void> writeRemoteToLocal(
-    Isar isar,
-    Map<String, dynamic> remote,
-  ) =>
-      ItemModifierRemoteMapper.applyRemote(isar, remote);
 }
 
 class DealSyncHandler extends _CollectionHandler<DealIsar> {
@@ -512,6 +438,81 @@ class EmployeeSyncHandler extends _CollectionHandler<EmployeeIsar> {
     Map<String, dynamic> remote,
   ) =>
       EmployeeRemoteMapper.applyRemote(isar, remote);
+}
+
+class CreditCustomerSyncHandler extends _CollectionHandler<CreditCustomerIsar> {
+  @override
+  SyncEntityType get entityType => SyncEntityType.creditCustomer;
+
+  @override
+  String get tableName => SupabaseTableNames.creditCustomers;
+
+  @override
+  int get priority => 115;
+
+  @override
+  Future<List<CreditCustomerIsar>> findUnsynced(Isar isar) =>
+      isar.creditCustomerIsars.filter().isSyncedEqualTo(false).findAll();
+
+  @override
+  Future<CreditCustomerIsar?> findLocalById(Isar isar, String id) =>
+      isar.creditCustomerIsars.filter().uuidEqualTo(id).findFirst();
+
+  @override
+  Future<void> putLocal(Isar isar, CreditCustomerIsar record) =>
+      isar.creditCustomerIsars.put(record);
+
+  @override
+  String recordId(CreditCustomerIsar record) => record.uuid;
+
+  @override
+  Map<String, dynamic> toRemote(CreditCustomerIsar record) =>
+      CreditCustomerRemoteMapper.toRemote(record);
+
+  @override
+  Future<void> writeRemoteToLocal(
+    Isar isar,
+    Map<String, dynamic> remote,
+  ) =>
+      CreditCustomerRemoteMapper.applyRemote(isar, remote);
+}
+
+class CreditTransactionSyncHandler
+    extends _CollectionHandler<CreditTransactionIsar> {
+  @override
+  SyncEntityType get entityType => SyncEntityType.creditTransaction;
+
+  @override
+  String get tableName => SupabaseTableNames.creditTransactions;
+
+  @override
+  int get priority => 145;
+
+  @override
+  Future<List<CreditTransactionIsar>> findUnsynced(Isar isar) =>
+      isar.creditTransactionIsars.filter().isSyncedEqualTo(false).findAll();
+
+  @override
+  Future<CreditTransactionIsar?> findLocalById(Isar isar, String id) =>
+      isar.creditTransactionIsars.filter().uuidEqualTo(id).findFirst();
+
+  @override
+  Future<void> putLocal(Isar isar, CreditTransactionIsar record) =>
+      isar.creditTransactionIsars.put(record);
+
+  @override
+  String recordId(CreditTransactionIsar record) => record.uuid;
+
+  @override
+  Map<String, dynamic> toRemote(CreditTransactionIsar record) =>
+      CreditTransactionRemoteMapper.toRemote(record);
+
+  @override
+  Future<void> writeRemoteToLocal(
+    Isar isar,
+    Map<String, dynamic> remote,
+  ) =>
+      CreditTransactionRemoteMapper.applyRemote(isar, remote);
 }
 
 class OrderSyncHandler extends _CollectionHandler<OrderIsar> {

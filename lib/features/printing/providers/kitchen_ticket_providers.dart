@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/isar_service.dart';
 import '../../orders/providers/order_management_providers.dart';
-import '../../settings/providers/settings_providers.dart';
 
 export '../../settings/providers/settings_providers.dart'
     show appSettingRepositoryProvider;
@@ -13,7 +12,6 @@ final kitchenTicketServiceProvider = Provider<KitchenTicketService>((ref) {
   return KitchenTicketService(
     isar: ref.watch(isarProvider),
     orderRepository: ref.watch(orderRepositoryProvider),
-    settingsRepository: ref.watch(appSettingRepositoryProvider),
   );
 });
 

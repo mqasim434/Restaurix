@@ -9,8 +9,6 @@ import '../../data/local/collections/deal_item_isar.dart';
 import '../../data/local/collections/draft_order_isar.dart';
 import '../../data/local/collections/employee_isar.dart';
 import '../../data/local/collections/hall_isar.dart';
-import '../../data/local/collections/item_modifier_isar.dart';
-import '../../data/local/collections/modifier_group_isar.dart';
 import '../../data/local/collections/order_isar.dart';
 import '../../data/local/collections/pickup_company_isar.dart';
 import '../../data/local/collections/product_isar.dart';
@@ -38,8 +36,6 @@ class SyncQueueService {
       ...await _entriesForCategories(),
       ...await _entriesForProducts(),
       ...await _entriesForProductVariants(),
-      ...await _entriesForModifierGroups(),
-      ...await _entriesForModifiers(),
       ...await _entriesForDeals(),
       ...await _entriesForDealItems(),
       ...await _entriesForHalls(),
@@ -85,8 +81,6 @@ class SyncQueueService {
     watch(_isar.categoryIsars.watchLazy(fireImmediately: true));
     watch(_isar.productIsars.watchLazy(fireImmediately: true));
     watch(_isar.productVariantIsars.watchLazy(fireImmediately: true));
-    watch(_isar.modifierGroupIsars.watchLazy(fireImmediately: true));
-    watch(_isar.itemModifierIsars.watchLazy(fireImmediately: true));
     watch(_isar.dealIsars.watchLazy(fireImmediately: true));
     watch(_isar.dealItemIsars.watchLazy(fireImmediately: true));
     watch(_isar.hallIsars.watchLazy(fireImmediately: true));
@@ -152,42 +146,6 @@ class SyncQueueService {
       for (final record in records)
         _entry(
           entityType: SyncEntityType.productVariant,
-          recordId: record.uuid,
-          syncAction: record.syncActionEnum,
-          updatedAt: record.updatedAt,
-          deletedAt: record.deletedAt,
-          version: record.version,
-        ),
-    ];
-  }
-
-  Future<List<SyncQueueEntry>> _entriesForModifierGroups() async {
-    final records = await _isar.modifierGroupIsars
-        .filter()
-        .isSyncedEqualTo(false)
-        .findAll();
-    return [
-      for (final record in records)
-        _entry(
-          entityType: SyncEntityType.modifierGroup,
-          recordId: record.uuid,
-          syncAction: record.syncActionEnum,
-          updatedAt: record.updatedAt,
-          deletedAt: record.deletedAt,
-          version: record.version,
-        ),
-    ];
-  }
-
-  Future<List<SyncQueueEntry>> _entriesForModifiers() async {
-    final records = await _isar.itemModifierIsars
-        .filter()
-        .isSyncedEqualTo(false)
-        .findAll();
-    return [
-      for (final record in records)
-        _entry(
-          entityType: SyncEntityType.modifier,
           recordId: record.uuid,
           syncAction: record.syncActionEnum,
           updatedAt: record.updatedAt,

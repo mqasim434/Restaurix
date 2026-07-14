@@ -6,52 +6,37 @@ import 'package:restaurix/features/pos/providers/cart_providers.dart';
 
 void main() {
   group('CartItem', () {
-    test('matchesConfiguration ignores modifier order', () {
-      const modifiersA = [
-        CartModifier(id: 'b', groupId: 'g1', name: 'B', priceDelta: 1),
-        CartModifier(id: 'a', groupId: 'g1', name: 'A', priceDelta: 0.5),
-      ];
-      const modifiersB = [
-        CartModifier(id: 'a', groupId: 'g1', name: 'A', priceDelta: 0.5),
-        CartModifier(id: 'b', groupId: 'g1', name: 'B', priceDelta: 1),
-      ];
-
+    test('matchesConfiguration merges same product without variant', () {
       final left = CartItem(
         lineId: '1',
         productId: 'p1',
         name: 'Burger',
         unitPrice: 10,
-        modifiers: modifiersA,
       );
       final right = CartItem(
         lineId: '2',
         productId: 'p1',
         name: 'Burger',
         unitPrice: 10,
-        modifiers: modifiersB,
       );
 
       expect(left.matchesConfiguration(right), isTrue);
     });
 
-    test('matchesConfiguration treats different modifiers as separate lines', () {
+    test('matchesConfiguration treats different variants as separate lines', () {
       final left = CartItem(
         lineId: '1',
         productId: 'p1',
         name: 'Burger',
         unitPrice: 10,
-        modifiers: const [
-          CartModifier(id: 'a', groupId: 'g1', name: 'A', priceDelta: 0),
-        ],
+        variantId: 'v1',
       );
       final right = CartItem(
         lineId: '2',
         productId: 'p1',
         name: 'Burger',
         unitPrice: 10,
-        modifiers: const [
-          CartModifier(id: 'b', groupId: 'g1', name: 'B', priceDelta: 0),
-        ],
+        variantId: 'v2',
       );
 
       expect(left.matchesConfiguration(right), isFalse);

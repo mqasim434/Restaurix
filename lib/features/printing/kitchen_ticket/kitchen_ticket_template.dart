@@ -2,103 +2,91 @@ import 'dart:typed_data';
 
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 
+import '../../../core/printing/esc_pos_commands.dart';
+import '../../../core/printing/esc_pos_text_sanitizer.dart';
 import 'kitchen_ticket_data.dart';
 
-/// Builds ESC/POS byte payloads for kitchen tickets.
-///
-/// Uses [esc_pos_utils_plus] (maintained fork of esc_pos_utils) for command
-/// generation. Transport is handled separately — see [EscPosTransportRouter].
+/// Builds ESC/POS byte payloads for kitchen tickets (80 mm).
 abstract final class KitchenTicketTemplate {
+  static String _t(String value) => EscPosTextSanitizer.sanitize(value);
+
   static Future<Uint8List> buildBytes(KitchenTicketData ticket) async {
     final profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm80, profile);
-    var bytes = <int>[];
+    var bytes = <int>[]
+      ..addAll(EscPosCommands.init(generator));
 
     if (ticket.isReprint) {
-      bytes += generator.text(
+      bytes += EscPosCommands.centered(
+        generator,
         '*** REPRINT ***',
-        styles: const PosStyles(
-          align: PosAlign.center,
-          bold: true,
-          height: PosTextSize.size2,
-          width: PosTextSize.size2,
-        ),
-        linesAfter: 1,
+        bold: true,
       );
     }
 
-    bytes += generator.text(
-      'KITCHEN TICKET',
-      styles: const PosStyles(align: PosAlign.center, bold: true),
+    bytes += EscPosCommands.centered(
+      generator,
+      'KITCHEN',
+      bold: true,
+      large: true,
+      header: true,
     );
-    bytes += generator.text(
-      ticket.orderNumber,
-      styles: const PosStyles(
-        align: PosAlign.center,
-        bold: true,
-        height: PosTextSize.size2,
-        width: PosTextSize.size2,
-      ),
-      linesAfter: 1,
+    bytes += EscPosCommands.divider(generator);
+    bytes += EscPosCommands.centered(
+      generator,
+      '${_t(ticket.orderTypeLabel).toUpperCase()}  '
+          '${_t(ticket.contextLabel).toUpperCase()}',
+      bold: true,
     );
-    bytes += generator.text(
-      ticket.contextLabel,
-      styles: const PosStyles(bold: true),
+    bytes += EscPosCommands.centered(
+      generator,
+      _t(ticket.orderNumber),
+      bold: true,
+      large: true,
+      header: true,
     );
-    bytes += generator.text(
-      _timestamp(ticket.placedAt),
-      linesAfter: 1,
-    );
+    bytes += EscPosCommands.centered(generator, _timestamp(ticket.placedAt));
+    bytes += EscPosCommands.divider(generator);
 
-    if (ticket.notes != null) {
-      bytes += generator.text('Notes: ${ticket.notes}');
-      bytes += generator.feed(1);
+    if (ticket.notes != null && ticket.notes!.trim().isNotEmpty) {
+      bytes += EscPosCommands.leftLine(generator, 'NOTES:', bold: true);
+      bytes += EscPosCommands.leftLine(generator, _t(ticket.notes!.trim()));
+      bytes += EscPosCommands.divider(generator);
     }
 
     for (final group in ticket.categoryGroups) {
-      bytes += generator.hr();
-      bytes += generator.text(
-        group.categoryLabel.toUpperCase(),
-        styles: const PosStyles(bold: true, underline: true),
-        linesAfter: 1,
+      bytes += EscPosCommands.leftLine(
+        generator,
+        _t(group.categoryLabel).toUpperCase(),
+        bold: true,
       );
 
       for (final line in group.lines) {
         final label = line.variantName == null || line.variantName!.isEmpty
-            ? line.name
-            : '${line.name} (${line.variantName})';
+            ? _t(line.name)
+            : '${_t(line.name)} (${_t(line.variantName!)})';
 
-        bytes += generator.row([
-          PosColumn(
-            text: '${line.quantity}x',
-            width: 2,
-            styles: const PosStyles(bold: true),
-          ),
-          PosColumn(text: label, width: 10),
-        ]);
-
-        if (line.modifierNames.isNotEmpty) {
-          bytes += generator.text(
-            '  + ${line.modifierNames.join(', ')}',
-          );
-        }
+        bytes += EscPosCommands.qtyItemRow(
+          generator,
+          '${line.quantity}x',
+          label,
+          largeQty: true,
+        );
       }
+
+      bytes += generator.feed(1);
     }
 
-    bytes += generator.feed(2);
     bytes += generator.cut();
     return Uint8List.fromList(bytes);
   }
 
   static String _timestamp(DateTime value) {
     final local = value.toLocal();
-    final date =
-        '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')}';
-    final time =
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
-    return '$date $time';
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '$day/$month/${local.year}  $hour:$minute';
   }
 }

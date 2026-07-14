@@ -514,7 +514,3 @@ class _DealImageThumb extends StatelessWidget {
     );
   }
 }
-
-String formatDealPrice(double price) {
-  return NumberFormat.simpleCurrency().format(price);
-}

@@ -4,5 +4,5 @@ abstract final class AppConstants {
   static const int defaultProductPrepMinutes = 10;
 
   /// Fallback when no business name is stored in settings.
-  static const String defaultBusinessName = appName;
+  static const String defaultBusinessName = 'Bin Omran';
 }

@@ -2,13 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'collections/credit_customer_isar.dart';
+import 'collections/credit_transaction_isar.dart';
 import 'collections/category_isar.dart';
 import 'collections/deal_isar.dart';
 import 'collections/deal_item_isar.dart';
 import 'collections/draft_order_isar.dart';
 import 'collections/hall_isar.dart';
-import 'collections/item_modifier_isar.dart';
-import 'collections/modifier_group_isar.dart';
 import 'collections/order_isar.dart';
 import 'collections/product_isar.dart';
 import 'collections/product_variant_isar.dart';
@@ -32,8 +32,6 @@ class IsarService {
     CategoryIsarSchema,
     ProductIsarSchema,
     ProductVariantIsarSchema,
-    ModifierGroupIsarSchema,
-    ItemModifierIsarSchema,
     DealIsarSchema,
     DealItemIsarSchema,
     HallIsarSchema,
@@ -45,6 +43,8 @@ class IsarService {
     PickupCompanyIsarSchema,
     AppSettingIsarSchema,
     EmployeeIsarSchema,
+    CreditCustomerIsarSchema,
+    CreditTransactionIsarSchema,
     AttendanceRecordIsarSchema,
     SalarySlipIsarSchema,
   ];

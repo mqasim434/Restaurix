@@ -4,7 +4,6 @@ import '../models/order.dart';
 import '../models/order_enums.dart';
 import '../models/order_item.dart';
 import '../models/reports.dart';
-import '../services/kitchen_status_timestamps.dart';
 
 const _uncategorizedKitchen = 'Uncategorized';
 
@@ -290,10 +289,7 @@ class ReportsAnalyticsEngine {
     final samples = <String, List<double>>{};
 
     for (final item in items) {
-      final received = KitchenStatusTimestamps.resolveReceivedAt(
-        createdAt: item.createdAt,
-        kitchenReceivedAt: item.kitchenReceivedAt,
-      );
+      final received = item.kitchenReceivedAt ?? item.createdAt;
       final ready = item.kitchenReadyAt;
       if (ready == null) continue;
 

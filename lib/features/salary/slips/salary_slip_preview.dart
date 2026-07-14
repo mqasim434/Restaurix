@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../../../../core/format/money_format.dart';
+import '../../../../domain/models/app_currency.dart';
 import '../../../../domain/models/employee.dart';
 import '../../../../domain/models/salary_slip.dart';
 
@@ -17,8 +19,11 @@ class SalarySlipDocument {
   final SalarySlip slip;
 }
 
-String formatSalaryMoney(double amount) {
-  return NumberFormat.simpleCurrency().format(amount);
+String formatSalaryMoney(
+  double amount, [
+  String currencyCode = AppCurrency.defaultCode,
+]) {
+  return MoneyFormat.format(amount, currencyCode);
 }
 
 String formatSalaryPeriod(DateTime start, DateTime end) {
@@ -27,7 +32,10 @@ String formatSalaryPeriod(DateTime start, DateTime end) {
 }
 
 abstract final class SalarySlipPreview {
-  static List<String> renderLines(SalarySlipDocument document) {
+  static List<String> renderLines(
+    SalarySlipDocument document, {
+    String currencyCode = AppCurrency.defaultCode,
+  }) {
     final slip = document.slip;
     final lines = <String>[
       document.businessName,
@@ -38,14 +46,16 @@ abstract final class SalarySlipPreview {
       'Status: ${slip.status.label}',
       'Generated: ${DateFormat.yMMMd().add_jm().format(slip.generatedAt)}',
       'Hours worked: ${slip.totalHours.toStringAsFixed(1)}',
-      'Base pay: ${formatSalaryMoney(slip.basePay)}',
+      'Base pay: ${formatSalaryMoney(slip.basePay, currencyCode)}',
     ];
 
     if (slip.deductions != null && slip.deductions! > 0) {
-      lines.add('Deductions: -${formatSalaryMoney(slip.deductions!)}');
+      lines.add(
+        'Deductions: -${formatSalaryMoney(slip.deductions!, currencyCode)}',
+      );
     }
 
-    lines.add('NET PAY: ${formatSalaryMoney(slip.netPay)}');
+    lines.add('NET PAY: ${formatSalaryMoney(slip.netPay, currencyCode)}');
 
     if (slip.isFinalized) {
       lines.add('This slip is finalized and locked.');
@@ -54,8 +64,11 @@ abstract final class SalarySlipPreview {
     return lines;
   }
 
-  static String renderText(SalarySlipDocument document) {
-    return renderLines(document).join('\n');
+  static String renderText(
+    SalarySlipDocument document, {
+    String currencyCode = AppCurrency.defaultCode,
+  }) {
+    return renderLines(document, currencyCode: currencyCode).join('\n');
   }
 }
 

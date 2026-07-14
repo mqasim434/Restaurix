@@ -51,7 +51,6 @@ DealItem dealItemFromIsar(DealItemIsar record) {
     productId: record.productId,
     variantId: record.variantId,
     quantity: record.quantity,
-    allowModifiers: record.allowModifiers,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -72,7 +71,6 @@ DealItemIsar applyDealItemToIsar({
     ..productId = item.productId
     ..variantId = item.variantId
     ..quantity = item.quantity
-    ..allowModifiers = item.allowModifiers
     ..markUpdated(deviceId: deviceId, action: action);
   return record;
 }

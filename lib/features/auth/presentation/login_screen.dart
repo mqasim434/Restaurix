@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_logo.dart';
 import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../providers/auth_providers.dart';
@@ -44,17 +45,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.restaurant_menu_rounded,
-                    size: spacing.xxl, color: colors.primary),
+                const AppLogo(height: 120),
                 SizedBox(height: spacing.md),
-                Text(
-                  'Restaurix',
-                  textAlign: TextAlign.center,
-                  style: typography.headlineMedium.copyWith(
-                    color: colors.onSurface,
-                  ),
-                ),
-                SizedBox(height: spacing.xs),
                 Text(
                   'Sign in to continue',
                   textAlign: TextAlign.center,

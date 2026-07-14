@@ -14,6 +14,7 @@ class AppDialog extends StatelessWidget {
     this.onCancel,
     this.isDanger = false,
     this.showActions = true,
+    this.closeOnConfirm = true,
   });
 
   final String title;
@@ -24,6 +25,9 @@ class AppDialog extends StatelessWidget {
   final VoidCallback? onCancel;
   final bool isDanger;
   final bool showActions;
+
+  /// When false, [onConfirm] must close the dialog itself (e.g. async work).
+  final bool closeOnConfirm;
 
   static Future<T?> show<T>({
     required BuildContext context,
@@ -36,6 +40,7 @@ class AppDialog extends StatelessWidget {
     bool isDanger = false,
     bool showActions = true,
     bool barrierDismissible = true,
+    bool closeOnConfirm = true,
   }) {
     return showDialog<T>(
       context: context,
@@ -49,6 +54,7 @@ class AppDialog extends StatelessWidget {
         onCancel: onCancel,
         isDanger: isDanger,
         showActions: showActions,
+        closeOnConfirm: closeOnConfirm,
       ),
     );
   }
@@ -82,7 +88,9 @@ class AppDialog extends StatelessWidget {
                 variant: isDanger ? AppButtonVariant.danger : AppButtonVariant.primary,
                 onPressed: () {
                   onConfirm?.call();
-                  Navigator.of(context).pop(true);
+                  if (closeOnConfirm) {
+                    Navigator.of(context).pop(true);
+                  }
                 },
               ),
             ]

@@ -62,15 +62,19 @@ abstract final class OrderLifecycle {
     if (order.status.isClosed) return null;
 
     return switch (order.status) {
-      OrderStatus.received => OrderStatus.preparing,
-      OrderStatus.preparing => OrderStatus.ready,
-      OrderStatus.ready => switch (order.orderType) {
+      OrderStatus.received ||
+      OrderStatus.preparing ||
+      OrderStatus.ready =>
+        switch (order.orderType) {
           OrderType.dineIn => OrderStatus.served,
-          _ => order.paymentStatus.isSettled
+          _ => order.paymentStatus.isSettled ||
+                  order.isPrepaid ||
+                  order.paymentType == PaymentType.credit
               ? OrderStatus.completed
               : OrderStatus.paid,
         },
-      OrderStatus.served => order.paymentStatus.isSettled
+      OrderStatus.served => order.paymentStatus.isSettled ||
+              order.paymentType == PaymentType.credit
           ? OrderStatus.completed
           : OrderStatus.paid,
       OrderStatus.paid => OrderStatus.completed,
@@ -82,8 +86,6 @@ abstract final class OrderLifecycle {
     final next = nextStatus(order);
     if (next == null) return 'Advance';
     return switch (next) {
-      OrderStatus.preparing => 'Start Preparing',
-      OrderStatus.ready => 'Mark Ready',
       OrderStatus.served => 'Mark Served',
       OrderStatus.paid => 'Mark Paid',
       OrderStatus.completed => 'Complete Order',
@@ -98,17 +100,18 @@ abstract final class OrderLifecycle {
     if (role == UserRole.admin) return true;
 
     return switch (next) {
-      OrderStatus.preparing || OrderStatus.ready => true,
+      OrderStatus.served => order.orderType == OrderType.dineIn,
       _ => false,
     };
   }
 
   static bool canMarkPaid(Order order, UserRole role) {
+    if (order.paymentType == PaymentType.credit) return false;
     if (role != UserRole.admin) return false;
     if (order.status.isClosed) return false;
     if (order.paymentStatus.isSettled) return false;
     return order.status == OrderStatus.served ||
-        (order.status == OrderStatus.ready &&
+        (order.status == OrderStatus.received &&
             order.orderType != OrderType.dineIn);
   }
 

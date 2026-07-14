@@ -2,36 +2,67 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path_provider/path_provider.dart';
 
-/// Loads secrets from `.env` at project root (gitignored).
-///
-/// Falls back to bundled `.env.example` placeholders when `.env` is missing.
+/// Loads Supabase credentials from `.env` on disk (not bundled secrets).
 abstract final class EnvConfig {
   static const _supabaseUrlKey = 'SUPABASE_URL';
   static const _supabaseAnonKeyKey = 'SUPABASE_ANON_KEY';
 
-  static Future<void> load() async {
-    var loadedFrom = 'none';
+  static String? _loadedFromPath;
 
-    if (await _tryLoadFile(File('.env'))) {
-      loadedFrom = '.env';
-    } else if (await _tryLoadBundledExample()) {
-      loadedFrom = '.env.example (bundled fallback)';
+  /// Where credentials were loaded from, if any.
+  static String? get loadedFromPath => _loadedFromPath;
+
+  static Future<void> load() async {
+    _loadedFromPath = null;
+
+    for (final file in await _envFileCandidates()) {
+      if (await _tryLoadFile(file)) {
+        _loadedFromPath = file.path;
+        break;
+      }
+    }
+
+    if (!dotenv.isInitialized && await _tryLoadBundledExample()) {
+      _loadedFromPath = '.env.example (bundled placeholder)';
     }
 
     if (isSupabaseConfigured) {
-      debugPrint('EnvConfig: Supabase credentials loaded from $loadedFrom');
-    } else if (loadedFrom != 'none') {
+      debugPrint('EnvConfig: Supabase credentials loaded from $_loadedFromPath');
+      return;
+    }
+
+    if (_loadedFromPath != null) {
       debugPrint(
-        'EnvConfig: loaded $loadedFrom but Supabase keys are missing or '
-        'still placeholders — copy .env.example to .env and add real values',
+        'EnvConfig: loaded $_loadedFromPath but Supabase keys are missing or '
+        'still placeholders',
       );
     } else {
-      debugPrint(
-        'EnvConfig: no env file found — app runs offline-only. '
-        'Copy .env.example to .env in the project root.',
-      );
+      debugPrint('EnvConfig: no .env file found — app runs offline-only');
     }
+    debugPrint('EnvConfig: ${deploymentHint()}');
+  }
+
+  /// Checked in order: dev project root, folder with the .exe, app data.
+  static Future<List<File>> _envFileCandidates() async {
+    final files = <File>[];
+
+    files.add(File('.env'));
+
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      final exeFile = File(Platform.resolvedExecutable);
+      files.add(File('${exeFile.parent.path}${Platform.pathSeparator}.env'));
+    }
+
+    try {
+      final supportDir = await getApplicationSupportDirectory();
+      files.add(
+        File('${supportDir.path}${Platform.pathSeparator}.env'),
+      );
+    } catch (_) {}
+
+    return files;
   }
 
   static Future<bool> _tryLoadFile(File file) async {
@@ -63,4 +94,14 @@ abstract final class EnvConfig {
       supabaseAnonKey.isNotEmpty &&
       !supabaseUrl.contains('your-project-ref') &&
       supabaseAnonKey != 'your-supabase-anon-key';
+
+  static String deploymentHint() {
+    if (Platform.isWindows) {
+      final exeDir = File(Platform.resolvedExecutable).parent.path;
+      return 'Create a file named .env next to restaurix.exe with '
+          'SUPABASE_URL and SUPABASE_ANON_KEY. Example: $exeDir\\.env';
+    }
+    return 'Create a .env file next to the app executable with '
+        'SUPABASE_URL and SUPABASE_ANON_KEY.';
+  }
 }

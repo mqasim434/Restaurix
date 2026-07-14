@@ -1,3 +1,4 @@
+import '../../core/config/desktop_features.dart';
 import '../../domain/models/user_role.dart';
 
 /// Client-side route allowlist per role (Module 32).
@@ -14,17 +15,17 @@ abstract final class RoleRouteAccess {
   }
 
   static String _normalize(String path) {
-    if (path.isEmpty || path == '/') return '/dashboard';
+    if (path.isEmpty || path == '/') return DesktopFeatures.homeRoute;
     return path.endsWith('/') && path.length > 1
         ? path.substring(0, path.length - 1)
         : path;
   }
 
   static const _salesmanAllowedPrefixes = [
+    DesktopFeatures.tabletOrdersRoute,
     '/dashboard',
     '/sales',
     '/orders',
     '/tables',
-    '/kitchen',
   ];
 }

@@ -10,8 +10,8 @@ import '../../../core/widgets/app_snackbar.dart';
 import '../../../core/widgets/order_held_badge.dart';
 import '../../../domain/models/order_enums.dart';
 import '../../../domain/services/order_lifecycle.dart';
+import '../../settings/providers/currency_providers.dart';
 import '../../orders/providers/order_management_providers.dart';
-import 'pos_cart_panel.dart';
 
 class OrderConfirmationScreen extends ConsumerWidget {
   const OrderConfirmationScreen({super.key, required this.orderId});
@@ -25,6 +25,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
     final typography = context.appTypography;
     final orderAsync = ref.watch(orderDetailProvider(orderId));
     final itemsAsync = ref.watch(orderItemsProvider(orderId));
+    final formatMoney = ref.watch(formatMoneyProvider);
 
     return Padding(
       padding: EdgeInsets.all(spacing.lg),
@@ -142,7 +143,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    formatPosPrice(item.lineTotal),
+                                    formatMoney(item.lineTotal),
                                     style: typography.bodyMedium.copyWith(
                                       color: colors.onSurface,
                                     ),
@@ -162,7 +163,7 @@ class OrderConfirmationScreen extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                formatPosPrice(order.total),
+                                formatMoney(order.total),
                                 style: typography.titleLarge.copyWith(
                                   color: colors.primary,
                                 ),
