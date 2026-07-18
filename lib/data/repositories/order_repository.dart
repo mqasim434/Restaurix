@@ -351,7 +351,8 @@ class OrderRepository {
       );
       await _isar.orderIsars.put(record);
 
-      if (targetStatus == OrderStatus.completed) {
+      if (targetStatus == OrderStatus.completed ||
+          targetStatus == OrderStatus.paid) {
         await _releaseTableForOrder(
           tableId: updated.tableId,
           orderId: orderId,
@@ -644,20 +645,65 @@ class OrderRepository {
     await _isar.restaurantTableIsars.put(tableRecord);
   }
 
+  /// Frees dine-in table(s) when an order is paid/completed/cancelled.
+  ///
+  /// Handles sync drift from waiter tablets: desktop may have `orders.table_id`
+  /// set while `restaurant_tables.current_order_id` is null or stale.
   Future<void> _releaseTableForOrder({
     required String? tableId,
     required String orderId,
     required String deviceId,
   }) async {
-    if (tableId == null) return;
+    if (tableId != null) {
+      await _releaseOneTableIfSafe(
+        tableId: tableId,
+        orderId: orderId,
+        deviceId: deviceId,
+      );
+    }
 
+    // Also free any table still pointing at this order (transfer / sync drift).
+    final linkedTables = await _isar.restaurantTableIsars
+        .filter()
+        .currentOrderIdEqualTo(orderId)
+        .findAll();
+
+    for (final table in linkedTables) {
+      if (table.isDeleted) continue;
+      if (tableId != null && table.uuid == tableId) continue;
+      await _markTableAvailable(table, deviceId: deviceId);
+    }
+  }
+
+  Future<void> _releaseOneTableIfSafe({
+    required String tableId,
+    required String orderId,
+    required String deviceId,
+  }) async {
     final tableRecord = await _isar.restaurantTableIsars
         .filter()
         .uuidEqualTo(tableId)
         .findFirst();
     if (tableRecord == null || tableRecord.isDeleted) return;
-    if (tableRecord.currentOrderId != orderId) return;
 
+    final claimedBy = tableRecord.currentOrderId;
+    if (claimedBy != null &&
+        claimedBy.isNotEmpty &&
+        claimedBy != orderId) {
+      final other = await findById(claimedBy);
+      if (other != null && other.isActiveOnTable) {
+        // Another open dine-in order still owns this table.
+        return;
+      }
+    }
+
+    await _markTableAvailable(tableRecord, deviceId: deviceId);
+  }
+
+  Future<void> _markTableAvailable(
+    RestaurantTableIsar tableRecord, {
+    required String deviceId,
+  }) async {
     tableRecord
       ..status = TableStatus.available.name
       ..currentOrderId = null

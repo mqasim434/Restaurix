@@ -86,10 +86,12 @@ class Order implements SyncableEntity {
   @override
   final int version;
 
+  /// Dine-in order still holding a table (not paid/completed/cancelled).
   bool get isActiveOnTable =>
       orderType == OrderType.dineIn &&
       tableId != null &&
       !status.isClosed &&
+      !paymentStatus.isSettled &&
       paymentStatus != OrderPaymentStatus.refunded;
 
   bool get canReleaseTableWithoutOverride =>
