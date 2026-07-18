@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/media/prepare_catalog_image.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -10,6 +9,8 @@ import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_snackbar.dart';
+import '../../../core/widgets/catalog_image.dart';
+import '../../../data/remote/imagekit_upload_service.dart';
 import '../../../domain/models/category.dart';
 import '../providers/category_providers.dart';
 import 'category_form_dialog.dart';
@@ -90,20 +91,33 @@ class CategoriesScreen extends ConsumerWidget {
     final result = await CategoryFormDialog.show(context, category: category);
     if (result == null || !context.mounted) return;
 
+    late final String? imageUrl;
+    try {
+      imageUrl = await prepareCatalogImageUrl(
+        context: context,
+        imageUrl: result.imageUrl,
+        clearImage: result.clearImage,
+        folder: ImageKitFolders.categories,
+      );
+    } on ImageKitException {
+      return;
+    }
+    if (!context.mounted) return;
+
     final notifier = ref.read(categoryListProvider.notifier);
     final CategoryMutationResult mutation;
 
     if (category == null) {
       mutation = await notifier.create(
         name: result.name,
-        imageUrl: result.imageUrl,
+        imageUrl: imageUrl,
         isActive: result.isActive,
       );
     } else {
       mutation = await notifier.updateCategory(
         category.copyWith(
           name: result.name,
-          imageUrl: result.imageUrl,
+          imageUrl: imageUrl,
           clearImageUrl: result.clearImage,
           isActive: result.isActive,
         ),
@@ -396,43 +410,12 @@ class _CategoryImageThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = context.appRadius;
-    final spacing = context.appSpacing;
-    final size = spacing.xl;
-
-    if (imageUrl != null && File(imageUrl!).existsSync()) {
-      return ClipRRect(
-        borderRadius: radius.smBorder,
-        child: Image.file(
-          File(imageUrl!),
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _placeholder(context, size),
-        ),
-      );
-    }
-
-    return _placeholder(context, size);
-  }
-
-  Widget _placeholder(BuildContext context, double size) {
-    final colors = context.appColors;
-    final radius = context.appRadius;
-
-    return Container(
+    final size = context.appSpacing.xl;
+    return CatalogImage(
+      url: imageUrl,
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: colors.surfaceVariant,
-        borderRadius: radius.smBorder,
-        border: Border.all(color: colors.border),
-      ),
-      child: Icon(
-        Icons.image_outlined,
-        size: size * 0.5,
-        color: colors.onSurfaceVariant,
-      ),
+      borderRadius: context.appRadius.smBorder,
     );
   }
 }

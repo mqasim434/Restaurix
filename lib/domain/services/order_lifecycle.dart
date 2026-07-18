@@ -105,14 +105,23 @@ abstract final class OrderLifecycle {
     };
   }
 
+  /// Admin may settle any open unpaid (non-credit) order in one step.
+  /// Mark paid also completes the order (see [OrderRepository.markPaid]).
   static bool canMarkPaid(Order order, UserRole role) {
     if (order.paymentType == PaymentType.credit) return false;
     if (role != UserRole.admin) return false;
     if (order.status.isClosed) return false;
     if (order.paymentStatus.isSettled) return false;
-    return order.status == OrderStatus.served ||
-        (order.status == OrderStatus.received &&
-            order.orderType != OrderType.dineIn);
+    return true;
+  }
+
+  /// Credit / on-account orders: complete without collecting payment.
+  /// Balance stays on the credit customer ledger until settled separately.
+  static bool canCompleteCreditOrder(Order order, UserRole role) {
+    if (order.paymentType != PaymentType.credit) return false;
+    if (role != UserRole.admin) return false;
+    if (order.status.isClosed) return false;
+    return true;
   }
 
   static bool canHold(Order order, UserRole role) {

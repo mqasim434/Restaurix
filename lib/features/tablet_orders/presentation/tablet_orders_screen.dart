@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/config/env_config.dart';
@@ -23,6 +22,7 @@ import '../../orders/presentation/mark_paid_dialog.dart';
 import '../../orders/providers/order_management_providers.dart';
 import '../../settings/providers/currency_providers.dart';
 import '../providers/tablet_order_providers.dart';
+import 'live_order_detail_dialog.dart';
 
 /// Live order board: waiter tablets | customer app | all with mark-paid.
 class TabletOrdersScreen extends ConsumerWidget {
@@ -73,11 +73,14 @@ class TabletOrdersScreen extends ConsumerWidget {
                 message: error.toString(),
               ),
               data: (allOrders) {
-                final unpaid = allOrders
-                    .where((order) => !order.paymentStatus.isSettled)
-                    .toList();
+                bool isOpenLiveOrder(Order order) =>
+                    !order.paymentStatus.isSettled &&
+                    order.status != OrderStatus.cancelled &&
+                    order.status != OrderStatus.completed;
+
+                final unpaid = allOrders.where(isOpenLiveOrder).toList();
                 final waiterOrders = waiterAsync.valueOrNull
-                        ?.where((order) => !order.paymentStatus.isSettled)
+                        ?.where(isOpenLiveOrder)
                         .toList() ??
                     unpaid
                         .where(
@@ -85,7 +88,7 @@ class TabletOrdersScreen extends ConsumerWidget {
                         )
                         .toList();
                 final customerOrders = customerAsync.valueOrNull
-                        ?.where((order) => !order.paymentStatus.isSettled)
+                        ?.where(isOpenLiveOrder)
                         .toList() ??
                     unpaid.where(isCustomerAppOrder).toList();
 
@@ -136,14 +139,10 @@ class TabletOrdersScreen extends ConsumerWidget {
                     Expanded(
                       child: _OrderColumn(
                         title: 'All orders',
-                        subtitle: 'Mark paid here',
+                        subtitle: 'Mark paid / complete credit',
                         icon: Icons.payments_outlined,
                         emptyMessage: 'No unpaid live orders',
-                        orders: allOrders
-                            .where(
-                              (order) => !order.paymentStatus.isSettled,
-                            )
-                            .toList(),
+                        orders: unpaid,
                         incoming: incoming,
                         arrivalState: arrivalState,
                         showMarkPaid: true,
@@ -377,6 +376,8 @@ class _LiveOrderCard extends ConsumerWidget {
     final role = ref.watch(currentUserProvider).role;
     final itemsAsync = ref.watch(orderItemsProvider(order.id));
     final canPay = OrderLifecycle.canMarkPaid(order, role);
+    final canCompleteCredit =
+        OrderLifecycle.canCompleteCreditOrder(order, role);
     final isCancelled = order.status == OrderStatus.cancelled;
     final isHeld = order.isHeld;
     final sourceLabel = isCustomerAppOrder(order)
@@ -396,7 +397,7 @@ class _LiveOrderCard extends ConsumerWidget {
         borderRadius: context.appRadius.mdBorder,
         onTap: () {
           onOpened();
-          context.go('/orders/${order.id}');
+          LiveOrderDetailDialog.show(context, orderId: order.id);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -491,8 +492,15 @@ class _LiveOrderCard extends ConsumerWidget {
                     expand: true,
                     onPressed: () => _markPaid(context, ref),
                   )
+                else if (canCompleteCredit)
+                  AppButton(
+                    label: 'Complete Order',
+                    size: AppButtonSize.small,
+                    expand: true,
+                    onPressed: () => _completeCreditOrder(context, ref),
+                  )
                 else if (order.paymentType == PaymentType.credit)
-                  _Chip(label: 'On credit — settle in Credit Customers')
+                  _Chip(label: 'On credit — admin can complete')
                 else if (order.paymentStatus.isSettled)
                   _Chip(
                     label: 'Paid',
@@ -501,7 +509,7 @@ class _LiveOrderCard extends ConsumerWidget {
                     onAccent: colors.onSecondary,
                   )
                 else
-                  _Chip(label: 'Payment locked until served'),
+                  _Chip(label: 'Only admin can mark paid'),
               ],
             ],
           ),
@@ -525,7 +533,26 @@ class _LiveOrderCard extends ConsumerWidget {
             paymentType: paymentType,
           );
       if (!context.mounted) return;
-      AppSnackbar.success(context, 'Order marked paid');
+      AppSnackbar.success(context, 'Order marked paid and completed');
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackbar.error(context, error.toString());
+    }
+  }
+
+  Future<void> _completeCreditOrder(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    try {
+      await ref.read(placeOrderProvider).completeCreditOrder(
+            orderId: order.id,
+          );
+      if (!context.mounted) return;
+      AppSnackbar.success(
+        context,
+        'Order completed — settle balance in Credit Customers',
+      );
     } catch (error) {
       if (!context.mounted) return;
       AppSnackbar.error(context, error.toString());

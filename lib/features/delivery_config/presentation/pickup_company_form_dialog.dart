@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/catalog_image.dart';
 import '../../../domain/models/pickup_company.dart';
 
 class PickupCompanyFormResult {
@@ -193,32 +192,13 @@ class _LogoThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = context.appRadius;
-    final spacing = context.appSpacing;
-    final size = spacing.xxl;
-
-    if (path != null && File(path!).existsSync()) {
-      return ClipRRect(
-        borderRadius: radius.smBorder,
-        child: Image.file(
-          File(path!),
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    return Container(
+    final size = context.appSpacing.xxl;
+    return CatalogImage(
+      url: path,
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: context.appColors.surfaceVariant,
-        borderRadius: radius.smBorder,
-        border: Border.all(color: context.appColors.border),
-      ),
-      child: Icon(Icons.delivery_dining_outlined,
-          color: context.appColors.onSurfaceVariant),
+      borderRadius: context.appRadius.smBorder,
+      placeholderIcon: Icons.delivery_dining_outlined,
     );
   }
 }

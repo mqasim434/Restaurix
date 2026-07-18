@@ -378,10 +378,11 @@ class OrderRepository {
       throw OrderLifecycleException('You cannot mark this order paid');
     }
 
+    // Live Orders mark-paid: settle payment and close the order in one step.
     final updated = order.copyWith(
       paymentStatus: OrderPaymentStatus.paid,
       paymentType: paymentType,
-      status: OrderStatus.paid,
+      status: OrderStatus.completed,
     );
 
     await _isar.writeTxn(() async {
@@ -393,6 +394,49 @@ class OrderRepository {
         action: SyncAction.update,
       );
       await _isar.orderIsars.put(record);
+
+      await _releaseTableForOrder(
+        tableId: updated.tableId,
+        orderId: orderId,
+        deviceId: deviceId,
+      );
+    });
+
+    return updated;
+  }
+
+  /// Completes an on-credit order without changing payment status.
+  Future<Order> completeCreditOrder({
+    required String orderId,
+    required UserRole role,
+    required String deviceId,
+  }) async {
+    final order = await findById(orderId);
+    if (order == null) {
+      throw OrderLifecycleException('Order not found');
+    }
+
+    if (!OrderLifecycle.canCompleteCreditOrder(order, role)) {
+      throw OrderLifecycleException('You cannot complete this credit order');
+    }
+
+    final updated = order.copyWith(status: OrderStatus.completed);
+
+    await _isar.writeTxn(() async {
+      final record = await _requireOrderRecord(orderId);
+      applyOrderToIsar(
+        record: record,
+        order: updated,
+        deviceId: deviceId,
+        action: SyncAction.update,
+      );
+      await _isar.orderIsars.put(record);
+
+      await _releaseTableForOrder(
+        tableId: updated.tableId,
+        orderId: orderId,
+        deviceId: deviceId,
+      );
     });
 
     return updated;

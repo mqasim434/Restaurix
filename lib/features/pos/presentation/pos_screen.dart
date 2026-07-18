@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
+import '../../../core/widgets/catalog_image.dart';
 import '../../categories/providers/category_providers.dart';
 import '../../deals/providers/deal_providers.dart';
 import '../../settings/providers/currency_providers.dart';
@@ -214,38 +213,13 @@ class _PosMenuImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = context.appRadius;
-
-    if (imageUrl != null && File(imageUrl!).existsSync()) {
-      return ClipRRect(
-        borderRadius: radius.smBorder,
-        child: Image.file(
-          File(imageUrl!),
-          fit: BoxFit.cover,
-          width: double.infinity,
-          errorBuilder: (_, __, ___) => _placeholder(context),
-        ),
-      );
-    }
-
-    return _placeholder(context);
-  }
-
-  Widget _placeholder(BuildContext context) {
-    final radius = context.appRadius;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.appColors.surface,
-        borderRadius: radius.smBorder,
-        border: Border.all(color: context.appColors.border),
-      ),
-      child: Center(
-        child: Icon(
+    return CatalogImage(
+      url: imageUrl,
+      width: double.infinity,
+      height: double.infinity,
+      borderRadius: context.appRadius.smBorder,
+      placeholderIcon:
           isDeal ? Icons.local_offer_outlined : Icons.fastfood_outlined,
-          color: context.appColors.onSurfaceVariant,
-        ),
-      ),
     );
   }
 }

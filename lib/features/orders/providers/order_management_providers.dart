@@ -153,6 +153,14 @@ class PlaceOrderController {
         );
   }
 
+  Future<Order> completeCreditOrder({required String orderId}) {
+    return _ref.read(orderRepositoryProvider).completeCreditOrder(
+          orderId: orderId,
+          role: _ref.read(currentUserProvider).role,
+          deviceId: _ref.read(deviceIdProvider),
+        );
+  }
+
   Future<Order> cancel({
     required String orderId,
     required String reason,

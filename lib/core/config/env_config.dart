@@ -4,10 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Loads Supabase credentials from `.env` on disk (not bundled secrets).
+/// Loads Supabase / ImageKit credentials from `.env` on disk (not bundled secrets).
 abstract final class EnvConfig {
   static const _supabaseUrlKey = 'SUPABASE_URL';
   static const _supabaseAnonKeyKey = 'SUPABASE_ANON_KEY';
+  static const _imageKitPublicKeyKey = 'IMAGEKIT_PUBLIC_KEY';
+  static const _imageKitPrivateKeyKey = 'IMAGEKIT_PRIVATE_KEY';
+  static const _imageKitUrlEndpointKey = 'IMAGEKIT_URL_ENDPOINT';
 
   static String? _loadedFromPath;
 
@@ -89,19 +92,33 @@ abstract final class EnvConfig {
 
   static String get supabaseAnonKey => _envValue(_supabaseAnonKeyKey);
 
+  static String get imageKitPublicKey => _envValue(_imageKitPublicKeyKey);
+
+  static String get imageKitPrivateKey => _envValue(_imageKitPrivateKeyKey);
+
+  static String get imageKitUrlEndpoint => _envValue(_imageKitUrlEndpointKey);
+
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty &&
       supabaseAnonKey.isNotEmpty &&
       !supabaseUrl.contains('your-project-ref') &&
       supabaseAnonKey != 'your-supabase-anon-key';
 
+  /// Private key + URL endpoint required for desktop uploads to ImageKit.
+  static bool get isImageKitConfigured =>
+      imageKitPrivateKey.isNotEmpty &&
+      imageKitUrlEndpoint.isNotEmpty &&
+      !imageKitPrivateKey.contains('your_private') &&
+      !imageKitUrlEndpoint.contains('your_imagekit_id');
+
   static String deploymentHint() {
     if (Platform.isWindows) {
       final exeDir = File(Platform.resolvedExecutable).parent.path;
       return 'Create a file named .env next to restaurix.exe with '
-          'SUPABASE_URL and SUPABASE_ANON_KEY. Example: $exeDir\\.env';
+          'SUPABASE_URL, SUPABASE_ANON_KEY, and ImageKit keys. '
+          'Example: $exeDir\\.env';
     }
     return 'Create a .env file next to the app executable with '
-        'SUPABASE_URL and SUPABASE_ANON_KEY.';
+        'SUPABASE_URL, SUPABASE_ANON_KEY, and ImageKit keys.';
   }
 }

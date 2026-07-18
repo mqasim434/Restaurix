@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/media/prepare_catalog_image.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
@@ -10,6 +9,8 @@ import '../../../core/widgets/app_dialog.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../../../core/widgets/app_snackbar.dart';
+import '../../../core/widgets/catalog_image.dart';
+import '../../../data/remote/imagekit_upload_service.dart';
 import '../../../domain/models/pickup_company.dart';
 import '../../../domain/models/rider.dart';
 import '../providers/delivery_config_providers.dart';
@@ -208,17 +209,30 @@ class DeliveryPickupCompaniesPanel extends ConsumerWidget {
     );
     if (result == null || !context.mounted) return;
 
+    late final String? logoUrl;
+    try {
+      logoUrl = await prepareCatalogImageUrl(
+        context: context,
+        imageUrl: result.logoUrl,
+        clearImage: result.clearLogo,
+        folder: ImageKitFolders.pickupCompanies,
+      );
+    } on ImageKitException {
+      return;
+    }
+    if (!context.mounted) return;
+
     final notifier = ref.read(pickupCompanyListProvider.notifier);
     final mutation = company == null
         ? await notifier.create(
             name: result.name,
-            logoUrl: result.logoUrl,
+            logoUrl: logoUrl,
             isActive: result.isActive,
           )
         : await notifier.updateCompany(
             company.copyWith(
               name: result.name,
-              logoUrl: result.logoUrl,
+              logoUrl: logoUrl,
               clearLogoUrl: result.clearLogo,
               isActive: result.isActive,
             ),
@@ -422,29 +436,13 @@ class _PickupCompanyRow extends StatelessWidget {
     final spacing = context.appSpacing;
     final size = spacing.xl;
 
-    Widget leading;
-    if (company.logoUrl != null && File(company.logoUrl!).existsSync()) {
-      leading = ClipRRect(
-        borderRadius: context.appRadius.smBorder,
-        child: Image.file(
-          File(company.logoUrl!),
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-        ),
-      );
-    } else {
-      leading = Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: colors.surfaceVariant,
-          borderRadius: context.appRadius.smBorder,
-        ),
-        child: Icon(Icons.delivery_dining_outlined,
-            color: colors.onSurfaceVariant),
-      );
-    }
+    final leading = CatalogImage(
+      url: company.logoUrl,
+      width: size,
+      height: size,
+      borderRadius: context.appRadius.smBorder,
+      placeholderIcon: Icons.delivery_dining_outlined,
+    );
 
     return Padding(
       padding: EdgeInsets.symmetric(

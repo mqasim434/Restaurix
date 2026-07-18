@@ -26,6 +26,15 @@ void main() {
       expect(EnvConfig.isSupabaseConfigured, isFalse);
     });
 
+    test('isImageKitConfigured is false when keys missing', () {
+      dotenv.testLoad(
+        fileInput: 'SUPABASE_URL=https://abc123.supabase.co\n'
+            'SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test',
+      );
+
+      expect(EnvConfig.isImageKitConfigured, isFalse);
+    });
+
     test('deploymentHint mentions .env next to executable', () {
       expect(EnvConfig.deploymentHint(), contains('.env'));
     });

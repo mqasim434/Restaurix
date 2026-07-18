@@ -33,13 +33,17 @@ Order _creditOrder({
 
 void main() {
   group('OrderLifecycle credit orders', () {
-    test('credit orders skip mark paid and complete after served', () {
+    test('credit orders skip mark paid and can complete on account', () {
       final order = _creditOrder(
         type: OrderType.takeaway,
         status: OrderStatus.received,
       );
 
       expect(OrderLifecycle.canMarkPaid(order, UserRole.admin), isFalse);
+      expect(
+        OrderLifecycle.canCompleteCreditOrder(order, UserRole.admin),
+        isTrue,
+      );
       expect(OrderLifecycle.nextStatus(order), OrderStatus.completed);
     });
 
@@ -50,6 +54,18 @@ void main() {
       );
 
       expect(OrderLifecycle.nextStatus(order), OrderStatus.completed);
+      expect(
+        OrderLifecycle.canCompleteCreditOrder(order, UserRole.admin),
+        isTrue,
+      );
+    });
+
+    test('closed credit orders cannot be completed again', () {
+      final order = _creditOrder(status: OrderStatus.completed);
+      expect(
+        OrderLifecycle.canCompleteCreditOrder(order, UserRole.admin),
+        isFalse,
+      );
     });
   });
 }

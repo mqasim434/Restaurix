@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/catalog_image.dart';
 import '../../../domain/models/category.dart';
 
 class CategoryFormDialog extends StatefulWidget {
@@ -192,40 +191,12 @@ class _CategoryThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = context.appRadius;
-    final spacing = context.appSpacing;
-
-    final size = spacing.xxl + spacing.md;
-
-    if (path != null && File(path!).existsSync()) {
-      return ClipRRect(
-        borderRadius: radius.mdBorder,
-        child: Image.file(
-          File(path!),
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _placeholder(context, size),
-        ),
-      );
-    }
-
-    return _placeholder(context, size);
-  }
-
-  Widget _placeholder(BuildContext context, double size) {
-    final colors = context.appColors;
-    final radius = context.appRadius;
-
-    return Container(
+    final size = context.appSpacing.xxl + context.appSpacing.md;
+    return CatalogImage(
+      url: path,
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: colors.surfaceVariant,
-        borderRadius: radius.mdBorder,
-        border: Border.all(color: colors.border),
-      ),
-      child: Icon(Icons.image_outlined, color: colors.onSurfaceVariant),
+      borderRadius: context.appRadius.mdBorder,
     );
   }
 }
