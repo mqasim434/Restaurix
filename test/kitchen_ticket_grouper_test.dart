@@ -78,7 +78,7 @@ void main() {
       expect(jobs.first.printerTarget, SystemPrinter.defaultTarget);
     });
 
-    test('groups lines by kitchen category within a ticket', () {
+    test('lists items without kitchen category headers', () {
       final jobs = KitchenTicketGrouper.buildPrintJobs(
         order: _order(),
         items: [
@@ -94,10 +94,13 @@ void main() {
       );
 
       expect(jobs, hasLength(1));
-      expect(jobs.first.ticket.categoryGroups, hasLength(2));
+      expect(jobs.first.ticket.categoryGroups, hasLength(1));
+      expect(jobs.first.ticket.categoryGroups.single.lines, hasLength(2));
       final preview = KitchenTicketPreview.renderLines(jobs.first.ticket);
-      expect(preview.any((line) => line.contains('GRILL')), isTrue);
-      expect(preview.any((line) => line.contains('COLD')), isTrue);
+      expect(preview.any((line) => line.contains('GRILL')), isFalse);
+      expect(preview.any((line) => line.contains('COLD')), isFalse);
+      expect(preview.any((line) => line.contains('2x Steak')), isTrue);
+      expect(preview.any((line) => line.contains('2x Salad')), isTrue);
       expect(preview.any((line) => line.contains('\$')), isFalse);
     });
 

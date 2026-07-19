@@ -42,10 +42,22 @@ class OrderIsar {
   @Index()
   String? creditCustomerId;
 
+  String? customerName;
+  String? customerPhone;
+  String? deliveryAddressLine1;
+  String? deliveryAddressLine2;
+  String? deliveryCity;
+  String? deliveryPostcode;
+  String? deliveryNotes;
+
   double subtotal = 0;
   double itemDiscountTotal = 0;
   double orderDiscountTotal = 0;
+  double serviceCharge = 0;
+  double deliveryCharge = 0;
   double total = 0;
+
+  DateTime? billConfirmedAt;
 
   String? paymentType;
 

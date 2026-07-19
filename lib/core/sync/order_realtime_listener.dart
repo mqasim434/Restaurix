@@ -47,7 +47,13 @@ class OrderRealtimeListener {
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: SupabaseTableNames.orders,
-          callback: _handleInsert,
+          callback: _handleOrderInsert,
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: SupabaseTableNames.orderItems,
+          callback: _handleOrderItemInsert,
         )
         .subscribe((status, [error]) {
       if (error != null) {
@@ -56,12 +62,14 @@ class OrderRealtimeListener {
       }
       debugPrint('OrderRealtimeListener: channel status — $status');
       if (status == RealtimeSubscribeStatus.subscribed) {
-        debugPrint('OrderRealtimeListener: listening for order inserts');
+        debugPrint(
+          'OrderRealtimeListener: listening for order and order_item inserts',
+        );
       }
     });
   }
 
-  void _handleInsert(PostgresChangePayload payload) {
+  void _handleOrderInsert(PostgresChangePayload payload) {
     final record = Map<String, dynamic>.from(payload.newRecord);
     final orderId = record['id']?.toString();
     final orderNumber = record['order_number']?.toString();
@@ -81,6 +89,18 @@ class OrderRealtimeListener {
       orderNumber: orderNumber,
       record: record,
     );
+  }
+
+  void _handleOrderItemInsert(PostgresChangePayload payload) {
+    final record = Map<String, dynamic>.from(payload.newRecord);
+    final orderId = record['order_id']?.toString();
+    debugPrint(
+      'OrderRealtimeListener: order_item insert for '
+      '${orderId ?? 'unknown'}',
+    );
+    // Items may land after the parent order row; pull again so Live Orders
+    // cards populate line items.
+    _scheduleSyncPull();
   }
 
   void _scheduleSyncPull() {

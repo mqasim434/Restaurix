@@ -38,4 +38,5 @@ RestaurantTableIsar applyRestaurantTableToIsar({
   return record;
 }
 
-TableStatus tableStatusFromWire(String value) => TableStatus.values.byName(value);
+TableStatus tableStatusFromWire(String value, {String? currentOrderId}) =>
+    TableStatusX.fromWire(value, currentOrderId: currentOrderId);

@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/env_config.dart';
 import '../../data/remote/supabase_service.dart';
+import '../../domain/models/user_role.dart';
 import 'sync_conflict.dart';
 import 'sync_cursor_store.dart';
 import 'sync_entity_handler.dart';
@@ -45,11 +47,12 @@ class SyncEngine {
     required Isar isar,
     required SyncCursorStore cursorStore,
     required SupabaseService supabaseService,
+    UserRole role = UserRole.admin,
     List<SyncEntityHandler>? handlers,
   })  : _isar = isar,
         _cursorStore = cursorStore,
         _supabaseService = supabaseService,
-        _handlers = handlers ?? buildSyncEntityHandlers();
+        _handlers = handlers ?? buildSyncEntityHandlers(role: role);
 
   final Isar _isar;
   final SyncCursorStore _cursorStore;
@@ -80,6 +83,18 @@ class SyncEngine {
         downloaded: 0,
         conflicts: 0,
         errorMessage: 'Sync already in progress',
+      );
+    }
+
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session == null) {
+      return const SyncCycleResult(
+        success: false,
+        uploaded: 0,
+        downloaded: 0,
+        conflicts: 0,
+        errorMessage:
+            'Sign in required to sync. Cached offline login cannot write to Supabase.',
       );
     }
 
@@ -118,7 +133,7 @@ class SyncEngine {
           debugPrint(
             'SyncEngine: ${handler.entityType.name} failed: $error\n$stackTrace',
           );
-          errorMessage = '${handler.entityType.label}: $error';
+          errorMessage = _formatSyncError(handler.entityType, error);
         }
       }
 
@@ -150,4 +165,16 @@ class SyncEngine {
       _isRunning = false;
     }
   }
+}
+
+String _formatSyncError(SyncEntityType entityType, Object error) {
+  final raw = error.toString();
+  if (raw.contains('42501') ||
+      raw.contains('row-level security') ||
+      raw.contains('Unauthorized')) {
+    return '${entityType.label}: not allowed for this login. '
+        'Salary/HR data requires an admin account linked in app_users '
+        '(auth_user_id = your Supabase Auth user id).';
+  }
+  return '${entityType.label}: $error';
 }

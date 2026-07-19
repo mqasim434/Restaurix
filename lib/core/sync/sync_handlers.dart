@@ -16,14 +16,24 @@ import '../../data/local/collections/product_variant_isar.dart';
 import '../../data/local/collections/restaurant_table_isar.dart';
 import '../../data/local/collections/rider_isar.dart';
 import '../../data/local/collections/salary_slip_isar.dart';
+import '../../domain/models/user_role.dart';
 import 'sync_entity_handler.dart';
 import 'sync_handler_runner.dart';
 import 'sync_queue_models.dart';
 
 import 'sync_remote_mappers.dart';
 
-List<SyncEntityHandler> buildSyncEntityHandlers() {
-  return [
+/// HR tables: Supabase RLS allows admin write/read only (no salesman policies).
+const _adminOnlyEntityTypes = <SyncEntityType>{
+  SyncEntityType.employee,
+  SyncEntityType.attendanceRecord,
+  SyncEntityType.salarySlip,
+};
+
+List<SyncEntityHandler> buildSyncEntityHandlers({
+  UserRole role = UserRole.admin,
+}) {
+  final handlers = <SyncEntityHandler>[
     CategorySyncHandler(),
     ProductSyncHandler(),
     ProductVariantSyncHandler(),
@@ -40,7 +50,16 @@ List<SyncEntityHandler> buildSyncEntityHandlers() {
     OrderItemSyncHandler(),
     AttendanceRecordSyncHandler(),
     SalarySlipSyncHandler(),
-  ]..sort((a, b) => a.priority.compareTo(b.priority));
+  ];
+
+  final filtered = role == UserRole.admin
+      ? handlers
+      : handlers
+          .where((handler) => !_adminOnlyEntityTypes.contains(handler.entityType))
+          .toList();
+
+  filtered.sort((a, b) => a.priority.compareTo(b.priority));
+  return filtered;
 }
 
 abstract class _CollectionHandler<R> implements SyncEntityHandler {

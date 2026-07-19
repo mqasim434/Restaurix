@@ -172,7 +172,6 @@ class _StatusLegend extends StatelessWidget {
       children: [
         _LegendChip(status: TableStatus.available, label: 'Available'),
         _LegendChip(status: TableStatus.occupied, label: 'Occupied'),
-        _LegendChip(status: TableStatus.reserved, label: 'Reserved'),
       ],
     );
   }
@@ -616,6 +615,5 @@ Color tableStatusColor(BuildContext context, TableStatus status) {
   return switch (status) {
     TableStatus.available => colors.success,
     TableStatus.occupied => colors.error,
-    TableStatus.reserved => colors.warning,
   };
 }

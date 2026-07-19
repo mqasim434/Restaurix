@@ -1,5 +1,6 @@
 import '../../core/sync/sync_action.dart';
 import '../../core/sync/syncable_entity.dart';
+import '../services/delivery_address_formatter.dart';
 import 'order_enums.dart';
 
 class Order implements SyncableEntity {
@@ -16,6 +17,8 @@ class Order implements SyncableEntity {
     required this.subtotal,
     required this.itemDiscountTotal,
     required this.orderDiscountTotal,
+    this.serviceCharge = 0,
+    this.deliveryCharge = 0,
     required this.total,
     this.paymentType,
     required this.paymentStatus,
@@ -31,6 +34,14 @@ class Order implements SyncableEntity {
     this.orderDiscountReason,
     this.promisedPrepMinutes,
     this.creditCustomerId,
+    this.customerName,
+    this.customerPhone,
+    this.deliveryAddressLine1,
+    this.deliveryAddressLine2,
+    this.deliveryCity,
+    this.deliveryPostcode,
+    this.deliveryNotes,
+    this.billConfirmedAt,
     required this.createdAt,
     required this.updatedAt,
     required this.isSynced,
@@ -53,6 +64,8 @@ class Order implements SyncableEntity {
   final double subtotal;
   final double itemDiscountTotal;
   final double orderDiscountTotal;
+  final double serviceCharge;
+  final double deliveryCharge;
   final double total;
   final PaymentType? paymentType;
   final OrderPaymentStatus paymentStatus;
@@ -70,6 +83,33 @@ class Order implements SyncableEntity {
   final int? promisedPrepMinutes;
   /// In-restaurant credit account customer (pay later / on tab).
   final String? creditCustomerId;
+  /// Customer app checkout snapshot.
+  final String? customerName;
+  final String? customerPhone;
+  final String? deliveryAddressLine1;
+  final String? deliveryAddressLine2;
+  final String? deliveryCity;
+  final String? deliveryPostcode;
+  final String? deliveryNotes;
+  /// When Live Orders staff confirmed charges and printed the customer bill.
+  final DateTime? billConfirmedAt;
+
+  bool get needsBillConfirmation => billConfirmedAt == null;
+
+  /// Multi-line delivery location for UI / receipts (coords stripped).
+  List<String> get deliveryLocationLines =>
+      DeliveryAddressFormatter.textualLines(
+        line1: deliveryAddressLine1,
+        line2: deliveryAddressLine2,
+        city: deliveryCity,
+        postcode: deliveryPostcode,
+      );
+
+  String? get formattedDeliveryLocation {
+    final lines = deliveryLocationLines;
+    if (lines.isEmpty) return null;
+    return lines.join(', ');
+  }
 
   @override
   final DateTime createdAt;
@@ -108,6 +148,8 @@ class Order implements SyncableEntity {
     double? subtotal,
     double? itemDiscountTotal,
     double? orderDiscountTotal,
+    double? serviceCharge,
+    double? deliveryCharge,
     double? total,
     PaymentType? paymentType,
     OrderPaymentStatus? paymentStatus,
@@ -124,6 +166,14 @@ class Order implements SyncableEntity {
     bool clearPromisedPrepMinutes = false,
     String? creditCustomerId,
     bool clearCreditCustomerId = false,
+    String? customerName,
+    String? customerPhone,
+    String? deliveryAddressLine1,
+    String? deliveryAddressLine2,
+    String? deliveryCity,
+    String? deliveryPostcode,
+    String? deliveryNotes,
+    DateTime? billConfirmedAt,
     DateTime? updatedAt,
     bool? isSynced,
     DateTime? deletedAt,
@@ -144,6 +194,8 @@ class Order implements SyncableEntity {
       subtotal: subtotal ?? this.subtotal,
       itemDiscountTotal: itemDiscountTotal ?? this.itemDiscountTotal,
       orderDiscountTotal: orderDiscountTotal ?? this.orderDiscountTotal,
+      serviceCharge: serviceCharge ?? this.serviceCharge,
+      deliveryCharge: deliveryCharge ?? this.deliveryCharge,
       total: total ?? this.total,
       paymentType: paymentType ?? this.paymentType,
       paymentStatus: paymentStatus ?? this.paymentStatus,
@@ -164,6 +216,14 @@ class Order implements SyncableEntity {
       creditCustomerId: clearCreditCustomerId
           ? null
           : (creditCustomerId ?? this.creditCustomerId),
+      customerName: customerName ?? this.customerName,
+      customerPhone: customerPhone ?? this.customerPhone,
+      deliveryAddressLine1: deliveryAddressLine1 ?? this.deliveryAddressLine1,
+      deliveryAddressLine2: deliveryAddressLine2 ?? this.deliveryAddressLine2,
+      deliveryCity: deliveryCity ?? this.deliveryCity,
+      deliveryPostcode: deliveryPostcode ?? this.deliveryPostcode,
+      deliveryNotes: deliveryNotes ?? this.deliveryNotes,
+      billConfirmedAt: billConfirmedAt ?? this.billConfirmedAt,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isSynced: isSynced ?? this.isSynced,

@@ -16,6 +16,7 @@ import '../../data/local/collections/product_variant_isar.dart';
 import '../../data/local/collections/restaurant_table_isar.dart';
 import '../../data/local/collections/rider_isar.dart';
 import '../../data/local/collections/salary_slip_isar.dart';
+import '../../domain/models/table_status.dart';
 import 'sync_remote_codec.dart';
 
 Map<String, dynamic> _standardFields(dynamic record) {
@@ -257,7 +258,8 @@ abstract final class RestaurantTableRemoteMapper {
       'hall_id': record.hallId,
       'label': record.label,
       'capacity': record.capacity,
-      'status': record.status,
+      // Normalize legacy `reserved` before syncing up.
+      'status': record.statusEnum.name,
       'current_order_id': record.currentOrderId,
       'sort_order': record.sortOrder,
     };
@@ -274,12 +276,16 @@ abstract final class RestaurantTableRemoteMapper {
               .uuidEqualTo(id)
               .findFirst() ??
           (RestaurantTableIsar()..uuid = id);
+      final currentOrderId = remote['current_order_id'] as String?;
       record
         ..hallId = remote['hall_id'] as String
         ..label = remote['label'] as String
         ..capacity = SyncRemoteCodec.parseInt(remote['capacity'])
-        ..status = remote['status'] as String
-        ..currentOrderId = remote['current_order_id'] as String?
+        ..status = TableStatusX.fromWire(
+          remote['status'] as String?,
+          currentOrderId: currentOrderId,
+        ).name
+        ..currentOrderId = currentOrderId
         ..sortOrder = SyncRemoteCodec.parseInt(remote['sort_order']);
       _applyStandardFields(record, remote);
       await isar.restaurantTableIsars.put(record);
@@ -405,6 +411,8 @@ abstract final class OrderRemoteMapper {
       'subtotal': record.subtotal,
       'item_discount_total': record.itemDiscountTotal,
       'order_discount_total': record.orderDiscountTotal,
+      'service_charge': record.serviceCharge,
+      'delivery_charge': record.deliveryCharge,
       'total': record.total,
       'payment_type': record.paymentType,
       'payment_status': record.paymentStatus,
@@ -415,6 +423,14 @@ abstract final class OrderRemoteMapper {
       'notes': record.notes,
       'cancel_reason': record.cancelReason,
       'credit_customer_id': record.creditCustomerId,
+      'customer_name': record.customerName,
+      'customer_phone': record.customerPhone,
+      'delivery_address_line1': record.deliveryAddressLine1,
+      'delivery_address_line2': record.deliveryAddressLine2,
+      'delivery_city': record.deliveryCity,
+      'delivery_postcode': record.deliveryPostcode,
+      'delivery_notes': record.deliveryNotes,
+      'bill_confirmed_at': record.billConfirmedAt?.toUtc().toIso8601String(),
     };
   }
 
@@ -451,6 +467,47 @@ abstract final class OrderRemoteMapper {
         ..notes = remote['notes'] as String?
         ..cancelReason = remote['cancel_reason'] as String?
         ..creditCustomerId = remote['credit_customer_id'] as String?;
+
+      if (remote.containsKey('customer_name')) {
+        record.customerName = remote['customer_name'] as String?;
+      }
+      if (remote.containsKey('customer_phone')) {
+        record.customerPhone = remote['customer_phone'] as String?;
+      }
+      if (remote.containsKey('delivery_address_line1')) {
+        record.deliveryAddressLine1 =
+            remote['delivery_address_line1'] as String?;
+      }
+      if (remote.containsKey('delivery_address_line2')) {
+        record.deliveryAddressLine2 =
+            remote['delivery_address_line2'] as String?;
+      }
+      if (remote.containsKey('delivery_city')) {
+        record.deliveryCity = remote['delivery_city'] as String?;
+      }
+      if (remote.containsKey('delivery_postcode')) {
+        record.deliveryPostcode = remote['delivery_postcode'] as String?;
+      }
+      if (remote.containsKey('delivery_notes')) {
+        record.deliveryNotes = remote['delivery_notes'] as String?;
+      }
+
+      // Preserve local charges when remote payload lacks these columns
+      // (e.g. migration not applied yet on Supabase).
+      if (remote.containsKey('service_charge')) {
+        record.serviceCharge =
+            SyncRemoteCodec.parseDouble(remote['service_charge']);
+      }
+      if (remote.containsKey('delivery_charge')) {
+        record.deliveryCharge =
+            SyncRemoteCodec.parseDouble(remote['delivery_charge']);
+      }
+      if (remote.containsKey('bill_confirmed_at')) {
+        record.billConfirmedAt = SyncRemoteCodec.parseNullableDateTime(
+          remote['bill_confirmed_at'],
+        );
+      }
+
       _applyStandardFields(record, remote);
       await isar.orderIsars.put(record);
     });

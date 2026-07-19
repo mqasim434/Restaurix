@@ -41,7 +41,8 @@ class RestaurantTableIsar {
   int version = 1;
 
   @ignore
-  TableStatus get statusEnum => TableStatus.values.byName(status);
+  TableStatus get statusEnum =>
+      TableStatusX.fromWire(status, currentOrderId: currentOrderId);
 
   @ignore
   SyncAction get syncActionEnum => SyncAction.values.byName(syncAction);

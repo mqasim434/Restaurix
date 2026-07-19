@@ -11,6 +11,9 @@ abstract final class EnvConfig {
   static const _imageKitPublicKeyKey = 'IMAGEKIT_PUBLIC_KEY';
   static const _imageKitPrivateKeyKey = 'IMAGEKIT_PRIVATE_KEY';
   static const _imageKitUrlEndpointKey = 'IMAGEKIT_URL_ENDPOINT';
+  static const _googleMapsApiKeyKey = 'GOOGLE_MAPS_API_KEY';
+  static const _restaurantLatKey = 'RESTAURANT_LAT';
+  static const _restaurantLngKey = 'RESTAURANT_LNG';
 
   static String? _loadedFromPath;
 
@@ -98,6 +101,14 @@ abstract final class EnvConfig {
 
   static String get imageKitUrlEndpoint => _envValue(_imageKitUrlEndpointKey);
 
+  static String get googleMapsApiKey => _envValue(_googleMapsApiKeyKey);
+
+  static double? get restaurantLatitude =>
+      double.tryParse(_envValue(_restaurantLatKey));
+
+  static double? get restaurantLongitude =>
+      double.tryParse(_envValue(_restaurantLngKey));
+
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty &&
       supabaseAnonKey.isNotEmpty &&
@@ -111,14 +122,21 @@ abstract final class EnvConfig {
       !imageKitPrivateKey.contains('your_private') &&
       !imageKitUrlEndpoint.contains('your_imagekit_id');
 
+  /// Geocoding + Distance Matrix for delivery distance on Live Orders / receipts.
+  static bool get isGoogleMapsConfigured =>
+      googleMapsApiKey.isNotEmpty &&
+      !googleMapsApiKey.contains('your_google_maps') &&
+      googleMapsApiKey != 'YOUR_API_KEY';
+
   static String deploymentHint() {
     if (Platform.isWindows) {
       final exeDir = File(Platform.resolvedExecutable).parent.path;
       return 'Create a file named .env next to restaurix.exe with '
-          'SUPABASE_URL, SUPABASE_ANON_KEY, and ImageKit keys. '
-          'Example: $exeDir\\.env';
+          'SUPABASE_URL, SUPABASE_ANON_KEY, ImageKit keys, and '
+          'GOOGLE_MAPS_API_KEY. Example: $exeDir\\.env';
     }
     return 'Create a .env file next to the app executable with '
-        'SUPABASE_URL, SUPABASE_ANON_KEY, and ImageKit keys.';
+        'SUPABASE_URL, SUPABASE_ANON_KEY, ImageKit keys, and '
+        'GOOGLE_MAPS_API_KEY.';
   }
 }

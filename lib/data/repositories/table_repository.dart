@@ -34,17 +34,23 @@ class TableRepository {
         .map((records) => records.map(restaurantTableFromIsar).toList());
   }
 
-  /// Available tables only — occupied/reserved tables hidden from POS picker.
+  /// Available tables only — occupied tables hidden from POS picker.
   Stream<List<RestaurantTable>> watchAvailableForPos() {
     return _isar.restaurantTableIsars
         .filter()
         .deletedAtIsNull()
-        .statusEqualTo(TableStatus.available.name)
-        .sortByLabel()
         .watch(fireImmediately: true)
-        .map((records) => records.map(restaurantTableFromIsar).toList());
+        .map((records) {
+      final available = records
+          .where((record) => record.statusEnum == TableStatus.available)
+          .map(restaurantTableFromIsar)
+          .toList()
+        ..sort((a, b) => a.label.compareTo(b.label));
+      return available;
+    });
   }
 
+  /// Holds a table during checkout by marking it occupied (no order yet).
   Future<void> reserveForCheckout({
     required String tableId,
     required String deviceId,
@@ -61,7 +67,7 @@ class TableRepository {
     }
 
     record
-      ..status = TableStatus.reserved.name
+      ..status = TableStatus.occupied.name
       ..markUpdated(deviceId: deviceId);
 
     await _isar.writeTxn(() async {
@@ -79,9 +85,12 @@ class TableRepository {
         .findFirst();
     if (record == null || record.isDeleted) return;
 
-    if (record.statusEnum == TableStatus.reserved) {
+    // Free checkout hold: occupied with no linked order.
+    if (record.statusEnum == TableStatus.occupied &&
+        (record.currentOrderId == null || record.currentOrderId!.isEmpty)) {
       record
         ..status = TableStatus.available.name
+        ..currentOrderId = null
         ..markUpdated(deviceId: deviceId);
 
       await _isar.writeTxn(() async {

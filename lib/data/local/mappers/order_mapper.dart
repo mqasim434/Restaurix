@@ -19,6 +19,8 @@ Order orderFromIsar(OrderIsar record) {
     subtotal: record.subtotal,
     itemDiscountTotal: record.itemDiscountTotal,
     orderDiscountTotal: record.orderDiscountTotal,
+    serviceCharge: record.serviceCharge,
+    deliveryCharge: record.deliveryCharge,
     total: record.total,
     paymentType: record.paymentTypeEnum,
     paymentStatus: record.paymentStatusEnum,
@@ -34,6 +36,14 @@ Order orderFromIsar(OrderIsar record) {
     orderDiscountReason: record.orderDiscountReason,
     promisedPrepMinutes: record.promisedPrepMinutes,
     creditCustomerId: record.creditCustomerId,
+    customerName: record.customerName,
+    customerPhone: record.customerPhone,
+    deliveryAddressLine1: record.deliveryAddressLine1,
+    deliveryAddressLine2: record.deliveryAddressLine2,
+    deliveryCity: record.deliveryCity,
+    deliveryPostcode: record.deliveryPostcode,
+    deliveryNotes: record.deliveryNotes,
+    billConfirmedAt: record.billConfirmedAt,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     isSynced: record.isSynced,
@@ -60,6 +70,8 @@ void applyOrderFieldsToIsar({
     ..subtotal = order.subtotal
     ..itemDiscountTotal = order.itemDiscountTotal
     ..orderDiscountTotal = order.orderDiscountTotal
+    ..serviceCharge = order.serviceCharge
+    ..deliveryCharge = order.deliveryCharge
     ..total = order.total
     ..paymentType = order.paymentType?.name
     ..paymentStatus = order.paymentStatus.name
@@ -75,6 +87,14 @@ void applyOrderFieldsToIsar({
     ..orderDiscountReason = order.orderDiscountReason
     ..promisedPrepMinutes = order.promisedPrepMinutes
     ..creditCustomerId = order.creditCustomerId
+    ..customerName = order.customerName
+    ..customerPhone = order.customerPhone
+    ..deliveryAddressLine1 = order.deliveryAddressLine1
+    ..deliveryAddressLine2 = order.deliveryAddressLine2
+    ..deliveryCity = order.deliveryCity
+    ..deliveryPostcode = order.deliveryPostcode
+    ..deliveryNotes = order.deliveryNotes
+    ..billConfirmedAt = order.billConfirmedAt
     ..createdAt = order.createdAt
     ..updatedAt = order.updatedAt;
 }

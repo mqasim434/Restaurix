@@ -55,12 +55,6 @@ abstract final class KitchenTicketTemplate {
     }
 
     for (final group in ticket.categoryGroups) {
-      bytes += EscPosCommands.leftLine(
-        generator,
-        _t(group.categoryLabel).toUpperCase(),
-        bold: true,
-      );
-
       for (final line in group.lines) {
         final label = line.variantName == null || line.variantName!.isEmpty
             ? _t(line.name)
@@ -73,8 +67,6 @@ abstract final class KitchenTicketTemplate {
           largeQty: true,
         );
       }
-
-      bytes += generator.feed(1);
     }
 
     bytes += generator.cut();

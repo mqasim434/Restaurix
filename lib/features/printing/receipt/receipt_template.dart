@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 
+import '../../../core/constants.dart';
 import '../../../core/printing/esc_pos_commands.dart';
 import '../../../core/printing/esc_pos_logo.dart';
 import '../../../core/printing/esc_pos_money_format.dart';
@@ -29,11 +30,20 @@ abstract final class ReceiptTemplate {
       );
     }
 
-    final logo = await EscPosLogo.loadForThermal();
-    if (logo != null) {
-      bytes += EscPosLogo.bytes(generator, logo);
-      bytes += generator.feed(1);
-    } else {
+    var logoPrinted = false;
+    try {
+      final logo = await EscPosLogo.loadForThermal(
+        maxWidth: (EscPosLogo.printWidthDots * 0.7).round(),
+      );
+      if (logo != null) {
+        bytes += EscPosLogo.bytes(generator, logo);
+        bytes += generator.feed(1);
+        logoPrinted = true;
+      }
+    } catch (_) {
+      logoPrinted = false;
+    }
+    if (!logoPrinted) {
       bytes += EscPosCommands.centered(
         generator,
         _t(receipt.businessName),
@@ -43,12 +53,16 @@ abstract final class ReceiptTemplate {
       );
     }
 
-    if (receipt.businessAddress != null &&
-        receipt.businessAddress!.trim().isNotEmpty) {
-      bytes += EscPosCommands.centered(
-        generator,
-        _t(receipt.businessAddress!.trim()),
-      );
+    final phone = receipt.businessPhone?.trim().isNotEmpty == true
+        ? receipt.businessPhone!.trim()
+        : AppConstants.defaultBusinessPhone;
+    final address = receipt.businessAddress?.trim().isNotEmpty == true
+        ? receipt.businessAddress!.trim()
+        : AppConstants.defaultBusinessAddress;
+
+    bytes += EscPosCommands.centered(generator, _t(phone));
+    for (final line in _addressLines(address)) {
+      bytes += EscPosCommands.centered(generator, _t(line));
     }
 
     if (receipt.receiptHeaderText != null &&
@@ -73,10 +87,59 @@ abstract final class ReceiptTemplate {
       'Date',
       _timestamp(receipt.placedAt),
     );
-    bytes += EscPosCommands.leftLine(
+    bytes += EscPosCommands.fieldRow(
       generator,
-      '${_t(receipt.orderTypeLabel)}  ${_t(receipt.contextLabel)}',
+      'Order Type',
+      _t(receipt.orderTypeLabel),
     );
+    final context = receipt.contextLabel.trim();
+    if (context.startsWith('Table ')) {
+      bytes += EscPosCommands.fieldRow(
+        generator,
+        'Table',
+        _t(context.substring('Table '.length)),
+      );
+    }
+    if (receipt.customerName != null &&
+        receipt.customerName!.trim().isNotEmpty) {
+      bytes += EscPosCommands.fieldRow(
+        generator,
+        'Customer',
+        _t(receipt.customerName!.trim()),
+      );
+    }
+    if (receipt.customerPhone != null &&
+        receipt.customerPhone!.trim().isNotEmpty) {
+      bytes += EscPosCommands.fieldRow(
+        generator,
+        'Phone',
+        _t(receipt.customerPhone!.trim()),
+      );
+    }
+    if (receipt.deliveryLocationLines.isNotEmpty) {
+      for (var i = 0; i < receipt.deliveryLocationLines.length; i++) {
+        bytes += EscPosCommands.fieldRow(
+          generator,
+          i == 0 ? 'Location' : '',
+          _t(receipt.deliveryLocationLines[i]),
+        );
+      }
+    }
+    if (receipt.deliveryDistanceLabel != null) {
+      bytes += EscPosCommands.fieldRow(
+        generator,
+        'Distance',
+        receipt.deliveryDistanceLabel!,
+      );
+    }
+    if (receipt.deliveryNotes != null &&
+        receipt.deliveryNotes!.trim().isNotEmpty) {
+      bytes += EscPosCommands.fieldRow(
+        generator,
+        'Loc. notes',
+        _t(receipt.deliveryNotes!.trim()),
+      );
+    }
     bytes += EscPosCommands.divider(generator);
 
     for (final line in receipt.lines) {
@@ -127,6 +190,20 @@ abstract final class ReceiptTemplate {
       );
     }
 
+    if (receipt.serviceCharge > 0) {
+      bytes += EscPosCommands.leftLine(
+        generator,
+        'Service Charges: ${money(receipt.serviceCharge)}',
+      );
+    }
+
+    if (receipt.deliveryCharge > 0) {
+      bytes += EscPosCommands.leftLine(
+        generator,
+        'Delivery Charges: ${money(receipt.deliveryCharge)}',
+      );
+    }
+
     bytes += EscPosCommands.priceRow(
       generator,
       'TOTAL',
@@ -149,6 +226,24 @@ abstract final class ReceiptTemplate {
         : 'Thank you!';
     bytes += EscPosCommands.centered(generator, footer);
 
+    final mapsUrl = receipt.mapsNavigationUrl?.trim();
+    if (mapsUrl != null && mapsUrl.isNotEmpty) {
+      bytes += EscPosCommands.divider(generator);
+      bytes += EscPosCommands.centered(
+        generator,
+        'Scan for Google Maps',
+        bold: true,
+      );
+      bytes += generator.feed(1);
+      bytes += generator.qrcode(
+        mapsUrl,
+        align: PosAlign.center,
+        size: QRSize.size5,
+        cor: QRCorrection.M,
+      );
+      bytes += generator.feed(1);
+    }
+
     bytes += generator.cut();
 
     return Uint8List.fromList(bytes);
@@ -161,5 +256,21 @@ abstract final class ReceiptTemplate {
     final hour = local.hour.toString().padLeft(2, '0');
     final minute = local.minute.toString().padLeft(2, '0');
     return '$day/$month/${local.year} $hour:$minute';
+  }
+
+  /// Split long address lines so they fit thermal paper width.
+  static List<String> _addressLines(String address) {
+    const maxLen = 42;
+    final trimmed = address.trim();
+    if (trimmed.length <= maxLen) return [trimmed];
+
+    final comma = trimmed.lastIndexOf(',', maxLen);
+    if (comma > 12) {
+      return [
+        trimmed.substring(0, comma + 1).trim(),
+        trimmed.substring(comma + 1).trim(),
+      ];
+    }
+    return [trimmed];
   }
 }

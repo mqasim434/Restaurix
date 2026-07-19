@@ -22,7 +22,6 @@ abstract final class KitchenTicketPreview {
     }
 
     for (final group in ticket.categoryGroups) {
-      lines.add('--- ${group.categoryLabel.toUpperCase()} ---');
       for (final line in group.lines) {
         final label = line.variantName == null || line.variantName!.isEmpty
             ? line.name

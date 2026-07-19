@@ -1,8 +1,11 @@
 import 'package:isar/isar.dart';
 
+import '../../../core/constants.dart';
 import '../../../data/local/collections/restaurant_table_isar.dart';
+import '../../../data/remote/google_maps_service.dart';
 import '../../../data/repositories/app_setting_repository.dart';
 import '../../../data/repositories/order_repository.dart';
+import '../../../domain/models/order.dart';
 import '../../../domain/models/order_enums.dart';
 import '../kitchen_ticket/esc_pos_transport_router.dart';
 import '../system_printer.dart';
@@ -15,23 +18,29 @@ class ReceiptService {
     required Isar isar,
     required OrderRepository orderRepository,
     required AppSettingRepository settingsRepository,
+    DeliveryLocationResolver? deliveryLocationResolver,
     EscPosTransportRouter? transport,
   })  : _isar = isar,
         _orders = orderRepository,
         _settings = settingsRepository,
+        _deliveryLocations = deliveryLocationResolver ??
+            DeliveryLocationResolver(GoogleMapsService()),
         _transport = transport ?? EscPosTransportRouter();
 
   final Isar _isar;
   final OrderRepository _orders;
   final AppSettingRepository _settings;
+  final DeliveryLocationResolver _deliveryLocations;
   final EscPosTransportRouter _transport;
 
   Future<ReceiptPrintResult> printOrder({
     required String orderId,
     required bool isReprint,
     bool forPlacement = false,
+    /// When set, used instead of reloading from storage (avoids stale charges).
+    Order? orderSnapshot,
   }) async {
-    final order = await _orders.findById(orderId);
+    final order = orderSnapshot ?? await _orders.findById(orderId);
     if (order == null) {
       return const ReceiptPrintResult(
         warnings: ['Order not found - receipt not printed'],
@@ -55,17 +64,39 @@ class ReceiptService {
     final appSettings = await _settings.loadSettings();
     final items = await _orders.findItemsByOrderId(orderId);
     final tableLabels = await _loadTableLabels([order.tableId]);
+    final businessAddress =
+        appSettings.businessAddress?.trim().isNotEmpty == true
+            ? appSettings.businessAddress
+            : AppConstants.defaultBusinessAddress;
+
+    final deliveryInfo = order.orderType == OrderType.delivery
+        ? await _deliveryLocations.resolve(
+            line1: order.deliveryAddressLine1,
+            line2: order.deliveryAddressLine2,
+            city: order.deliveryCity,
+            postcode: order.deliveryPostcode,
+            deliveryNotes: order.deliveryNotes,
+            businessAddress: businessAddress,
+          )
+        : const DeliveryLocationInfo.empty();
 
     final receipt = ReceiptBuilder.fromPersisted(
       order: order,
       items: items,
       businessName: appSettings.businessName,
-      businessAddress: appSettings.businessAddress,
+      businessPhone: AppConstants.defaultBusinessPhone,
+      businessAddress: businessAddress,
       receiptHeaderText: appSettings.receiptHeaderText,
       receiptFooterText: appSettings.receiptFooterText,
       currencyCode: appSettings.currencyCode,
       tableLabelsById: tableLabels,
       isReprint: isReprint,
+      deliveryLocationLines: deliveryInfo.lines.isNotEmpty
+          ? deliveryInfo.lines
+          : order.deliveryLocationLines,
+      deliveryNotes: deliveryInfo.deliveryNotes ?? order.deliveryNotes,
+      deliveryDistanceKm: deliveryInfo.distanceKm,
+      mapsNavigationUrl: deliveryInfo.mapsNavigationUrl,
     );
 
     try {

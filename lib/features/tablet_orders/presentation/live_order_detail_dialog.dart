@@ -18,6 +18,7 @@ import '../../orders/presentation/cancel_order_dialog.dart';
 import '../../orders/presentation/mark_paid_dialog.dart';
 import '../../orders/providers/order_management_providers.dart';
 import '../../settings/providers/currency_providers.dart';
+import '../providers/delivery_location_providers.dart';
 
 /// Popup order summary for Live Orders (no navigation to the Orders tab).
 class LiveOrderDetailDialog extends ConsumerWidget {
@@ -125,9 +126,10 @@ class _LiveOrderDetailBody extends ConsumerWidget {
     final typography = context.appTypography;
     final formatMoney = ref.watch(formatMoneyProvider);
     final role = ref.watch(currentUserProvider).role;
-    final canPay = OrderLifecycle.canMarkPaid(order, role);
+    final billReady = !order.needsBillConfirmation;
+    final canPay = billReady && OrderLifecycle.canMarkPaid(order, role);
     final canCompleteCredit =
-        OrderLifecycle.canCompleteCreditOrder(order, role);
+        billReady && OrderLifecycle.canCompleteCreditOrder(order, role);
     final canCancel = OrderLifecycle.canCancel(order, role);
     final sourceLabel =
         isCustomerAppOrder(order) ? 'Customer app' : 'In-house';
@@ -163,6 +165,68 @@ class _LiveOrderDetailBody extends ConsumerWidget {
               color: colors.onSurfaceVariant,
             ),
           ),
+          if (order.customerName?.trim().isNotEmpty == true) ...[
+            SizedBox(height: spacing.sm),
+            Text(
+              'Customer: ${order.customerName!.trim()}',
+              style: typography.bodySmall.copyWith(color: colors.onSurface),
+            ),
+          ],
+          if (order.customerPhone?.trim().isNotEmpty == true)
+            Text(
+              'Phone: ${order.customerPhone!.trim()}',
+              style: typography.bodySmall.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          if (order.orderType == OrderType.delivery) ...[
+            SizedBox(height: spacing.sm),
+            ref.watch(deliveryLocationInfoProvider(order.id)).when(
+                  loading: () => Text(
+                    'Resolving location…',
+                    style: typography.bodySmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (info) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (info.hasLocation) ...[
+                        Text(
+                          'Location',
+                          style: typography.labelMedium.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                        for (final line in info.lines)
+                          Text(
+                            line,
+                            style: typography.bodyMedium.copyWith(
+                              color: colors.onSurface,
+                            ),
+                          ),
+                      ],
+                      if (info.distanceLabel != null)
+                        Text(
+                          'Distance: ${info.distanceLabel}',
+                          style: typography.bodyMedium.copyWith(
+                            color: colors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      if (info.deliveryNotes != null &&
+                          info.deliveryNotes!.trim().isNotEmpty)
+                        Text(
+                          'Location notes: ${info.deliveryNotes!.trim()}',
+                          style: typography.bodySmall.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+          ],
           if (order.notes != null && order.notes!.isNotEmpty) ...[
             SizedBox(height: spacing.sm),
             Text(
@@ -247,6 +311,18 @@ class _LiveOrderDetailBody extends ConsumerWidget {
             ],
           ),
           SizedBox(height: spacing.lg),
+          if (!billReady) ...[
+            Text(
+              isCustomerAppOrder(order) &&
+                      order.orderType == OrderType.delivery
+                  ? 'Enter delivery charges on the card and press Enter to print, then mark paid in All orders.'
+                  : 'Enter service charges on the card and press Enter to print, then mark paid in All orders.',
+              style: typography.bodySmall.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            SizedBox(height: spacing.md),
+          ],
           if (canPay)
             AppButton(
               label: 'Mark paid',

@@ -88,24 +88,6 @@ class _TableActionSheet extends ConsumerWidget {
               label: 'Start order',
               onPressed: () => _startOrder(context),
             ),
-            SizedBox(height: spacing.sm),
-            AppButton(
-              label: 'Mark reserved',
-              variant: AppButtonVariant.secondary,
-              onPressed: () => _setStatus(context, TableStatus.reserved),
-            ),
-          ],
-          if (table.status == TableStatus.reserved) ...[
-            AppButton(
-              label: 'Start order',
-              onPressed: () => _startOrder(context),
-            ),
-            SizedBox(height: spacing.sm),
-            AppButton(
-              label: 'Mark available',
-              variant: AppButtonVariant.secondary,
-              onPressed: () => _setStatus(context, TableStatus.available),
-            ),
           ],
           if (table.status == TableStatus.occupied) ...[
             AppButton(
@@ -146,17 +128,6 @@ class _TableActionSheet extends ConsumerWidget {
         context,
         'Order ${order.orderNumber} started — full POS in Module 11',
       );
-    } on TableTransferException catch (e) {
-      if (!context.mounted) return;
-      AppSnackbar.error(context, e.message);
-    }
-  }
-
-  Future<void> _setStatus(BuildContext context, TableStatus status) async {
-    try {
-      await actions.setStatus(tableId: table.id, status: status);
-      if (!context.mounted) return;
-      Navigator.of(context).pop();
     } on TableTransferException catch (e) {
       if (!context.mounted) return;
       AppSnackbar.error(context, e.message);

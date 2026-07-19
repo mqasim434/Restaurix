@@ -100,8 +100,8 @@ final orderDetailProvider =
 });
 
 final orderItemsProvider =
-    FutureProvider.family<List<OrderItem>, String>((ref, orderId) {
-  return ref.watch(orderRepositoryProvider).findItemsByOrderId(orderId);
+    StreamProvider.family<List<OrderItem>, String>((ref, orderId) {
+  return ref.watch(orderRepositoryProvider).watchItemsByOrderId(orderId);
 });
 
 final orderActionsProvider =
@@ -149,6 +149,19 @@ class PlaceOrderController {
           orderId: orderId,
           paymentType: paymentType,
           role: _ref.read(currentUserProvider).role,
+          deviceId: _ref.read(deviceIdProvider),
+        );
+  }
+
+  Future<Order> confirmLiveOrderBill({
+    required String orderId,
+    required double serviceCharge,
+    required double deliveryCharge,
+  }) {
+    return _ref.read(orderRepositoryProvider).confirmLiveOrderBill(
+          orderId: orderId,
+          serviceCharge: serviceCharge,
+          deliveryCharge: deliveryCharge,
           deviceId: _ref.read(deviceIdProvider),
         );
   }

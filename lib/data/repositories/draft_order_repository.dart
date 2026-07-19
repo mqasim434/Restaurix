@@ -55,8 +55,7 @@ class DraftOrderRepository {
     await _isar.writeTxn(() async {
       await _isar.draftOrderIsars.put(record);
 
-      // Keep dine-in tables held while the customer waits — reserved counts as
-      // held for draft purposes until the draft is discarded or placed.
+      // Keep dine-in tables occupied while a draft waits to be resumed.
       if (snapshot.checkout.tableId != null) {
         await _ensureTableHeld(
           tableId: snapshot.checkout.tableId!,
@@ -129,7 +128,7 @@ class DraftOrderRepository {
 
     if (table.statusEnum == TableStatus.available) {
       table
-        ..status = TableStatus.reserved.name
+        ..status = TableStatus.occupied.name
         ..markUpdated(deviceId: deviceId);
       await _isar.restaurantTableIsars.put(table);
     }
@@ -145,10 +144,11 @@ class DraftOrderRepository {
         .findFirst();
     if (table == null || table.isDeleted) return;
 
-    if (table.statusEnum == TableStatus.reserved &&
-        table.currentOrderId == null) {
+    if (table.statusEnum == TableStatus.occupied &&
+        (table.currentOrderId == null || table.currentOrderId!.isEmpty)) {
       table
         ..status = TableStatus.available.name
+        ..currentOrderId = null
         ..markUpdated(deviceId: deviceId);
       await _isar.restaurantTableIsars.put(table);
     }

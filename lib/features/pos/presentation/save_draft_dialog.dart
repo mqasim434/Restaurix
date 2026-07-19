@@ -42,7 +42,7 @@ class _SaveDraftDialogState extends State<SaveDraftDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'The current cart will be saved and cleared. Any reserved table stays held until the draft is resumed or discarded.',
+            'The current cart will be saved and cleared. Any selected table stays occupied until the draft is resumed or discarded.',
             style: typography.bodyMedium.copyWith(
               color: colors.onSurfaceVariant,
             ),

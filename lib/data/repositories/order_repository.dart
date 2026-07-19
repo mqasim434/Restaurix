@@ -13,6 +13,7 @@ import '../../domain/models/user_role.dart';
 import '../../domain/services/credit_ledger_service.dart';
 import '../../domain/services/order_lifecycle.dart';
 import '../../domain/services/order_placement.dart';
+import '../../domain/services/order_pricing.dart';
 import '../../domain/services/tablet_order_detection.dart';
 import '../../features/pos/services/discount_calculator.dart';
 import '../local/collections/order_isar.dart';
@@ -143,6 +144,17 @@ class OrderRepository {
     return records.map(orderItemFromIsar).toList();
   }
 
+  /// Reactive item list so Live Orders cards update when tablet items sync in
+  /// after the parent order row (orders sync before order_items).
+  Stream<List<OrderItem>> watchItemsByOrderId(String orderId) {
+    return _isar.orderItemIsars
+        .filter()
+        .deletedAtIsNull()
+        .orderIdEqualTo(orderId)
+        .watch(fireImmediately: true)
+        .map((records) => records.map(orderItemFromIsar).toList());
+  }
+
   Future<Order> placeOrder(PlaceOrderInput input) async {
     _validatePlacement(input.checkout, input.cartItems);
     _validateCreditPlacement(input);
@@ -265,7 +277,13 @@ class OrderRepository {
       subtotal: input.pricing.subtotal,
       itemDiscountTotal: input.pricing.lineDiscountTotal,
       orderDiscountTotal: input.pricing.orderDiscountTotal,
-      total: input.pricing.total,
+      total: computeOrderTotal(
+        subtotal: input.pricing.subtotal,
+        itemDiscountTotal: input.pricing.lineDiscountTotal,
+        orderDiscountTotal: input.pricing.orderDiscountTotal,
+        serviceCharge: existing.serviceCharge,
+        deliveryCharge: existing.deliveryCharge,
+      ),
       paymentType: input.paymentType,
       isPrepaid: input.isPrepaid,
       notes: input.notes,
@@ -401,6 +419,62 @@ class OrderRepository {
         orderId: orderId,
         deviceId: deviceId,
       );
+    });
+
+    return updated;
+  }
+
+  /// Applies Live Orders service/delivery charges, updates total, and marks
+  /// the bill confirmed so the order moves to the All orders column.
+  Future<Order> confirmLiveOrderBill({
+    required String orderId,
+    required double serviceCharge,
+    required double deliveryCharge,
+    required String deviceId,
+  }) async {
+    final order = await findById(orderId);
+    if (order == null) {
+      throw OrderLifecycleException('Order not found');
+    }
+
+    if (order.status == OrderStatus.cancelled ||
+        order.status == OrderStatus.completed ||
+        order.paymentStatus.isSettled) {
+      throw OrderLifecycleException('This order can no longer be confirmed');
+    }
+
+    if (order.billConfirmedAt != null) {
+      throw OrderLifecycleException('Charges already confirmed for this order');
+    }
+
+    if (serviceCharge < 0 || deliveryCharge < 0) {
+      throw OrderLifecycleException('Charges cannot be negative');
+    }
+
+    final now = DateTime.now();
+    final updated = order.copyWith(
+      serviceCharge: serviceCharge,
+      deliveryCharge: deliveryCharge,
+      total: computeOrderTotal(
+        subtotal: order.subtotal,
+        itemDiscountTotal: order.itemDiscountTotal,
+        orderDiscountTotal: order.orderDiscountTotal,
+        serviceCharge: serviceCharge,
+        deliveryCharge: deliveryCharge,
+      ),
+      billConfirmedAt: now,
+      updatedAt: now,
+    );
+
+    await _isar.writeTxn(() async {
+      final record = await _requireOrderRecord(orderId);
+      applyOrderToIsar(
+        record: record,
+        order: updated,
+        deviceId: deviceId,
+        action: SyncAction.update,
+      );
+      await _isar.orderIsars.put(record);
     });
 
     return updated;
@@ -632,9 +706,15 @@ class OrderRepository {
       throw OrderPlacementException('Table not found');
     }
 
-    if (tableRecord.statusEnum != TableStatus.available &&
-        tableRecord.statusEnum != TableStatus.reserved) {
-      throw OrderPlacementException('Table is not available');
+    if (tableRecord.statusEnum != TableStatus.available) {
+      // Allow placing when this checkout already held the table as occupied
+      // without a linked order yet.
+      final heldForCheckout = tableRecord.statusEnum == TableStatus.occupied &&
+          (tableRecord.currentOrderId == null ||
+              tableRecord.currentOrderId!.isEmpty);
+      if (!heldForCheckout) {
+        throw OrderPlacementException('Table is not available');
+      }
     }
 
     tableRecord

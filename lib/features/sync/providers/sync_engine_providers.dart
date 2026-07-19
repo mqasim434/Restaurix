@@ -7,6 +7,8 @@ import '../../../core/sync/sync_cursor_store.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../data/local/isar_service.dart';
 import '../../../data/remote/supabase_service.dart';
+import '../../../domain/models/user_role.dart';
+import '../../auth/providers/auth_providers.dart';
 import '../../settings/providers/settings_providers.dart';
 import '../providers/sync_queue_providers.dart';
 
@@ -65,10 +67,13 @@ final syncCursorStoreProvider = Provider<SyncCursorStore>((ref) {
 });
 
 final syncEngineProvider = Provider<SyncEngine>((ref) {
+  final role = ref.watch(authControllerProvider).user?.role;
   return SyncEngine(
     isar: ref.watch(isarProvider),
     cursorStore: ref.watch(syncCursorStoreProvider),
     supabaseService: ref.watch(supabaseServiceProvider),
+    // Before login, skip HR tables (same as salesman).
+    role: role ?? UserRole.salesman,
   );
 });
 

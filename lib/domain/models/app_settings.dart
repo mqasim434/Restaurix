@@ -20,6 +20,7 @@ class AppSettings {
 
   static const defaults = AppSettings(
     businessName: AppConstants.defaultBusinessName,
+    businessAddress: AppConstants.defaultBusinessAddress,
     currencyCode: AppCurrency.defaultCode,
     salaryGenerationDay: 1,
   );
