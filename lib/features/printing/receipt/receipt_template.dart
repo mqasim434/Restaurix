@@ -226,22 +226,26 @@ abstract final class ReceiptTemplate {
         : 'Thank you!';
     bytes += EscPosCommands.centered(generator, footer);
 
-    final mapsUrl = receipt.mapsNavigationUrl?.trim();
-    if (mapsUrl != null && mapsUrl.isNotEmpty) {
+    final mapsPayload = receipt.mapsNavigationUrl?.trim();
+    if (mapsPayload != null && mapsPayload.isNotEmpty) {
       bytes += EscPosCommands.divider(generator);
       bytes += EscPosCommands.centered(
         generator,
         'Scan for Google Maps',
         bold: true,
       );
-      bytes += generator.feed(1);
+      // Quiet zone above the symbol (thermal blur needs clear white margin).
+      bytes += generator.feed(2);
       bytes += generator.qrcode(
-        mapsUrl,
+        mapsPayload,
         align: PosAlign.center,
-        size: QRSize.size5,
-        cor: QRCorrection.M,
+        // Larger modules = more physical dots per cell on ~203 DPI printers.
+        size: QRSize.size7,
+        // Highest recovery so muddy / missed dots still scan.
+        cor: QRCorrection.H,
       );
-      bytes += generator.feed(1);
+      // Quiet zone below.
+      bytes += generator.feed(2);
     }
 
     bytes += generator.cut();

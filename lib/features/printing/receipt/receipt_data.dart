@@ -72,7 +72,7 @@ class CustomerReceiptData {
   final List<String> deliveryLocationLines;
   final String? deliveryNotes;
   final double? deliveryDistanceKm;
-  /// Google Maps navigation link encoded in the receipt QR (delivery only).
+  /// QR payload for delivery navigation (short lat,lng or Maps query).
   final String? mapsNavigationUrl;
   final DateTime placedAt;
 

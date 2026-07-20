@@ -303,7 +303,7 @@ class DeliveryLocationInfo {
   final List<String> lines;
   final double? distanceKm;
   final String? deliveryNotes;
-  /// Opens Google Maps at the delivery pin when scanned from the receipt QR.
+  /// Short QR payload (lat,lng or Maps query) for the receipt scanner.
   final String? mapsNavigationUrl;
 
   bool get hasLocation => lines.isNotEmpty;
@@ -315,13 +315,17 @@ class DeliveryLocationInfo {
     return '${km.toStringAsFixed(0)} km';
   }
 
-  static String mapsUrlForPoint(GeoPoint point) =>
-      'https://www.google.com/maps/dir/?api=1&destination='
-      '${point.latitude},${point.longitude}';
+  /// Short payload for thermal QR (fewer modules = larger dots).
+  /// Phones open lat,lng in Maps; keep digits tight for scan reliability.
+  static String mapsUrlForPoint(GeoPoint point) {
+    final lat = point.latitude.toStringAsFixed(6);
+    final lng = point.longitude.toStringAsFixed(6);
+    return '$lat,$lng';
+  }
 
+  /// Fallback when only a text address exists (still keep the query short).
   static String mapsUrlForQuery(String query) =>
-      'https://www.google.com/maps/dir/?api=1&destination='
-      '${Uri.encodeComponent(query)}';
+      'https://maps.google.com/?q=${Uri.encodeComponent(query)}';
 }
 
 /// Builds rider-friendly address lines + distance from restaurant.
